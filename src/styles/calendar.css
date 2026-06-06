@@ -1,0 +1,169 @@
+/* FullCalendar brand style overrides to isolate design changes */
+
+.hod-calendar {
+  height: 100%;
+  width: 100%;
+}
+
+.hod-calendar .fc {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.hod-calendar .fc-theme-standard td,
+.hod-calendar .fc-theme-standard th {
+  border-color: #E5E7EB !important; /* gray-200 to match design system border */
+}
+
+/* Today cell highlighting */
+.hod-calendar .fc-day-today {
+  background: #EDE9FE !important; /* violet-50 brand style today cell background */
+}
+
+/* Day cell number styling */
+.hod-calendar .fc-daygrid-day-number {
+  font-size: 11px;
+  font-weight: 600;
+  color: #374151;
+  padding: 6px 8px !important;
+}
+
+.hod-calendar .fc-day-today .fc-daygrid-day-number {
+  color: #7C3AED;
+  background: #EDE9FE;
+  border-radius: 50%;
+}
+
+/* Column headers styling */
+.hod-calendar .fc-col-header-cell {
+  background: #F9FAFB !important;
+  padding: 10px 0 !important;
+}
+
+.hod-calendar .fc-col-header-cell-cushion {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #4B5563 !important; /* gray-600 */
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  text-decoration: none !important;
+}
+
+/* Time slots grid styling */
+.hod-calendar .fc-timegrid-slot-label {
+  font-size: 11px !important;
+  font-weight: 500;
+  color: #9CA3AF !important; /* gray-400 */
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  padding: 4px 6px !important;
+}
+
+.hod-calendar .fc-timegrid-slot-label-cushion {
+  text-transform: uppercase;
+}
+
+/* Remove default FullCalendar navigation buttons & header */
+.hod-calendar .fc-button,
+.hod-calendar .fc-toolbar {
+  display: none !important;
+}
+
+/* Selected highlight slot */
+.hod-calendar .fc-highlight {
+  background: rgba(124, 58, 237, 0.1) !important; /* violet-600 with 10% opacity */
+}
+
+/* Now timeline indicator line */
+.hod-calendar .fc-now-indicator-line {
+  border-color: #7C3AED !important; /* violet-600 */
+  border-width: 2px 0 0 0 !important;
+}
+
+.hod-calendar .fc-now-indicator-arrow {
+  border-color: #7C3AED !important;
+  color: #7C3AED !important;
+}
+
+/* Custom event pill styling overrides */
+.hod-calendar .fc-event {
+  border: none !important;
+  border-radius: 6px !important;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding: 3px 6px !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04) !important;
+  transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out !important;
+}
+
+.hod-calendar .fc-event:hover {
+  opacity: 0.9 !important;
+  transform: translateY(-0.5px);
+}
+
+.hod-calendar .fc-event-main {
+  padding: 0 !important;
+  color: #FFFFFF !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Timegrid event padding */
+.hod-calendar .fc-timegrid-event {
+  padding: 4px 6px !important;
+}
+
+/* Day grid +N more links override */
+.hod-calendar .fc-daygrid-more-link {
+  font-size: 11px !important;
+  color: #7C3AED !important; /* violet-600 */
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  padding: 2px 4px !important;
+}
+
+.hod-calendar .fc-daygrid-more-link:hover {
+  background: #EDE9FE;
+  border-radius: 4px;
+}
+
+/* List view style adjustments */
+.hod-calendar .fc-list {
+  border: none !important;
+}
+
+.hod-calendar .fc-list-day-section {
+  background: #F9FAFB !important;
+}
+
+.hod-calendar .fc-list-day-text,
+.hod-calendar .fc-list-day-side-text {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #374151 !important;
+  text-decoration: none !important;
+}
+
+.hod-calendar .fc-list-event {
+  cursor: pointer;
+  background: transparent !important;
+}
+
+.hod-calendar .fc-list-event:hover td {
+  background: #F9FAFB !important;
+}
+
+.hod-calendar .fc-list-event-title {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+}
+
+.hod-calendar .fc-list-event-time {
+  font-size: 11px !important;
+  font-family: monospace;
+  color: #6B7280 !important;
+}

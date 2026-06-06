@@ -1,0 +1,519 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  Columns,
+  LayoutList,
+  Plus,
+  Search,
+  X,
+  AlertCircle,
+  RefreshCw,
+  SearchX,
+  MessageSquarePlus,
+  Bell,
+  Download
+} from 'lucide-react';
+import {
+  useEnquiries,
+  useEnquiryStats,
+  useTodayFollowups,
+  useUpdateEnquiryStage
+} from '@/hooks/useEnquiries';
+import { EnquiryStatsCards } from '@/components/enquiries/EnquiryStatsCards';
+import { ConversionFunnel } from '@/components/enquiries/ConversionFunnel';
+import { KanbanBoard } from '@/components/enquiries/KanbanBoard';
+import { EnquiryTable } from '@/components/enquiries/EnquiryTable';
+import { TodayFollowupsDrawer } from '@/components/enquiries/TodayFollowupsDrawer';
+import { LostReasonModal } from '@/components/enquiries/LostReasonModal';
+import { Enquiry, EnquiryStage } from '@/types/enquiry';
+
+export default function EnquiriesDashboardPage() {
+  const router = useRouter();
+
+  // 1. Persistent View Toggles
+  const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('hod_enquiry_view') as 'kanban' | 'list';
+      if (saved) setViewMode(saved);
+    }
+  }, []);
+
+  const handleToggleView = (mode: 'kanban' | 'list') => {
+    setViewMode(mode);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('hod_enquiry_view', mode);
+    }
+  };
+
+  // 2. Filter states
+  const [search, setSearch] = useState('');
+  const [stageFilter, setStageFilter] = useState('all');
+  const [sourceFilter, setSourceFilter] = useState('all');
+  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [eventTypeFilter, setEventTypeFilter] = useState('all');
+
+  // Debounced search term
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 250);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  // 3. React Queries
+  const {
+    data: enquiries = [],
+    isLoading: listLoading,
+    isError: listError,
+    refetch: refetchList,
+  } = useEnquiries({
+    search: debouncedSearch,
+    stage: stageFilter,
+    source: sourceFilter,
+    priority: priorityFilter,
+    eventType: eventTypeFilter,
+  });
+
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    refetch: refetchStats,
+  } = useEnquiryStats();
+
+  const {
+    data: todayFollowups = [],
+    isLoading: followupsLoading,
+    refetch: refetchFollowups,
+  } = useTodayFollowups();
+
+  const updateStageMutation = useUpdateEnquiryStage();
+
+  // 4. Modals and drawers states
+  const [followupsOpen, setFollowupsOpen] = useState(false);
+  const [lostModalOpen, setLostModalOpen] = useState(false);
+  const [lostEnquiry, setLostEnquiry] = useState<Enquiry | null>(null);
+
+  const handleRefresh = () => {
+    refetchList();
+    refetchStats();
+    refetchFollowups();
+  };
+
+  const hasActiveFilters =
+    search !== '' ||
+    stageFilter !== 'all' ||
+    sourceFilter !== 'all' ||
+    priorityFilter !== 'all' ||
+    eventTypeFilter !== 'all';
+
+  const clearFilters = () => {
+    setSearch('');
+    setStageFilter('all');
+    setSourceFilter('all');
+    setPriorityFilter('all');
+    setEventTypeFilter('all');
+  };
+
+  // Lost modal callback
+  const handleLostConfirm = (reason: string, notes: string) => {
+    if (!lostEnquiry) return;
+    updateStageMutation.mutate({
+      id: lostEnquiry.id,
+      stage: 'lost',
+      lostReason: reason,
+      notes: notes,
+    }, {
+      onSuccess: () => {
+        handleRefresh();
+      }
+    });
+    setLostEnquiry(null);
+  };
+
+  // CSV Exporter
+  const handleExportCSV = () => {
+    if (enquiries.length === 0) return;
+
+    const headers = [
+      'Enquiry Number',
+      'Customer Name',
+      'Phone',
+      'Email',
+      'City',
+      'Event Type',
+      'Event Date',
+      'Guest Count',
+      'Budget Min',
+      'Budget Max',
+      'Source',
+      'Stage',
+      'Priority',
+      'Created Date',
+      'Last Followup',
+      'Next Followup',
+    ];
+
+    const rows = enquiries.map((e) => {
+      const lastF = e.followups
+        .filter((f) => f.completedAt)
+        .sort((a, b) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime())[0];
+      const nextF = e.followups
+        .filter((f) => !f.completedAt)
+        .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0];
+
+      return [
+        e.enquiryNumber,
+        e.name,
+        e.phone,
+        e.email || '',
+        e.city || '',
+        e.eventType,
+        e.eventDate || '',
+        e.guestCount || '',
+        e.budgetMin || '',
+        e.budgetMax || '',
+        e.source,
+        e.stage,
+        e.priority,
+        e.createdAt.substring(0, 10),
+        lastF ? lastF.completedAt!.substring(0, 10) : '',
+        nextF ? nextF.scheduledAt.substring(0, 10) : '',
+      ];
+    });
+
+    const csvContent =
+      'data:text/csv;charset=utf-8,\uFEFF' +
+      [
+        headers.join(','),
+        ...rows.map((row) =>
+          row
+            .map((val) => {
+              const str = String(val ?? '');
+              return `"${str.replace(/"/g, '""')}"`;
+            })
+            .join(',')
+        ),
+      ].join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    const dateStr = new Date().toISOString().substring(0, 10);
+    link.setAttribute('download', `hallsondesk-enquiries-${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Skeleton Loaders
+  const renderSkeleton = () => {
+    if (viewMode === 'list') {
+      return (
+        <div className="space-y-4 animate-pulse select-none">
+          <div className="h-10 bg-slate-100 rounded-lg w-full border border-slate-200" />
+          {[1, 2, 3, 4, 5].map((idx) => (
+            <div key={idx} className="h-14 bg-slate-100 rounded-lg w-full border border-slate-200" />
+          ))}
+        </div>
+      );
+    }
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 animate-pulse select-none">
+        {[1, 2, 3, 4, 5, 6].map((idx) => (
+          <div key={idx} className="bg-slate-100 border border-slate-200 rounded-xl w-full min-h-[400px]" />
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-6 select-none pb-12">
+      
+      {/* PAGE HEADER */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-2.5">
+          <h1 className="text-2xl font-black text-slate-850 tracking-tight">Enquiries</h1>
+          <span className="text-xs font-bold font-mono text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-150">
+            {stats?.total ?? enquiries.length} active leads
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 self-end md:self-auto flex-wrap">
+          {/* View Mode Toggle */}
+          <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm mr-1">
+            <button
+              onClick={() => handleToggleView('kanban')}
+              className={`p-2 transition-all cursor-pointer ${
+                viewMode === 'kanban'
+                  ? 'bg-violet-50 text-violet-650'
+                  : 'text-slate-400 hover:text-slate-700 hover:bg-slate-55'
+              }`}
+              title="Pipeline Kanban Board"
+            >
+              <Columns className="h-4.5 w-4.5" />
+            </button>
+            <button
+              onClick={() => handleToggleView('list')}
+              className={`p-2 border-l border-slate-200 transition-all cursor-pointer ${
+                viewMode === 'list'
+                  ? 'bg-violet-50 text-violet-650'
+                  : 'text-slate-400 hover:text-slate-700 hover:bg-slate-55'
+              }`}
+              title="List Data Table"
+            >
+              <LayoutList className="h-4.5 w-4.5" />
+            </button>
+          </div>
+
+          {/* Today Followups Button */}
+          <button
+            onClick={() => setFollowupsOpen(true)}
+            className="relative flex items-center justify-center gap-1.5 h-9 px-3 border border-slate-200 hover:border-slate-350 hover:bg-slate-55 text-slate-655 rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
+          >
+            <Bell className="h-4 w-4 shrink-0 text-slate-450" />
+            <span>Today's Followups</span>
+            {todayFollowups.length > 0 && (
+              <span className="bg-amber-500 text-white text-[9px] font-black font-mono px-1.5 py-0.2 rounded-full absolute -top-1.5 -right-1.5 animate-bounce">
+                {todayFollowups.length}
+              </span>
+            )}
+          </button>
+
+          {/* Export CSV button */}
+          <button
+            onClick={handleExportCSV}
+            disabled={enquiries.length === 0}
+            className="flex items-center justify-center gap-1.5 h-9 px-3 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 text-slate-655 rounded-lg text-xs font-bold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+          >
+            <Download className="h-4 w-4 shrink-0" />
+            <span>Export CSV</span>
+          </button>
+
+          {/* Add Enquiry button */}
+          <button
+            onClick={() => router.push('/dashboard/enquiries/new')}
+            className="flex items-center justify-center gap-1.5 h-9 px-4.5 bg-violet-655 hover:bg-violet-755 text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
+          >
+            <Plus className="h-4 w-4 shrink-0" />
+            <span>Add Enquiry</span>
+          </button>
+        </div>
+      </div>
+
+      {/* KPI METRICS ROW */}
+      <EnquiryStatsCards stats={stats} isLoading={statsLoading} />
+
+      {/* COLLAPSIBLE CONVERSION FUNNEL */}
+      <ConversionFunnel stats={stats} />
+
+      {/* SEARCH + FILTER BAR CARD */}
+      <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-4 space-y-4">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+          
+          {/* Left search */}
+          <div className="relative flex-1 min-w-0">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 shrink-0" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search name, phone, enquiry number..."
+              className="w-full h-9 pl-9 pr-4 text-xs bg-slate-50 border border-slate-200 rounded-lg outline-none hover:border-slate-305 focus:bg-white focus:ring-1 focus:ring-violet-500 focus:border-violet-500 transition-all font-semibold text-slate-705"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-605"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Right filters */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Stage filter */}
+            <select
+              value={stageFilter}
+              onChange={(e) => setStageFilter(e.target.value)}
+              className="h-9 px-3 text-xs bg-white border border-slate-250 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 font-bold text-slate-700 cursor-pointer"
+            >
+              <option value="all">All Stages</option>
+              <option value="new">New Lead</option>
+              <option value="interested">Interested</option>
+              <option value="visit_scheduled">Visit Scheduled</option>
+              <option value="visited">Visited</option>
+              <option value="booked">Booked</option>
+              <option value="lost">Lost</option>
+            </select>
+
+            {/* Source filter */}
+            <select
+              value={sourceFilter}
+              onChange={(e) => setSourceFilter(e.target.value)}
+              className="h-9 px-3 text-xs bg-white border border-slate-250 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 font-bold text-slate-700 cursor-pointer"
+            >
+              <option value="all">All Sources</option>
+              <option value="walk_in">Walk-in</option>
+              <option value="phone">Phone Call</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="instagram">Instagram</option>
+              <option value="facebook">Facebook</option>
+              <option value="google">Google</option>
+              <option value="justdial">JustDial</option>
+              <option value="referral">Referral</option>
+              <option value="other">Other</option>
+            </select>
+
+            {/* Priority filter */}
+            <select
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value)}
+              className="h-9 px-3 text-xs bg-white border border-slate-250 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 font-bold text-slate-700 cursor-pointer"
+            >
+              <option value="all">All Priorities</option>
+              <option value="high">High Priority</option>
+              <option value="medium">Medium Priority</option>
+              <option value="low">Low Priority</option>
+            </select>
+
+            {/* Event type filter */}
+            <select
+              value={eventTypeFilter}
+              onChange={(e) => setEventTypeFilter(e.target.value)}
+              className="h-9 px-3 text-xs bg-white border border-slate-250 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 font-bold text-slate-700 cursor-pointer"
+            >
+              <option value="all">All Events</option>
+              <option value="wedding">Wedding</option>
+              <option value="engagement">Engagement</option>
+              <option value="reception">Reception</option>
+              <option value="birthday">Birthday</option>
+              <option value="corporate">Corporate</option>
+              <option value="anniversary">Anniversary</option>
+              <option value="other">Other</option>
+            </select>
+
+            {/* Clear filters button */}
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="text-xs font-bold text-violet-650 hover:text-violet-755 hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <X className="h-3.5 w-3.5" />
+                <span>Clear Filters</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* CORE PIPELINE LISTING WORKSPACE */}
+      {listError ? (
+        <div className="max-w-md mx-auto text-center py-16 px-6 space-y-4 border border-dashed border-red-200 rounded-xl bg-white select-none">
+          <div className="h-12 w-12 rounded-full bg-red-50 border border-red-100 flex items-center justify-center text-red-500 mx-auto">
+            <AlertCircle className="h-5 w-5" />
+          </div>
+          <h4 className="text-sm font-extrabold text-slate-800">Failed to load enquiries</h4>
+          <p className="text-xs text-slate-450 max-w-sm mx-auto leading-relaxed">
+            An issue occurred while loading lead accounts from the Mandapam CRM. Please retry.
+          </p>
+          <button
+            onClick={handleRefresh}
+            className="bg-rose-550 hover:bg-rose-650 text-white h-8.5 px-4 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer inline-flex items-center gap-1.5"
+          >
+            <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+            <span>Try Again</span>
+          </button>
+        </div>
+      ) : listLoading ? (
+        renderSkeleton()
+      ) : enquiries.length === 0 ? (
+        /* Empty states */
+        hasActiveFilters ? (
+          <div className="max-w-md mx-auto text-center py-16 px-6 space-y-4 border border-dashed border-slate-200 rounded-xl bg-white select-none">
+            <div className="h-12 w-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 mx-auto">
+              <SearchX className="h-5 w-5" />
+            </div>
+            <h4 className="text-xs font-extrabold text-slate-800">No matching leads found</h4>
+            <p className="text-[10px] text-slate-400 max-w-xs mx-auto leading-relaxed">
+              No CRM enquiry match your query parameters. Try modifying filters or search query.
+            </p>
+            <button
+              onClick={clearFilters}
+              className="text-violet-650 hover:text-violet-755 border border-violet-200 hover:bg-violet-50/55 h-8.5 px-4 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer"
+            >
+              Clear Search Filters
+            </button>
+          </div>
+        ) : (
+          <div className="max-w-md mx-auto text-center py-16 px-6 space-y-4 border border-dashed border-slate-200 rounded-xl bg-white select-none">
+            <div className="h-12 w-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 mx-auto">
+              <MessageSquarePlus className="h-5 w-5 text-slate-405" />
+            </div>
+            <h4 className="text-xs font-extrabold text-slate-850">No enquiries captured yet</h4>
+            <p className="text-[10px] text-slate-400 max-w-xs mx-auto leading-relaxed">
+              Log client walkthrough site bookings, wedding phone calls, or WhatsApp enquires to fill your pipeline.
+            </p>
+            <button
+              onClick={() => router.push('/dashboard/enquiries/new')}
+              className="bg-violet-655 hover:bg-violet-755 text-white h-8.5 px-4.5 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5 mx-auto"
+            >
+              <Plus className="h-4 w-4 shrink-0" />
+              <span>Capture Your First Lead</span>
+            </button>
+          </div>
+        )
+      ) : (
+        /* Main Dual View Area */
+        <div className="animate-in fade-in duration-300">
+          {viewMode === 'kanban' ? (
+            <KanbanBoard
+              enquiries={enquiries}
+              onEdit={(e) => router.push(`/dashboard/enquiries/${e.id}?edit=true`)}
+              onAddFollowup={(e) => router.push(`/dashboard/enquiries/${e.id}?tab=followups`)}
+              onAddEnquiryClick={(stage) => router.push(`/dashboard/enquiries/new?stage=${stage}`)}
+            />
+          ) : (
+            <EnquiryTable
+              data={enquiries}
+              onEdit={(e) => router.push(`/dashboard/enquiries/${e.id}?edit=true`)}
+              onAddFollowup={(e) => router.push(`/dashboard/enquiries/${e.id}?tab=followups`)}
+              onConvert={(e) => router.push(`/dashboard/enquiries/${e.id}?tab=convert`)}
+              onMarkLost={(e) => {
+                setLostEnquiry(e);
+                setLostModalOpen(true);
+              }}
+            />
+          )}
+        </div>
+      )}
+
+      {/* TODAY'S FOLLOWUPS SLIDING DRAWER SHEET */}
+      <TodayFollowupsDrawer
+        isOpen={followupsOpen}
+        onClose={() => {
+          setFollowupsOpen(false);
+          handleRefresh();
+        }}
+        followups={todayFollowups}
+        isLoading={followupsLoading}
+      />
+
+      {/* SECURE LOST REASON CONFIRMATION MODAL */}
+      <LostReasonModal
+        isOpen={lostModalOpen}
+        onClose={() => {
+          setLostModalOpen(false);
+          setLostEnquiry(null);
+        }}
+        onConfirm={handleLostConfirm}
+      />
+
+    </div>
+  );
+}

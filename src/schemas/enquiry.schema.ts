@@ -38,6 +38,7 @@ export const enquiryFormSchema = z
       .default('new'),
     priority: z.enum(['high', 'medium', 'low']).default('medium'),
     notes: z.string().optional().default(''),
+    assignedTo: z.string().optional().default(''),
     
     // For scheduling first followup inside the form
     scheduleFollowup: z.boolean().default(false),

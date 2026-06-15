@@ -14,7 +14,7 @@ export function DepartmentBadge({ department, className = '' }: DepartmentBadgeP
     management: {
       label: 'Management',
       icon: Building2,
-      style: 'bg-violet-50 text-violet-755 border-violet-100',
+      style: 'bg-primary-lighter text-primary-light border-primary-light/10',
     },
     operations: {
       label: 'Operations',

@@ -51,3 +51,32 @@ export interface VendorStats {
   topCategory: VendorCategory;
   totalAmountPaid: number;
 }
+
+export interface BookingVendor {
+  id: string;
+  hallId: string;
+  bookingId: string;
+  vendorId: string;
+  serviceType: string;
+  allocatedCost: number;
+  paymentStatus: 'paid' | 'partial' | 'unpaid';
+  amountPaid: number;
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  vendors?: {
+    id: string;
+    vendor_name: string;
+    phone: string;
+    service_type: string;
+    upi_id?: string;
+  };
+  bookings?: {
+    id: string;
+    event_name: string;
+    start_date: string;
+    end_date?: string;
+    status: string;
+    booking_number: string;
+  };
+}

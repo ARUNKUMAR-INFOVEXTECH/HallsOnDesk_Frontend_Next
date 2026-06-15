@@ -98,8 +98,8 @@ export function useCalendarEvents(
       let events: CalendarEvent[] = res.map((item: any) => ({
         id: item.id,
         title: item.event_title || item.title || 'Event',
-        start: item.start_date || item.start,
-        end: item.end_date || item.end || item.start,
+        start: item.event_date || item.start_date || item.start,
+        end: item.end_date || item.end || item.event_date || item.start_date || item.start,
         allDay: item.all_day ?? item.allDay ?? false,
         type: (item.type as CalendarEventType) || 'personal',
         bookingId: item.booking_id || item.bookingId,
@@ -141,9 +141,9 @@ export function useCalendarEvent(id: string) {
       const res = await getCalendarEventById(id) as any;
       return {
         id: res.id,
-        title: res.title || (res as any).event_title,
-        start: res.start || (res as any).start_date,
-        end: res.end || (res as any).end_date || res.start || (res as any).start_date,
+        title: res.event_title || res.title,
+        start: res.event_date || res.start || (res as any).start_date,
+        end: res.end_date || res.end || (res as any).end_date || res.event_date || res.start || (res as any).start_date,
         allDay: res.allDay ?? (res as any).all_day ?? false,
         type: res.type || 'personal',
         bookingId: res.bookingId || (res as any).booking_id,
@@ -169,7 +169,7 @@ export function useCreateCalendarEvent() {
       // Map frontend values to database columns
       const backendPayload = {
         event_title: payload.title,
-        start_date: payload.start,
+        event_date: payload.start,
         end_date: payload.end || payload.start,
         all_day: payload.allDay ?? false,
         type: payload.type || 'personal',
@@ -200,7 +200,7 @@ export function useUpdateCalendarEvent() {
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
       const backendPayload = {
         event_title: data.title,
-        start_date: data.start,
+        event_date: data.start,
         end_date: data.end || data.start,
         all_day: data.allDay ?? false,
         type: data.type || 'personal',
@@ -264,8 +264,8 @@ export function useUpcomingEvents(days: number = 30) {
       return (res.data || []).map((item: any) => ({
         id: item.id,
         title: item.event_title || item.title || 'Event',
-        start: item.start_date || item.start,
-        end: item.end_date || item.end || item.start,
+        start: item.event_date || item.start_date || item.start,
+        end: item.end_date || item.end || item.event_date || item.start_date || item.start,
         allDay: item.all_day ?? item.allDay ?? false,
         type: (item.type as CalendarEventType) || 'personal',
         bookingId: item.booking_id || item.bookingId,

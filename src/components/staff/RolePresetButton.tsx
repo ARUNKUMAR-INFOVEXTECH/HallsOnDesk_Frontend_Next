@@ -95,9 +95,9 @@ export function RolePresetButton({
     <button
       type="button"
       onClick={handleApplyPreset}
-      className={`h-8 px-3 border border-violet-250 hover:bg-violet-50 text-violet-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${className}`}
+      className={`h-8 px-3 border border-primary-light/20 hover:bg-primary-lighter text-primary-light rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${className}`}
     >
-      <ShieldAlert className="h-4 w-4 shrink-0 text-violet-605" />
+      <ShieldAlert className="h-4 w-4 shrink-0 text-primary-light" />
       <span>Apply {roleLabels[selectedRole] || 'Role'} Preset</span>
     </button>
   );

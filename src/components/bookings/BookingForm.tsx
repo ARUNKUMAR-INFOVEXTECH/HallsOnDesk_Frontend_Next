@@ -42,6 +42,8 @@ export function BookingForm({
       discountAmount: 0,
       status: 'pending',
       notes: '',
+      coordinatorName: '',
+      coordinatorPhone: '',
       ...initialValues,
     },
   });
@@ -197,6 +199,29 @@ export function BookingForm({
               {errors.guestCount?.message && (
                 <p className="text-xs text-red-500 font-semibold mt-1">{errors.guestCount.message}</p>
               )}
+            </div>
+          </div>
+
+          {/* Card 1.5: On-Site Coordinator Details */}
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col gap-4">
+            <div className="border-b border-slate-100 pb-3 mb-1">
+              <h3 className="text-sm font-semibold text-slate-800">Event Coordinator details (Optional)</h3>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">On-site event organizer contact coordinates</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <InputField
+                name="coordinatorName"
+                label="Coordinator Full Name"
+                placeholder="e.g. Suresh Kumar (Brother / Event Manager)"
+                disabled={loading}
+              />
+              <InputField
+                name="coordinatorPhone"
+                label="Coordinator Phone Number"
+                placeholder="9876543210"
+                disabled={loading}
+              />
             </div>
           </div>
 

@@ -25,8 +25,8 @@ export function StaffStatsCards({ stats, isLoading = false }: StaffStatsCardsPro
       value: totalStaff,
       label: 'Team members',
       icon: Users,
-      color: 'bg-violet-50 text-violet-755 border-violet-100',
-      iconColor: 'text-violet-605',
+      color: 'bg-primary-lighter text-primary-light border-primary-light/10',
+      iconColor: 'text-primary-light',
     },
     {
       title: 'Active',

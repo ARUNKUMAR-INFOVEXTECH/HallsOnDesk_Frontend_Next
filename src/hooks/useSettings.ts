@@ -122,3 +122,34 @@ export function useUploadCoverImage() {
     isUploading,
   };
 }
+
+export function useActiveSubscription() {
+  return useQuery({
+    queryKey: ['active-subscription'],
+    queryFn: settingsService.getActiveSubscription,
+    staleTime: CACHE_TIME,
+  });
+}
+
+export function useAllPackages() {
+  return useQuery({
+    queryKey: ['subscription-packages'],
+    queryFn: settingsService.getAllPackages,
+    staleTime: CACHE_TIME,
+  });
+}
+
+export function useRequestSubscriptionChange() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: settingsService.requestSubscriptionChange,
+    onSuccess: (res) => {
+      toast.success(res.message);
+      queryClient.invalidateQueries({ queryKey: ['active-subscription'] });
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Failed to submit subscription request');
+    },
+  });
+}

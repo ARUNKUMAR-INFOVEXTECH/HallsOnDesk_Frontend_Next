@@ -1,12 +1,13 @@
 import { User, Package, Hall } from './index';
 
 export interface SystemHealth {
-  apiRequests24h: number;
-  activeUsers24h: number;
-  storageUsedBytes: number;
-  storageLimitBytes: number;
   databaseStatus: 'healthy' | 'degraded' | 'down';
   serverStatus: 'healthy' | 'degraded' | 'down';
+  // Legacy optional fields retained for backward compat
+  apiRequests24h?: number;
+  activeUsers24h?: number;
+  storageUsedBytes?: number;
+  storageLimitBytes?: number;
 }
 
 export interface SupportTicket {
@@ -40,6 +41,7 @@ export interface TNDistrictMetric {
 }
 
 export interface AdminSettings {
+  id?: string;
   companyName: string;
   gstin: string;
   supportPhone: string;
@@ -57,7 +59,7 @@ export interface AdminSettings {
 
 export interface AdminActivity {
   id: string;
-  type: 'hall_signup' | 'payment_received' | 'subscription_expired' | 'ticket_created' | 'package_changed' | 'user_created';
+  type: 'hall_signup' | 'payment_received' | 'subscription_expired' | 'ticket_created' | 'package_changed' | 'user_created' | 'activity';
   title: string;
   description: string;
   timestamp: string;
@@ -74,10 +76,38 @@ export interface GlobalUser extends User {
 }
 
 export interface RevenueMetric {
-  date: string; // YYYY-MM
+  date: string; // Formatted label e.g. "Jan 2026"
   mrr: number;
   setupFees: number;
   total: number;
+}
+
+export interface TopHall {
+  hallId: string;
+  hallName: string;
+  city: string;
+  totalRevenue: number;
+  rank: number;
+}
+
+export interface HallStats {
+  bookingsCount: number;
+  confirmedBookings: number;
+  pendingBookings: number;
+  staffCount: number;
+  totalRevenue: number;
+  pendingBalance: number;
+  maxUsers: number | null;
+  maxBookings: number | null;
+}
+
+export interface HallActivityItem {
+  id: string;
+  title: string;
+  description: string;
+  timestamp: string;
+  actor: string;
+  type: 'activity' | 'subscription';
 }
 
 export interface AdminAnalyticsData {
@@ -88,4 +118,5 @@ export interface AdminAnalyticsData {
   packageDistribution: Array<{ name: string; value: number; count: number }>;
   hallGrowth: Array<{ month: string; active: number; trials: number }>;
   districtStats: TNDistrictMetric[];
+  topHalls: TopHall[];
 }

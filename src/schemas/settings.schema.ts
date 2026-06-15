@@ -87,4 +87,5 @@ export const hallSettingsSchema = z.object({
   autoInvoice: z.boolean().default(false),
   invoiceFooterNote: z.string().max(200, 'Max 200 characters').optional(),
   termsAndConditions: z.string().max(1000, 'Max 1000 characters').optional(),
+  invoiceTemplate: z.string().default('classic'),
 });

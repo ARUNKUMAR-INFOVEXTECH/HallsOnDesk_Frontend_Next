@@ -7,7 +7,8 @@ import * as Icons from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 import { DASHBOARD_NAV_ITEMS, ADMIN_NAV_ITEMS } from '@/constants';
-import { X, Globe, LogOut } from 'lucide-react';
+import { X, LogOut } from 'lucide-react';
+import { useDashboardQuery } from '@/hooks/useDashboardQueries';
 import HallSwitcher from './HallSwitcher';
 
 // Dynamic Icon rendering utility
@@ -24,12 +25,20 @@ export default function Sidebar() {
   const logout = useAuthStore((state) => state.logout);
   const { sidebarOpen, setSidebarOpen } = useUIStore();
 
+  const { data: dashboardData } = useDashboardQuery();
+  const activeSubscription = dashboardData?.subscription;
+  const isSubExpired = role !== 'super_admin' && dashboardData && (!activeSubscription || (activeSubscription.status !== 'active' && activeSubscription.status !== 'trial'));
+
   if (!user) return null;
 
   // Filter navigation items by active user role
-  const allowedNavItems = DASHBOARD_NAV_ITEMS.filter((item) =>
+  let allowedNavItems = DASHBOARD_NAV_ITEMS.filter((item) =>
     role ? item.roles.includes(role as any) : false
   );
+
+  if (isSubExpired) {
+    allowedNavItems = allowedNavItems.filter((item) => item.href === '/dashboard' || item.href === '/dashboard/settings' || item.href === '/dashboard/support' || item.href === '/dashboard/invoices');
+  }
 
   const allowedAdminItems = ADMIN_NAV_ITEMS.filter((item) =>
     role ? item.roles.includes(role as any) : false
@@ -47,25 +56,15 @@ export default function Sidebar() {
 
       {/* Sidebar Panel */}
       <aside
-        className={`fixed inset-y-0 left-0 w-64 border-r border-[#1E2E44] bg-[#0A192F] z-40 transition-transform duration-250 ease-in-out lg:translate-x-0 lg:static flex flex-col ${
+        className={`fixed inset-y-0 left-0 w-64 border-r border-[#1E2E44] bg-[#0A192F] z-40 transition-transform duration-250 ease-in-out lg:translate-x-0 lg:static lg:h-full h-full flex flex-col ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Header: Logo Branding */}
         <div className="px-5 py-5 border-b border-[#1E2E44] flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <Link href="/dashboard" className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-[#071426] flex items-center justify-center border border-[#1E2E44] shrink-0 shadow-sm">
-                <Globe className="h-5 w-5 text-[#EE9B00]" />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-base text-white tracking-tight leading-none">
-                  Halls<span className="text-[#EE9B00]">OnDesk</span>
-                </span>
-                <span className="text-[9px] text-slate-400 font-semibold mt-1 tracking-wider uppercase">
-                  by Infovex
-                </span>
-              </div>
+            <Link href="/dashboard" className="flex items-center">
+              <img src="/logo.png" alt="Infovex Halls Logo" className="h-8 w-auto object-contain" />
             </Link>
             
             {/* Close Sidebar button on mobile */}
@@ -82,7 +81,7 @@ export default function Sidebar() {
         </div>
 
         {/* Scrollable Navigation Area */}
-        <nav className="flex-1 overflow-y-auto p-3.5 space-y-6">
+        <nav className="flex-1 overflow-y-auto no-scrollbar p-3.5 space-y-6">
           {/* Main User Navigation Links */}
           {allowedNavItems.length > 0 && (
             <div className="space-y-1.5">

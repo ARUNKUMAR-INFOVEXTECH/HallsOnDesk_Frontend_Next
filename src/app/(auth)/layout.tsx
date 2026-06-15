@@ -2,7 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Authentication - HallsOnDesk',
+  title: 'Authentication - Infovex Halls',
   description: 'Secure access keys login, recovery, and passwords reset.',
 };
 

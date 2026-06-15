@@ -25,8 +25,8 @@ export function RoleBadge({ role, size = 'sm', className = '' }: RoleBadgeProps)
     owner: {
       label: 'Owner',
       icon: Crown,
-      style: 'bg-violet-50 text-violet-700 border-violet-200',
-      iconStyle: 'text-violet-605',
+      style: 'bg-primary-lighter text-primary-light border-primary-light/20',
+      iconStyle: 'text-primary-light',
     },
     manager: {
       label: 'Manager',

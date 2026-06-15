@@ -21,6 +21,8 @@ export interface Booking {
   status: BookingStatus;
   paymentStatus: PaymentStatus;
   notes: string;
+  coordinatorName?: string;
+  coordinatorPhone?: string;
   createdAt: string;
   updatedAt: string;
 }

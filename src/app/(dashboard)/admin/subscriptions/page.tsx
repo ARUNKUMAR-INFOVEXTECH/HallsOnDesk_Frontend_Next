@@ -20,6 +20,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
+import { obfuscateId } from '@/utils/obfuscate';
 
 export default function AdminSubscriptionsPage() {
   const { subscriptions = [], isLoading: subsLoading, renewSubscription, changePackage, isRenewing, isChangingPackage } = useAdminSubscriptions();
@@ -152,7 +153,7 @@ export default function AdminSubscriptionsPage() {
                   return (
                     <tr key={sub.id} className="hover:bg-gray-50/50 transition-colors">
                       <td className="px-5 py-4">
-                        <Link href={`/admin/halls/${sub.hallId}`} className="font-bold text-gray-900 hover:text-violet-600 block">
+                        <Link href={`/admin/halls/${obfuscateId(sub.hallId)}`} className="font-bold text-gray-900 hover:text-violet-600 block">
                           {sub.hallName}
                         </Link>
                         <span className="text-[10px] text-gray-400 font-semibold uppercase">ID: {sub.hallId.slice(0, 8)}</span>
@@ -162,10 +163,10 @@ export default function AdminSubscriptionsPage() {
                         <span className="text-gray-900 block">₹{sub.price.toLocaleString('en-IN')}</span>
                       </td>
                       <td className="px-5 py-4 text-gray-500 font-medium">
-                        {new Date(sub.startDate).toLocaleDateString()}
+                        {new Date(sub.startDate).toLocaleDateString('en-GB')}
                       </td>
                       <td className="px-5 py-4 text-gray-500 font-medium">
-                        {new Date(sub.endDate).toLocaleDateString()}
+                        {new Date(sub.endDate).toLocaleDateString('en-GB')}
                       </td>
                       <td className="px-5 py-4">
                         <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full border ${style.bg}`}>
@@ -185,7 +186,7 @@ export default function AdminSubscriptionsPage() {
                             <div className="fixed inset-0 z-10" onClick={() => setActiveSubId(null)} />
                             <div className="absolute right-5 mt-1 w-48 bg-white border border-gray-150 rounded-lg shadow-lg py-1.5 z-20 text-left">
                               <Link
-                                href={`/admin/subscriptions/${sub.id}`}
+                                href={`/admin/subscriptions/${obfuscateId(sub.id)}`}
                                 className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 text-gray-700 text-xs font-semibold"
                               >
                                 <ChevronRight className="h-3.5 w-3.5 text-gray-450" />

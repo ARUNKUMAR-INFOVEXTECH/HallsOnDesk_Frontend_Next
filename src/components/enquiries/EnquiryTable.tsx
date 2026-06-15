@@ -33,6 +33,7 @@ import { Enquiry } from '@/types/enquiry';
 import { StageBadge } from './StageBadge';
 import { SourceBadge } from './SourceBadge';
 import { PriorityBadge } from './PriorityBadge';
+import { obfuscateId } from '@/utils/obfuscate';
 import { formatDate } from '@/utils/formatters';
 
 interface EnquiryTableProps {
@@ -41,6 +42,8 @@ interface EnquiryTableProps {
   onAddFollowup: (enquiry: Enquiry) => void;
   onMarkLost: (enquiry: Enquiry) => void;
   onConvert: (enquiry: Enquiry) => void;
+  selectedIds: string[];
+  onSelectedIdsChange: (ids: string[]) => void;
 }
 
 export function EnquiryTable({
@@ -49,6 +52,8 @@ export function EnquiryTable({
   onAddFollowup,
   onMarkLost,
   onConvert,
+  selectedIds,
+  onSelectedIdsChange,
 }: EnquiryTableProps) {
   const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -68,6 +73,43 @@ export function EnquiryTable({
 
   const columns = useMemo(
     () => [
+      // Checkbox Column
+      columnHelper.display({
+        id: 'select',
+        header: () => (
+          <input
+            type="checkbox"
+            checked={data.length > 0 && selectedIds.length === data.length}
+            onChange={(e) => {
+              if (e.target.checked) {
+                onSelectedIdsChange(data.map((item) => item.id));
+              } else {
+                onSelectedIdsChange([]);
+              }
+            }}
+            className="rounded border-slate-300 text-violet-650 focus:ring-violet-500 h-4 w-4 cursor-pointer"
+          />
+        ),
+        cell: (info) => {
+          const e = info.row.original;
+          const isSelected = selectedIds.includes(e.id);
+          return (
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={(evt) => {
+                evt.stopPropagation();
+                if (evt.target.checked) {
+                  onSelectedIdsChange([...selectedIds, e.id]);
+                } else {
+                  onSelectedIdsChange(selectedIds.filter((id) => id !== e.id));
+                }
+              }}
+              className="rounded border-slate-300 text-violet-650 focus:ring-violet-500 h-4 w-4 cursor-pointer"
+            />
+          );
+        },
+      }),
       // Enquiry Number Column
       columnHelper.accessor('enquiryNumber', {
         header: ({ column }) => (
@@ -84,7 +126,7 @@ export function EnquiryTable({
           return (
             <div className="space-y-0.5">
               <span
-                onClick={() => router.push(`/dashboard/enquiries/${e.id}`)}
+                onClick={() => router.push(`/dashboard/enquiries/${obfuscateId(e.id)}`)}
                 className="font-mono text-xs text-violet-650 hover:text-violet-755 font-bold cursor-pointer hover:underline"
               >
                 {e.enquiryNumber}
@@ -117,7 +159,7 @@ export function EnquiryTable({
               </div>
               <div className="min-w-0">
                 <div
-                  onClick={() => router.push(`/dashboard/enquiries/${e.id}`)}
+                  onClick={() => router.push(`/dashboard/enquiries/${obfuscateId(e.id)}`)}
                   className="font-extrabold text-slate-800 leading-snug text-xs hover:text-violet-605 cursor-pointer hover:underline truncate max-w-[140px]"
                 >
                   {e.name}
@@ -127,6 +169,33 @@ export function EnquiryTable({
                   {e.phone}
                 </div>
               </div>
+            </div>
+          );
+        },
+      }),
+
+      // Assignee Column
+      columnHelper.display({
+        id: 'assignee',
+        header: () => <span className="text-[10px] tracking-wider uppercase">Assignee</span>,
+        cell: (info) => {
+          const e = info.row.original;
+          if (!e.assignee) {
+            return (
+              <span className="text-[10px] font-bold text-slate-400 italic">
+                Unassigned
+              </span>
+            );
+          }
+          const initials = getInitials(e.assignee.name);
+          return (
+            <div className="flex items-center gap-2">
+              <div className="h-6.5 w-6.5 rounded-full bg-violet-50 text-violet-755 border border-violet-100 flex items-center justify-center font-black text-[9px] shrink-0 uppercase" title={e.assignee.name}>
+                {initials}
+              </div>
+              <span className="text-[11px] text-slate-700 font-bold truncate max-w-[85px]" title={e.assignee.name}>
+                {e.assignee.name}
+              </span>
             </div>
           );
         },
@@ -283,7 +352,7 @@ export function EnquiryTable({
                     onClick={(ev) => {
                       ev.stopPropagation();
                       setActiveMenuId(null);
-                      router.push(`/dashboard/enquiries/${e.id}`);
+                      router.push(`/dashboard/enquiries/${obfuscateId(e.id)}`);
                     }}
                     className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-55 text-left transition-colors cursor-pointer"
                   >
@@ -345,7 +414,7 @@ export function EnquiryTable({
         },
       }),
     ],
-    [activeMenuId, columnHelper, onEdit, onAddFollowup, onMarkLost, onConvert, router]
+    [activeMenuId, columnHelper, onEdit, onAddFollowup, onMarkLost, onConvert, router, selectedIds, onSelectedIdsChange, data]
   );
 
   const table = useReactTable({

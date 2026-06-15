@@ -16,6 +16,7 @@ export interface BookingsQuery {
   from_date?: string;
   to_date?: string;
   customer_id?: string;
+  search?: string;
   page?: number;
   limit?: number;
 }

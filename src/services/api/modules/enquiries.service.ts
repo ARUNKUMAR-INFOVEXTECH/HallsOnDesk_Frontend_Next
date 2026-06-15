@@ -10,6 +10,8 @@ export interface EnquiriesQuery {
   limit?: number;
   customer_id?: string;
   status?: string;
+  from_date?: string;
+  to_date?: string;
 }
 
 // ----------------------------------------------------------------------
@@ -22,129 +24,23 @@ function getLocalBackup(): any[] {
   const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
   if (stored) {
     try {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) {
+        // Clean up any remaining dummy/seed leads in the user's browser storage
+        const cleaned = parsed.filter(
+          (item) => !['enq-1', 'enq-2', 'enq-3', 'enq-4'].includes(item.id)
+        );
+        if (cleaned.length !== parsed.length) {
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
+        }
+        return cleaned;
+      }
+      return [];
     } catch {
       return [];
     }
   }
-
-  // Seed with rich default sample data for a great first-time load experience
-  const defaultLeads = [
-    {
-      id: 'enq-1',
-      enquiry_number: 'ENQ-A109',
-      customer_name: 'Priyan Sharma',
-      phone: '9876543210',
-      email: 'priyan@gmail.com',
-      city: 'Chennai',
-      event_type: 'wedding',
-      event_date: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10), // 120 days away
-      guest_count: 300,
-      budget_min: 100000,
-      budget_max: 150000,
-      hall_section: 'Main Hall',
-      source: 'whatsapp',
-      stage: 'new',
-      priority: 'high',
-      notes: 'Wants premium floral decorations, stage lights, and has guest constraints.',
-      followups: [
-        {
-          id: 'fl-1',
-          enquiry_id: 'enq-1',
-          scheduled_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-          type: 'call',
-          notes: 'Call to confirm catering package details.',
-          created_at: new Date().toISOString()
-        }
-      ],
-      created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'enq-2',
-      enquiry_number: 'ENQ-B203',
-      customer_name: 'Meera Patel',
-      phone: '8765432109',
-      email: 'meera@yahoo.com',
-      city: 'Chennai',
-      event_type: 'engagement',
-      event_date: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10),
-      guest_count: 150,
-      budget_min: 60000,
-      budget_max: 80000,
-      hall_section: 'Mini Hall',
-      source: 'phone',
-      stage: 'interested',
-      priority: 'medium',
-      notes: 'Prefers simple decorations and has requested the banquet brochure.',
-      followups: [
-        {
-          id: 'fl-2',
-          enquiry_id: 'enq-2',
-          scheduled_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // overdue
-          type: 'whatsapp',
-          notes: 'Send brochure download link and confirm availability.',
-          created_at: new Date().toISOString()
-        }
-      ],
-      created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'enq-3',
-      enquiry_number: 'ENQ-C304',
-      customer_name: 'Rajesh Kumar',
-      phone: '7654321098',
-      email: 'rajesh@intel.com',
-      city: 'Chennai',
-      event_type: 'corporate',
-      event_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10),
-      guest_count: 80,
-      budget_min: 40000,
-      budget_max: 50000,
-      hall_section: 'Main Hall',
-      source: 'walk_in',
-      stage: 'visit_scheduled',
-      priority: 'low',
-      notes: 'Requires projector and microphone setups for corporate seminar.',
-      followups: [
-        {
-          id: 'fl-3',
-          enquiry_id: 'enq-3',
-          scheduled_at: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(), // today
-          type: 'visit',
-          notes: 'Schedule hall walkthrough with manager.',
-          created_at: new Date().toISOString()
-        }
-      ],
-      created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'enq-4',
-      enquiry_number: 'ENQ-D405',
-      customer_name: 'Ananya Rao',
-      phone: '6543210987',
-      email: 'ananya.rao@gmail.com',
-      city: 'Chennai',
-      event_type: 'reception',
-      event_date: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10),
-      guest_count: 200,
-      budget_min: 90000,
-      budget_max: 120000,
-      hall_section: 'Main Hall',
-      source: 'instagram',
-      stage: 'visited',
-      priority: 'high',
-      notes: 'Completed site visit. Satisfied with space, discussing packages.',
-      followups: [],
-      created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
-    }
-  ];
-
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(defaultLeads));
-  return defaultLeads;
+  return [];
 }
 
 function saveLocalBackup(data: any[]) {
@@ -191,12 +87,12 @@ export async function getEnquiries(params: EnquiriesQuery = {}): Promise<any[]> 
       }
     }
 
-    if (data.length > 0) {
-      mergeServerIntoBackup(data);
-    }
-    return data.length > 0 ? data : getLocalBackup();
+    // Always overwrite local backup with the latest server list if the request succeeded,
+    // so that deleted/empty status on the server is correctly reflected locally.
+    saveLocalBackup(data);
+    return data;
   } catch (error) {
-    console.warn('Server enquiries GET failed (schema exceptions). Falling back to local cache.', error);
+    console.warn('Server enquiries GET failed. Falling back to local cache.', error);
     return getLocalBackup();
   }
 }
@@ -268,6 +164,64 @@ export async function createEnquiry(data: any): Promise<{ message: string; data:
   return {
     message: 'Enquiry created successfully (Cached Mirror)',
     data: localItem,
+  };
+}
+
+export async function bulkCreateEnquiries(enquiries: any[]): Promise<{ message: string; count: number; data: any[] }> {
+  try {
+    const res = await apiClient.post<{ message: string; count: number; data: any[] }>('/enquiries/bulk', { enquiries });
+    const serverItems = res.data?.data;
+    if (Array.isArray(serverItems)) {
+      mergeServerIntoBackup(serverItems);
+    }
+    return res.data;
+  } catch (error) {
+    console.warn('Server bulkCreateEnquiries failed. Syncing locally.', error);
+  }
+
+  // Local fallback
+  const createdItems = [];
+  const localList = getLocalBackup();
+
+  for (const data of enquiries) {
+    const newId = `enq-${Math.random().toString(36).substring(2, 7)}`;
+    const newNum = `ENQ-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    
+    const localItem = {
+      id: newId,
+      enquiry_number: newNum,
+      customer_name: data.customer_name || data.name || 'Lead Contact',
+      phone: data.phone,
+      email: data.email || null,
+      address: data.address || null,
+      city: data.city || null,
+      event_type: data.event_type || data.eventType || 'other',
+      event_date: data.event_date || data.eventDate || null,
+      expected_date: data.event_date || data.eventDate || null,
+      guest_count: data.guest_count || data.guestCount || null,
+      budget_min: data.budget_min || data.budgetMin || null,
+      budget_max: data.budget_max || data.budgetMax || null,
+      budget: data.budget_max || data.budgetMax || null,
+      hall_section: data.hall_section || data.hallSection || 'Main Hall',
+      source: data.source || 'walk_in',
+      stage: data.stage || 'new',
+      priority: data.priority || 'medium',
+      notes: data.notes || '',
+      followups: data.followups || [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    localList.push(localItem);
+    createdItems.push(localItem);
+  }
+
+  saveLocalBackup(localList);
+
+  return {
+    message: 'Enquiries imported successfully (Cached Mirror)',
+    count: createdItems.length,
+    data: createdItems,
   };
 }
 
@@ -344,36 +298,26 @@ export async function convertEnquiryToBooking(
       `/enquiries/${id}/convert`,
       payload
     );
-    const bookingId = res.data?.bookingId || res.data?.booking_id;
     
-    // Sync locally as booked
+    // Sync locally - delete the enquiry from local backup since it is deleted on the server
     const localList = getLocalBackup();
-    const idx = localList.findIndex((l) => String(l.id) === String(id));
-    if (idx !== -1) {
-      localList[idx].stage = 'booked';
-      localList[idx].bookingId = bookingId || 'CONFIRMED';
-      localList[idx].convertedAt = new Date().toISOString();
-      localList[idx].updated_at = new Date().toISOString();
-      saveLocalBackup(localList);
-    }
+    const filtered = localList.filter((l) => String(l.id) !== String(id));
+    saveLocalBackup(filtered);
     return res.data;
   } catch (error) {
     console.warn(`Server convertEnquiry ${id} failed. Syncing locally.`, error);
   }
 
-  // Local storage synchronization
+  // Local storage synchronization (fallback when server offline)
   const localList = getLocalBackup();
   const idx = localList.findIndex((l) => String(l.id) === String(id));
   const newBookingId = `local-bkg-${Math.random().toString(36).substring(2, 7)}`;
   
   if (idx !== -1) {
-    localList[idx].stage = 'booked';
-    localList[idx].bookingId = newBookingId;
-    localList[idx].convertedAt = new Date().toISOString();
-    localList[idx].updated_at = new Date().toISOString();
-    saveLocalBackup(localList);
+    const filtered = localList.filter((l) => String(l.id) !== String(id));
+    saveLocalBackup(filtered);
     return {
-      message: 'Enquiry converted successfully (Local Storage Cached Sync)',
+      message: 'Enquiry converted successfully (Local Storage Purge Sync)',
       bookingId: newBookingId,
       booking_id: newBookingId,
     };
@@ -400,5 +344,26 @@ export async function getTodayFollowups(): Promise<any[]> {
   } catch (error) {
     console.error('Failed to fetch today followups from server. Defaulting to client scan.', error);
     return [];
+  }
+}
+
+export async function deleteEnquiry(id: string): Promise<{ message: string }> {
+  try {
+    const res = await apiClient.delete<{ message: string }>(`/enquiries/${id}`);
+    
+    // Update local cache
+    const localList = getLocalBackup();
+    const filtered = localList.filter((l) => String(l.id) !== String(id));
+    saveLocalBackup(filtered);
+    
+    return res.data;
+  } catch (error) {
+    console.warn(`Server deleteEnquiry ${id} failed. Removing locally.`, error);
+    
+    const localList = getLocalBackup();
+    const filtered = localList.filter((l) => String(l.id) !== String(id));
+    saveLocalBackup(filtered);
+    
+    return { message: 'Enquiry deleted locally' };
   }
 }

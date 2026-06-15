@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MessageSquare, Calendar, ShieldAlert, ArrowLeft } from 'lucide-react';
+import { useStaffList } from '@/hooks/useStaff';
 import { enquiryFormSchema, EnquiryFormValues } from '@/schemas/enquiry.schema';
 import { FormProvider } from '@/components/forms/FormProvider';
 import { InputField } from '@/components/forms/InputField';
@@ -44,6 +45,7 @@ export function EnquiryForm({
       stage: 'new',
       priority: 'medium',
       notes: '',
+      assignedTo: '',
       scheduleFollowup: false,
       followupDate: '',
       followupType: 'call',
@@ -51,6 +53,19 @@ export function EnquiryForm({
       ...defaultValues,
     },
   });
+
+  const { data: staffData } = useStaffList({ limit: 100 });
+  const staffMembers = staffData?.data || [];
+
+  const staffOptions = React.useMemo(() => {
+    return [
+      { value: '', label: 'Unassigned (No assignee)' },
+      ...staffMembers.map((s) => ({
+        value: s.id,
+        label: `${s.name} (${s.role.charAt(0).toUpperCase() + s.role.slice(1)})`,
+      })),
+    ];
+  }, [staffMembers]);
 
   const { control, register, setValue, formState: { isDirty, errors } } = form;
 
@@ -111,7 +126,7 @@ export function EnquiryForm({
     <FormProvider form={form} onSubmit={onSubmit} className="space-y-6 pb-12 select-none">
       
       {/* SECTION 1: Lead Information */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
+      <div className="bg-white rounded-xl border border-gray-150 border-l-4 border-l-violet-600 shadow-sm hover:shadow-md transition-all duration-300 p-5 space-y-4">
         <div className="border-b border-slate-50 pb-2 flex items-center gap-2">
           <MessageSquare className="h-4.5 w-4.5 text-violet-650 shrink-0" />
           <h3 className="text-sm font-extrabold text-slate-850">Lead Information</h3>
@@ -162,7 +177,7 @@ export function EnquiryForm({
       </div>
 
       {/* SECTION 2: Event Requirements */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
+      <div className="bg-white rounded-xl border border-gray-150 border-l-4 border-l-amber-500 shadow-sm hover:shadow-md transition-all duration-300 p-5 space-y-4">
         <div className="border-b border-slate-50 pb-2 flex items-center gap-2">
           <Calendar className="h-4.5 w-4.5 text-violet-650 shrink-0" />
           <h3 className="text-sm font-extrabold text-slate-850">Event Requirements</h3>
@@ -215,7 +230,7 @@ export function EnquiryForm({
       </div>
 
       {/* SECTION 3: Pipeline & Priority */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-5">
+      <div className="bg-white rounded-xl border border-gray-150 border-l-4 border-l-indigo-500 shadow-sm hover:shadow-md transition-all duration-300 p-5 space-y-5">
         <div className="border-b border-slate-50 pb-2">
           <h3 className="text-sm font-extrabold text-slate-850">Pipeline & Priority</h3>
         </div>
@@ -237,10 +252,10 @@ export function EnquiryForm({
                       key={key}
                       type="button"
                       onClick={() => field.onChange(key)}
-                      className={`h-9 px-3 rounded-lg text-xs font-bold border transition-all text-center flex items-center justify-center cursor-pointer ${
+                      className={`h-9 px-3 rounded-lg text-xs font-bold border transition-all text-center flex items-center justify-center cursor-pointer hover:scale-[1.01] active:scale-[0.98] ${
                         isActive
-                          ? 'bg-violet-650 border-violet-650 text-white shadow-sm shadow-violet-200'
-                          : 'bg-white border-slate-200 text-slate-550 hover:bg-slate-50'
+                          ? 'bg-gradient-to-r from-violet-600 to-indigo-650 border-transparent text-white shadow-md shadow-violet-500/20'
+                          : 'bg-white border-slate-200 text-slate-550 hover:border-slate-350 hover:bg-slate-50'
                       }`}
                     >
                       {label}
@@ -269,7 +284,7 @@ export function EnquiryForm({
                       key={key}
                       type="button"
                       onClick={() => field.onChange(key)}
-                      className={`h-9 px-4 rounded-lg text-xs font-bold border transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer ${
+                      className={`h-9 px-4 rounded-lg text-xs font-bold border transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.01] active:scale-[0.98] ${
                         isActive
                           ? config.activeClass
                           : 'bg-white border-slate-200 text-slate-550 hover:bg-slate-50'
@@ -281,6 +296,16 @@ export function EnquiryForm({
                 })}
               </div>
             )}
+          />
+        </div>
+        
+        {/* Lead Assignee Dropdown */}
+        <div className="flex flex-col gap-1.5 pt-2">
+          <SelectField
+            name="assignedTo"
+            label="Assigned Team Member"
+            options={staffOptions}
+            placeholder="Assign this lead to a staff member"
           />
         </div>
 
@@ -349,7 +374,7 @@ export function EnquiryForm({
       </div>
 
       {/* SECTION 4: Notes */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
+      <div className="bg-white rounded-xl border border-gray-150 border-l-4 border-l-slate-400 shadow-sm hover:shadow-md transition-all duration-300 p-5 space-y-4">
         <div className="border-b border-slate-50 pb-2">
           <h3 className="text-sm font-extrabold text-slate-850">Notes & Comments</h3>
         </div>
@@ -381,12 +406,12 @@ export function EnquiryForm({
       )}
 
       {/* FORM FOOTER */}
-      <div className="flex items-center justify-end gap-3 pt-2">
+      <div className="flex items-center justify-end gap-3.5 pt-4 border-t border-slate-100">
         <button
           type="button"
           disabled={isSubmitting}
           onClick={onCancel}
-          className="h-9 px-4 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 rounded-lg text-xs font-bold text-slate-655 transition-all disabled:opacity-50 cursor-pointer animate-in duration-100"
+          className="h-10 px-6 border border-slate-250 hover:border-violet-350 hover:text-violet-650 hover:bg-violet-50/10 rounded-xl text-xs font-bold text-slate-655 transition-all duration-200 disabled:opacity-50 cursor-pointer flex items-center justify-center hover:scale-[1.01] active:scale-[0.98] active:translate-y-0 hover:-translate-y-0.5"
         >
           Cancel
         </button>
@@ -394,14 +419,14 @@ export function EnquiryForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="h-9 px-5 bg-violet-650 hover:bg-violet-755 text-white rounded-lg text-xs font-bold shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+          className="h-10 px-7 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-xl text-xs font-extrabold tracking-wider uppercase shadow-md shadow-indigo-100 hover:shadow-lg hover:shadow-indigo-500/20 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98] active:translate-y-0 hover:-translate-y-0.5"
         >
-          {isSubmitting && (
+          {isSubmitting ? (
             <svg className="animate-spin h-3.5 w-3.5 text-white shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
-          )}
+          ) : null}
           <span>{submitButtonText}</span>
         </button>
       </div>

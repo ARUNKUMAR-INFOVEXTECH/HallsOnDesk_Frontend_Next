@@ -20,11 +20,12 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import Link from 'next/link';
+import { deobfuscateId } from '@/utils/obfuscate';
 
 export default function AdminSubscriptionDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const id = params.id as string;
+  const id = deobfuscateId(params.id as string);
 
   const { subscriptions = [], isLoading } = useAdminSubscriptions();
   const { halls = [] } = useAdminHalls();
@@ -117,7 +118,7 @@ export default function AdminSubscriptionDetailPage() {
               <div className="flex items-center justify-between gap-2">
                 <span className="font-bold text-xs text-gray-900">Current License Period Extended</span>
                 <span className="text-[10px] text-gray-400 font-semibold">
-                  Ends: {new Date(activeSub.endDate).toLocaleDateString()}
+                  Ends: {new Date(activeSub.endDate).toLocaleDateString('en-GB')}
                 </span>
               </div>
               <p className="text-xs text-gray-500 font-medium">
@@ -133,7 +134,7 @@ export default function AdminSubscriptionDetailPage() {
               <div className="flex items-center justify-between gap-2">
                 <span className="font-bold text-xs text-gray-900">Monthly Billing Invoice Issued</span>
                 <span className="text-[10px] text-gray-400 font-semibold">
-                  {new Date(activeSub.startDate).toLocaleDateString()}
+                  {new Date(activeSub.startDate).toLocaleDateString('en-GB')}
                 </span>
               </div>
               <p className="text-xs text-gray-500 font-medium">
@@ -149,7 +150,7 @@ export default function AdminSubscriptionDetailPage() {
               <div className="flex items-center justify-between gap-2">
                 <span className="font-bold text-xs text-gray-900">Venue Hosting Registered</span>
                 <span className="text-[10px] text-gray-400 font-semibold">
-                  {new Date(activeSub.startDate).toLocaleDateString()}
+                  {new Date(activeSub.startDate).toLocaleDateString('en-GB')}
                 </span>
               </div>
               <p className="text-xs text-gray-500 font-medium">

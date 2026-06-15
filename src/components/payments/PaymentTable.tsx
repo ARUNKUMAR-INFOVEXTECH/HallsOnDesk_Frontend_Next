@@ -30,6 +30,7 @@ import { Payment, PaymentMethod, PaymentStatus } from '@/types/payment';
 import { formatDate } from '@/utils/formatters';
 import { formatCurrency } from '@/utils/currency';
 import { PaymentMethodBadge } from './PaymentMethodBadge';
+import { obfuscateId } from '@/utils/obfuscate';
 
 interface PaymentTableProps {
   payments: Payment[];
@@ -63,8 +64,11 @@ export function PaymentTable({
 
   // Close dropdown helper
   React.useEffect(() => {
-    function handleOutsideClick() {
-      setActiveDropdownId(null);
+    function handleOutsideClick(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.payment-actions-container')) {
+        setActiveDropdownId(null);
+      }
     }
     document.addEventListener('click', handleOutsideClick);
     return () => document.removeEventListener('click', handleOutsideClick);
@@ -208,7 +212,7 @@ export function PaymentTable({
         cell: ({ row }) => (
           <div className="flex flex-col gap-0.5 leading-none">
             <Link
-              href={`/dashboard/bookings/${row.original.bookingId}`}
+              href={`/dashboard/bookings/${obfuscateId(row.original.bookingId)}`}
               className="text-violet-605 font-bold font-mono text-xs hover:underline hover:text-violet-750"
             >
               {row.original.bookingNumber}
@@ -306,7 +310,7 @@ export function PaymentTable({
           const isDropdownActive = activeDropdownId === item.id;
           
           return (
-            <div className="relative print:hidden">
+            <div className="relative print:hidden payment-actions-container">
               <button
                 type="button"
                 onClick={(e) => {
@@ -321,7 +325,7 @@ export function PaymentTable({
               {isDropdownActive && (
                 <div className="absolute right-0 mt-1.5 w-36 bg-white border border-slate-200 rounded-xl shadow-premium z-10 py-1.5 text-xs text-slate-650 font-bold animate-fadeIn">
                   <Link
-                    href={`/dashboard/bookings/${item.bookingId}`}
+                    href={`/dashboard/bookings/${obfuscateId(item.bookingId)}`}
                     className="flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 text-slate-700 transition-colors"
                   >
                     <ExternalLink className="h-3.5 w-3.5 text-slate-400" />

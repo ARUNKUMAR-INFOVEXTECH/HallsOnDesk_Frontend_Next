@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Plus, Calendar, AlertCircle, RefreshCw, Eye, Edit, Trash2 } from 'lucide-react';
 import { useBookings } from '@/hooks/useBookings';
@@ -9,10 +9,22 @@ import { BookingTable } from '@/components/bookings/BookingTable';
 
 export default function BookingsListPage() {
   // Filters State
+  const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<string>('all');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
+
+  // Debounce search input to avoid spamming the backend API on every keystroke
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearch(searchInput);
+    }, 400);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchInput]);
 
   // Fetch bookings list using React Query
   const {
@@ -121,8 +133,8 @@ export default function BookingsListPage() {
           <div className="relative w-full sm:w-60 shrink-0">
             <input
               type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search booking, customer, event..."
               className="w-full h-9 px-3 text-xs bg-slate-50 border border-slate-250 rounded-lg hover:border-slate-350 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
             />
@@ -163,12 +175,13 @@ export default function BookingsListPage() {
               className="h-9 px-2 bg-white border border-slate-250 rounded-lg text-slate-700 outline-none focus:ring-1 focus:ring-primary w-full sm:w-auto shadow-sm"
             />
           </div>
-          {(fromDate || toDate || status !== 'all' || search) && (
+          {(fromDate || toDate || status !== 'all' || searchInput) && (
             <button
               onClick={() => {
                 setFromDate('');
                 setToDate('');
                 setStatus('all');
+                setSearchInput('');
                 setSearch('');
               }}
               className="text-primary hover:text-primary-light transition-colors shrink-0 font-bold"

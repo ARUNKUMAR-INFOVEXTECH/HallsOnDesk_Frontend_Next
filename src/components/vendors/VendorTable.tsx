@@ -25,6 +25,7 @@ import {
   Star
 } from 'lucide-react';
 import { Vendor, VendorCategory } from '@/types/vendor';
+import { obfuscateId } from '@/utils/obfuscate';
 import { CategoryBadge } from './CategoryBadge';
 import { VendorStatusBadge } from './VendorStatusBadge';
 import { formatCurrency } from '@/utils/currency';
@@ -252,7 +253,7 @@ export function VendorTable({ data, onEdit, onDelete }: VendorTableProps) {
                       onClick={(e) => {
                         e.stopPropagation();
                         setActiveMenuId(null);
-                        router.push(`/dashboard/vendors/${vendor.id}`);
+                        router.push(`/dashboard/vendors/${obfuscateId(vendor.id)}`);
                       }}
                       className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 text-left transition-colors cursor-pointer"
                     >
@@ -333,7 +334,7 @@ export function VendorTable({ data, onEdit, onDelete }: VendorTableProps) {
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                onClick={() => router.push(`/dashboard/vendors/${row.original.id}`)}
+                onClick={() => router.push(`/dashboard/vendors/${obfuscateId(row.original.id)}`)}
                 className="hover:bg-slate-50/60 transition-colors cursor-pointer"
               >
                 {row.getVisibleCells().map((cell) => (
@@ -364,7 +365,7 @@ export function VendorTable({ data, onEdit, onDelete }: VendorTableProps) {
           <select
             value={pageSize}
             onChange={(e) => setPageSize(Number(e.target.value))}
-            className="bg-slate-50 border border-slate-200 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-violet-500 font-bold text-slate-700 cursor-pointer"
+            className="bg-slate-50 border border-slate-200 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary font-bold text-slate-700 cursor-pointer"
           >
             {[10, 25, 50].map((size) => (
               <option key={size} value={size}>

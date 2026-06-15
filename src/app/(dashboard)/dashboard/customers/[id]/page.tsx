@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useQuery, useQueries } from '@tanstack/react-query';
+import { useQuery, useQueries, useQueryClient } from '@tanstack/react-query';
 import {
   ChevronLeft,
   User,
@@ -25,14 +25,20 @@ import {
   RefreshCw,
   AlertCircle,
   CheckCircle2,
+  MessageSquare,
+  Users,
+  PlusCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import apiClient from '@/services/api/client';
+import { deobfuscateId } from '@/utils/obfuscate';
 
 // Queries & Mutations
 import {
   useCustomerDetailQuery,
   useUpdateCustomerMutation,
   useDeleteCustomerMutation,
+  useLogCustomerInteractionMutation,
 } from '@/hooks/useCustomerQueries';
 import { getEnquiries } from '@/services/api/modules/enquiries.service';
 import { getPaymentsByBooking } from '@/services/api/modules/payments.service';
@@ -47,7 +53,7 @@ import {
   ActivityTimeline,
 } from '@/components/customers/CustomerProfileComponents';
 import { CustomerForm, CustomerFormValues } from '@/components/customers/CustomerForm';
-import { formatCurrency, formatDate } from '@/utils/formatters';
+import { formatCurrency, formatDate, formatDateTime } from '@/utils/formatters';
 import { Enquiry, Booking, Payment, Invoice } from '@/types';
 
 // Tab Definitions
@@ -56,7 +62,7 @@ type TabId = 'overview' | 'bookings' | 'payments' | 'invoices' | 'enquiries' | '
 export default function CustomerDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const id = params.id as string;
+  const id = deobfuscateId(params.id as string);
 
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [showEditModal, setShowEditModal] = useState(false);
@@ -174,10 +180,11 @@ export default function CustomerDetailPage() {
           email: data.email || undefined,
           address: data.address || undefined,
           notes: data.notes || undefined,
-          // If city/state is present, format them
-          ...((data.city || data.state) ? {
-            address: [data.address, data.city, data.state].filter(Boolean).join(', ')
-          } : {})
+          city: data.city || undefined,
+          state: data.state || undefined,
+          company_name: data.company_name || undefined,
+          gst_number: data.gst_number || undefined,
+          vip_status: data.vip_status,
         },
       });
       setShowEditModal(false);
@@ -241,11 +248,23 @@ export default function CustomerDetailPage() {
           <div className="border border-slate-200 bg-white rounded-xl p-6 shadow-sm space-y-6 text-xs">
             {/* Avatar & Title */}
             <div className="flex flex-col items-center text-center pb-5 border-b border-slate-100">
-              <div className="h-20 w-20 rounded-full bg-primary-lighter border border-primary-light/10 flex items-center justify-center font-bold text-xl text-primary-light mb-3.5 shadow-sm">
-                {nameInitials}
+              <div className="relative">
+                <div className="h-20 w-20 rounded-full bg-primary-lighter border border-primary-light/10 flex items-center justify-center font-bold text-xl text-primary-light mb-3.5 shadow-sm">
+                  {nameInitials}
+                </div>
+                {customer.vip_status && (
+                  <span className="absolute -top-1 -right-1 bg-amber-500 text-white rounded-full p-1 shadow-md border border-white" title="VIP Customer">
+                    👑
+                  </span>
+                )}
               </div>
-              <h3 className="font-bold text-slate-805 text-base tracking-tight leading-none">
+              <h3 className="font-bold text-slate-805 text-base tracking-tight leading-none flex items-center gap-1.5 justify-center">
                 {customer.customer_name}
+                {customer.vip_status && (
+                  <span className="bg-amber-100 text-amber-800 text-[8px] font-extrabold px-1.5 py-0.5 rounded border border-amber-200 uppercase tracking-wider select-none scale-90">
+                    VIP
+                  </span>
+                )}
               </h3>
               <span className="inline-block mt-2 px-2 py-0.5 rounded bg-slate-150 border border-slate-200 text-[10px] text-slate-500 font-mono font-semibold">
                 ID: #{customer.id.slice(0, 8)}
@@ -287,9 +306,21 @@ export default function CustomerDetailPage() {
                   <span className="leading-snug">{customer.address}</span>
                 </div>
               ) : (
-                <div className="flex items-start gap-3 p-2 text-slate-400 rounded-lg italic">
+                <div className="flex items-start gap-3 p-2 text-slate-405 text-slate-400 rounded-lg italic">
                   <MapPin className="h-4 w-4 text-slate-300 shrink-0" />
                   <span>No address registered</span>
+                </div>
+              )}
+              {customer.company_name && (
+                <div className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                  <span className="text-slate-400 shrink-0 w-4 text-center leading-none text-base">🏢</span>
+                  <span className="leading-snug truncate">{customer.company_name}</span>
+                </div>
+              )}
+              {customer.gst_number && (
+                <div className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg transition-colors font-mono">
+                  <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider bg-slate-100 border border-slate-200 px-1 py-0.2 rounded shrink-0 leading-none">GSTIN</span>
+                  <span className="font-semibold text-slate-700 leading-none">{customer.gst_number}</span>
                 </div>
               )}
             </div>
@@ -354,7 +385,7 @@ export default function CustomerDetailPage() {
 
             {activeTab === 'documents' && <DocumentsTab />}
 
-            {activeTab === 'timeline' && <ActivityTimeline />}
+            {activeTab === 'timeline' && <DynamicActivityTimeline customerId={id} />}
           </div>
         </div>
       </div>
@@ -381,7 +412,12 @@ export default function CustomerDetailPage() {
                 phone: customer.phone,
                 email: customer.email || '',
                 address: customer.address || '',
+                city: customer.city || '',
+                state: customer.state || '',
                 notes: customer.notes || '',
+                company_name: customer.company_name || '',
+                gst_number: customer.gst_number || '',
+                vip_status: customer.vip_status || false,
               }}
               onSubmit={handleEditSubmit}
               loading={updateCustomerMutation.isPending}
@@ -597,6 +633,203 @@ function DocumentsTab() {
         ) : (
           <div className="p-8 text-center text-slate-400 border border-slate-150 rounded-xl bg-slate-50/50">
             No documents uploaded yet.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ----------------------------------------------------
+// Auxiliary Tab Component for Dynamic Touchpoint Timeline
+// ----------------------------------------------------
+interface DynamicActivityTimelineProps {
+  customerId: string;
+}
+
+function DynamicActivityTimeline({ customerId }: DynamicActivityTimelineProps) {
+  const [touchpointType, setTouchpointType] = useState('Call');
+  const [touchpointNotes, setTouchpointNotes] = useState('');
+  
+  const queryClient = useQueryClient();
+  const logMutation = useLogCustomerInteractionMutation();
+
+  // Dynamic Query to load this customer's activity log timeline
+  const { data: logs = [], isLoading, refetch } = useQuery<any[], Error>({
+    queryKey: ['activity-logs', 'customer', customerId],
+    queryFn: async () => {
+      const response = await apiClient.get<any[]>(`/activity-logs/customer/${customerId}`);
+      return response.data || [];
+    },
+    enabled: !!customerId,
+  });
+
+  const handleLogTouchpoint = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!touchpointNotes.trim()) {
+      toast.error('Please enter interaction notes before logging.');
+      return;
+    }
+    
+    logMutation.mutate({
+      id: customerId,
+      type: touchpointType,
+      notes: touchpointNotes,
+    }, {
+      onSuccess: () => {
+        setTouchpointNotes('');
+        refetch();
+      }
+    });
+  };
+
+  // Helper: map action to styling and icons
+  const getLogMeta = (action: string, metadata?: any) => {
+    const act = action.toLowerCase();
+    if (act === 'customer.interaction') {
+      const type = (metadata?.type || 'Call').toLowerCase();
+      if (type.includes('email')) {
+        return { label: 'Email Interaction', icon: Mail, color: 'bg-blue-50 border-blue-200 text-blue-600' };
+      } else if (type.includes('whatsapp') || type.includes('message')) {
+        return { label: 'WhatsApp Interaction', icon: MessageSquare, color: 'bg-green-50 border-green-200 text-green-600' };
+      } else if (type.includes('meeting') || type.includes('physical')) {
+        return { label: 'Meeting Touchpoint', icon: Users, color: 'bg-purple-50 border-purple-205 text-purple-600' };
+      } else {
+        return { label: 'Phone Call Touchpoint', icon: Phone, color: 'bg-amber-50 border-amber-250 text-amber-600' };
+      }
+    }
+
+    if (act.includes('created')) {
+      return { label: 'Created Event/Booking', icon: Calendar, color: 'bg-primary-lighter border-primary-light/10 text-primary-light' };
+    }
+    if (act.includes('payment') || act.includes('paid')) {
+      return { label: 'Payment Transacted', icon: DollarSign, color: 'bg-emerald-50 border-emerald-100 text-emerald-600' };
+    }
+    if (act.includes('invoice')) {
+      return { label: 'Invoice Generated', icon: FileText, color: 'bg-slate-100 border-slate-205 text-slate-700' };
+    }
+
+    return { label: 'System Log', icon: History, color: 'bg-slate-50 border-slate-205 text-slate-500' };
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* 1. Form to Log New touchpoint interaction */}
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
+        <div>
+          <h4 className="text-xs font-semibold text-slate-800 uppercase tracking-wider">Log CRM Touchpoint</h4>
+          <p className="text-[11px] text-slate-400 mt-0.5">Record a physical/digital conversation with the customer</p>
+        </div>
+
+        <form onSubmit={handleLogTouchpoint} className="space-y-4 font-semibold text-xs text-slate-750">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+            <div className="flex flex-col gap-1.5 sm:col-span-1">
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">Touchpoint Type</span>
+              <select
+                id="touchpointType"
+                value={touchpointType}
+                onChange={(e) => setTouchpointType(e.target.value)}
+                className="h-9 px-2 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none focus:ring-1 focus:ring-primary cursor-pointer shadow-sm font-semibold w-full"
+              >
+                <option value="Call">📞 Phone Call</option>
+                <option value="Email">✉️ Email Message</option>
+                <option value="WhatsApp">💬 WhatsApp Chat</option>
+                <option value="Meeting">🤝 In-Person Meeting</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1.5 sm:col-span-2">
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">Notes / Discussion Details</span>
+              <input
+                id="touchpointNotes"
+                type="text"
+                value={touchpointNotes}
+                onChange={(e) => setTouchpointNotes(e.target.value)}
+                placeholder="Notes on what was discussed or decided..."
+                className="w-full h-9 px-3 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:bg-white rounded-lg focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={logMutation.isPending}
+              className="bg-primary hover:bg-primary-hover text-white h-9 px-4 rounded-lg font-semibold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            >
+              {logMutation.isPending ? (
+                <>
+                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <PlusCircle className="h-4 w-4 shrink-0" />
+                  Log Touchpoint
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* 2. Interactive Feed */}
+      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        <div className="border-b border-slate-100 pb-3.5 mb-6 flex justify-between items-center">
+          <div>
+            <h3 className="font-semibold text-slate-800 text-sm flex items-center gap-2">
+              <History className="h-4.5 w-4.5 text-primary-light" />
+              Customer Engagement Timeline
+            </h3>
+            <p className="text-xs text-slate-400 font-medium mt-0.5">Audit log of system actions and logged touchpoints</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="p-1 rounded hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+            title="Refresh feed"
+          >
+            <RefreshCw className="h-4 w-4 shrink-0" />
+          </button>
+        </div>
+
+        {isLoading ? (
+          <div className="text-center py-8 text-slate-400">Loading timeline data...</div>
+        ) : logs.length > 0 ? (
+          <div className="relative pl-6 border-l border-slate-200 space-y-6 ml-3">
+            {logs.map((item: any) => {
+              const meta = getLogMeta(item.action, item.metadata);
+              const LogIcon = meta.icon;
+              return (
+                <div key={item.id} className="relative flex gap-4 items-start text-xs font-semibold">
+                  {/* Connector icon dot */}
+                  <div className="absolute -left-[35px] bg-white rounded-full p-1 border border-slate-200 shadow-sm">
+                    <div className={`h-6 w-6 rounded-full flex items-center justify-center shrink-0 border ${meta.color}`}>
+                      <LogIcon className="h-3.5 w-3.5 shrink-0" />
+                    </div>
+                  </div>
+
+                  <div className="flex-1 bg-slate-50 border border-slate-100 rounded-lg p-3.5 hover:border-slate-205 transition-colors">
+                    <div className="flex justify-between items-baseline gap-2">
+                      <span className="text-slate-800 font-bold text-xs">{meta.label}</span>
+                      <span className="text-[9px] text-slate-400 font-mono font-bold uppercase tracking-wider shrink-0 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-sm">
+                        {formatDateTime(item.created_at)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1.5 font-medium leading-relaxed font-sans">
+                      {item.description}
+                    </p>
+                    <div className="text-[10px] text-slate-400 font-medium mt-2 flex items-center justify-between">
+                      <span>Logged by: <strong className="text-slate-500 capitalize">{item.user_name || 'System'}</strong></span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-slate-450 border border-dashed border-slate-150 rounded-xl bg-slate-50/50">
+            No activity history logged for this customer.
           </div>
         )}
       </div>

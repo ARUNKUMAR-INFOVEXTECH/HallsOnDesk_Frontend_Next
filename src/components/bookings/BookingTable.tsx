@@ -9,6 +9,7 @@ import { formatCurrency, formatDate } from '@/utils/formatters';
 import { BookingStatusBadge, BookingPaymentStatusBadge } from './BookingStatusBadge';
 import { DataTable } from '../tables/DataTable';
 import { useDeleteBooking } from '@/hooks/useBookings';
+import { obfuscateId } from '@/utils/obfuscate';
 
 interface BookingTableProps {
   bookings: Booking[];
@@ -79,7 +80,7 @@ export function BookingTable({ bookings, isLoading = false }: BookingTableProps)
       cell: ({ row }) => {
         return (
           <Link
-            href={`/dashboard/bookings/${row.original.id}`}
+            href={`/dashboard/bookings/${obfuscateId(row.original.id)}`}
             className="font-mono font-bold text-primary hover:text-primary-light transition-colors"
           >
             #{row.original.bookingNumber}
@@ -232,7 +233,7 @@ export function BookingTable({ bookings, isLoading = false }: BookingTableProps)
                 />
                 <div className="absolute right-0 mt-1 w-36 bg-white border border-slate-200 rounded-lg shadow-lg z-30 py-1 text-left animate-fadeIn text-xs font-semibold">
                   <Link
-                    href={`/dashboard/bookings/${id}`}
+                    href={`/dashboard/bookings/${obfuscateId(id)}`}
                     onClick={() => setActiveMenuId(null)}
                     className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 text-slate-700"
                   >
@@ -240,7 +241,7 @@ export function BookingTable({ bookings, isLoading = false }: BookingTableProps)
                     View Details
                   </Link>
                   <Link
-                    href={`/dashboard/bookings/${id}?tab=edit`}
+                    href={`/dashboard/bookings/${obfuscateId(id)}?tab=edit`}
                     onClick={() => setActiveMenuId(null)}
                     className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 text-slate-700"
                   >

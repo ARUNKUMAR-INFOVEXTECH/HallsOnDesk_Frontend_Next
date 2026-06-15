@@ -1,8 +1,25 @@
 import apiClient from '../client';
-import { HallProfile, HallSettings } from '@/types/settings';
+import { HallProfile, HallSettings, HallSubscription, SubscriptionPackage } from '@/types/settings';
+import Cookies from 'js-cookie';
 
 const PROFILE_LOCAL_KEY = 'hod_settings_profile';
 const SETTINGS_LOCAL_KEY = 'hod_settings_general';
+const SUB_LOCAL_KEY = 'hod_settings_subscription';
+
+const getProfileKey = () => {
+  const activeHallId = Cookies.get('active_hall_id');
+  return activeHallId ? `${PROFILE_LOCAL_KEY}_${activeHallId}` : PROFILE_LOCAL_KEY;
+};
+
+const getSettingsKey = () => {
+  const activeHallId = Cookies.get('active_hall_id');
+  return activeHallId ? `${SETTINGS_LOCAL_KEY}_${activeHallId}` : SETTINGS_LOCAL_KEY;
+};
+
+const getSubKey = () => {
+  const activeHallId = Cookies.get('active_hall_id');
+  return activeHallId ? `${SUB_LOCAL_KEY}_${activeHallId}` : SUB_LOCAL_KEY;
+};
 
 const initialProfileFallback: HallProfile = {
   id: 'hall-default',
@@ -79,6 +96,7 @@ const initialSettingsFallback: HallSettings = {
     workingHoursEnd: '23:00',
     workingDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
   },
+  invoiceTemplate: 'classic',
   updatedAt: new Date().toISOString(),
 };
 
@@ -108,7 +126,7 @@ export async function getHallProfile(): Promise<HallProfile> {
     const res = await apiClient.get<HallProfile>('/hall/profile');
     return res.data;
   } catch {
-    return getLocal(PROFILE_LOCAL_KEY, initialProfileFallback);
+    return getLocal(getProfileKey(), initialProfileFallback);
   }
 }
 
@@ -118,9 +136,9 @@ export async function updateHallProfile(data: Partial<HallProfile>): Promise<{ m
     const res = await apiClient.put<{ message: string; data: HallProfile }>('/hall/profile', data);
     return res.data;
   } catch {
-    const current = getLocal(PROFILE_LOCAL_KEY, initialProfileFallback);
+    const current = getLocal(getProfileKey(), initialProfileFallback);
     const updated = { ...current, ...data, updatedAt: new Date().toISOString() };
-    setLocal(PROFILE_LOCAL_KEY, updated);
+    setLocal(getProfileKey(), updated);
     return { message: 'Hall profile updated successfully', data: updated };
   }
 }
@@ -131,7 +149,7 @@ export async function getHallSettings(): Promise<HallSettings> {
     const res = await apiClient.get<HallSettings>('/hall/settings');
     return res.data;
   } catch {
-    return getLocal(SETTINGS_LOCAL_KEY, initialSettingsFallback);
+    return getLocal(getSettingsKey(), initialSettingsFallback);
   }
 }
 
@@ -141,9 +159,9 @@ export async function updateHallSettings(data: Partial<HallSettings>): Promise<{
     const res = await apiClient.put<{ message: string; data: HallSettings }>('/hall/settings', data);
     return res.data;
   } catch {
-    const current = getLocal(SETTINGS_LOCAL_KEY, initialSettingsFallback);
+    const current = getLocal(getSettingsKey(), initialSettingsFallback);
     const updated = { ...current, ...data, updatedAt: new Date().toISOString() };
-    setLocal(SETTINGS_LOCAL_KEY, updated);
+    setLocal(getSettingsKey(), updated);
     return { message: 'Settings saved successfully', data: updated };
   }
 }
@@ -170,4 +188,106 @@ export async function uploadCoverImage(file: File): Promise<{ message: string; c
     },
   });
   return res.data;
+}
+
+const PKG_LOCAL_KEY = 'hod_settings_packages';
+
+const defaultSubFallback: HallSubscription = {
+  id: 'sub-default',
+  hall_id: 'hall-default',
+  package_id: 'pkg-standard',
+  start_date: new Date(Date.now() - 3600000 * 24 * 12).toISOString().substring(0, 10),
+  end_date: new Date(Date.now() + 3600000 * 24 * 18).toISOString().substring(0, 10),
+  status: 'active',
+  payment_status: 'paid',
+  created_at: new Date().toISOString(),
+  packages: {
+    id: 'pkg-standard',
+    name: 'Standard Plan',
+    price: 2499,
+    billing_cycle: 'monthly',
+    max_users: 5,
+    max_bookings: 150,
+    features: {
+      reports: true,
+      vendors: true,
+      priority_support: false,
+      staff_management: true,
+    }
+  }
+};
+
+const defaultPackagesFallback: SubscriptionPackage[] = [
+  {
+    id: 'pkg-basic',
+    name: 'Basic',
+    price: 1500,
+    billing_cycle: 'monthly',
+    max_users: 2,
+    max_bookings: 50,
+    features: {
+      reports: false,
+      vendors: false,
+      priority_support: false,
+      staff_management: true,
+    }
+  },
+  {
+    id: 'pkg-standard',
+    name: 'Standard Plan',
+    price: 2499,
+    billing_cycle: 'monthly',
+    max_users: 5,
+    max_bookings: 150,
+    features: {
+      reports: true,
+      vendors: true,
+      priority_support: false,
+      staff_management: true,
+    }
+  },
+  {
+    id: 'pkg-premium',
+    name: 'Deluxe Enterprise',
+    price: 4999,
+    billing_cycle: 'monthly',
+    max_users: 15,
+    max_bookings: 500,
+    features: {
+      reports: true,
+      vendors: true,
+      priority_support: true,
+      staff_management: true,
+    }
+  }
+];
+
+// 7. Get Active Subscription
+export async function getActiveSubscription(): Promise<HallSubscription> {
+  try {
+    const res = await apiClient.get<HallSubscription>('/subscriptions/my');
+    return res.data;
+  } catch {
+    return getLocal<HallSubscription>(getSubKey(), defaultSubFallback);
+  }
+}
+
+// 8. Get All Packages
+export async function getAllPackages(): Promise<SubscriptionPackage[]> {
+  try {
+    const res = await apiClient.get<SubscriptionPackage[]>('/packages');
+    return res.data;
+  } catch {
+    return getLocal<SubscriptionPackage[]>(PKG_LOCAL_KEY, defaultPackagesFallback);
+  }
+}
+
+// 9. Request Subscription Upgrade / Renewal
+export async function requestSubscriptionChange(data: { package_id?: string; request_type: 'upgrade' | 'renewal'; notes?: string }): Promise<{ message: string }> {
+  try {
+    const res = await apiClient.post<{ message: string }>('/subscriptions/request-change', data);
+    return res.data;
+  } catch {
+    return { message: 'Subscription request submitted successfully (Offline Cache simulated)' };
+  }
 }

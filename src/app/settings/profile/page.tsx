@@ -33,8 +33,12 @@ import {
   Lock
 } from 'lucide-react';
 import { toast } from 'sonner';
+import Cookies from 'js-cookie';
 
-const DRAFT_KEY = 'hod_settings_draft_profile';
+const getDraftKey = () => {
+  const activeHallId = Cookies.get('active_hall_id');
+  return activeHallId ? `hod_settings_draft_profile_${activeHallId}` : 'hod_settings_draft_profile';
+};
 
 export default function HallProfilePage() {
   const { data: profile, isLoading: queryLoading, isError } = useHallProfile();
@@ -97,7 +101,7 @@ export default function HallProfilePage() {
       });
 
       // Restore unsaved draft if present
-      const savedDraft = localStorage.getItem(DRAFT_KEY);
+      const savedDraft = localStorage.getItem(getDraftKey());
       if (savedDraft) {
         try {
           const parsed = JSON.parse(savedDraft);
@@ -115,7 +119,7 @@ export default function HallProfilePage() {
   useEffect(() => {
     if (isDirty && Object.keys(watchedValues).length > 0) {
       const delay = setTimeout(() => {
-        localStorage.setItem(DRAFT_KEY, JSON.stringify(watchedValues));
+        localStorage.setItem(getDraftKey(), JSON.stringify(watchedValues));
       }, 1000);
       return () => clearTimeout(delay);
     }
@@ -143,7 +147,7 @@ export default function HallProfilePage() {
   const onSubmitForm = async (values: any) => {
     try {
       await updateProfileMutation.mutateAsync(values);
-      localStorage.removeItem(DRAFT_KEY);
+      localStorage.removeItem(getDraftKey());
       reset(values); // clear dirty state
     } catch {
       // handled
@@ -152,7 +156,7 @@ export default function HallProfilePage() {
 
   const handleDiscardChanges = () => {
     if (confirm('Discard all unsaved edits for your profile?')) {
-      localStorage.removeItem(DRAFT_KEY);
+      localStorage.removeItem(getDraftKey());
       if (profile) {
         reset({
           hallName: profile.hallName,

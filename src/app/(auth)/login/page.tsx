@@ -12,7 +12,7 @@ import { FormProvider } from '@/components/forms/FormProvider';
 import { EmailField, PasswordField, RememberMeCheckbox } from '@/components/auth/AuthFields';
 import { AuthButton } from '@/components/auth/AuthButtons';
 import { AuthErrorAlert, AuthSuccessAlert } from '@/components/auth/AuthAlerts';
-import { Globe, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 // Validation Schema using Zod
 const loginSchema = z.object({
@@ -102,11 +102,11 @@ export default function LoginPage() {
         
         {/* Header Logo */}
         <div className="flex items-center gap-3 relative z-10">
-          <div className="h-9 w-9 rounded-xl bg-[#071426] flex items-center justify-center border border-[#1E2E44] shrink-0 shadow-sm">
-            <Globe className="h-5 w-5 text-[#EE9B00]" />
+          <div className="h-9 w-9 rounded-xl bg-[#071426] overflow-hidden flex items-center justify-center border border-[#1E2E44] shrink-0 shadow-sm">
+            <img src="/favicon.png" alt="Infovex Halls Icon" className="h-full w-full object-cover" />
           </div>
           <span className="font-bold text-lg text-white tracking-tight">
-            Halls<span className="text-[#EE9B00]">OnDesk</span>
+            Infovex <span className="text-[#EE9B00]">Halls</span>
           </span>
         </div>
 
@@ -135,7 +135,7 @@ export default function LoginPage() {
 
         {/* Bottom copyright info / gradient glow overlay */}
         <div className="text-xs text-gray-500 relative z-10 font-bold uppercase tracking-wider">
-          Infovex Technologies • Tamil Nadu Focused Venue SaaS
+          Infovex Technologies • India's First Marriage Hall CRM & ERP
         </div>
 
         {/* Left glow */}
@@ -148,11 +148,11 @@ export default function LoginPage() {
           
           {/* Small Top Logo on mobile only */}
           <div className="flex items-center gap-2.5 lg:hidden mb-6">
-            <div className="h-8.5 w-8.5 rounded-xl bg-[#071426] flex items-center justify-center border border-[#1E2E44] shrink-0">
-              <Globe className="h-4.5 w-4.5 text-[#EE9B00]" />
+            <div className="h-8.5 w-8.5 rounded-xl bg-[#071426] overflow-hidden flex items-center justify-center border border-[#1E2E44] shrink-0">
+              <img src="/favicon.png" alt="Infovex Halls Icon" className="h-full w-full object-cover" />
             </div>
             <span className="font-bold text-sm text-gray-900 tracking-tight">
-              Halls<span className="text-[#EE9B00]">OnDesk</span>
+              Infovex <span className="text-[#EE9B00]">Halls</span>
             </span>
           </div>
 

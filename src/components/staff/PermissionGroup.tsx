@@ -45,7 +45,7 @@ export function PermissionGroup({
               onClick={() => handleToggle(item.value)}
               className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
                 isChecked
-                  ? 'bg-violet-50/40 border-violet-200'
+                  ? 'bg-primary-lighter/45 border-primary-light/20'
                   : 'bg-white border-slate-100 hover:border-slate-250'
               }`}
             >
@@ -53,7 +53,7 @@ export function PermissionGroup({
                 type="checkbox"
                 checked={isChecked}
                 readOnly
-                className="mt-0.5 h-4 w-4 rounded border-slate-300 text-violet-605 focus:ring-violet-500 accent-violet-600 cursor-pointer shrink-0"
+                className="mt-0.5 h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary accent-primary cursor-pointer shrink-0"
               />
               <div className="space-y-0.5">
                 <span className="text-xs font-bold text-slate-800 block">

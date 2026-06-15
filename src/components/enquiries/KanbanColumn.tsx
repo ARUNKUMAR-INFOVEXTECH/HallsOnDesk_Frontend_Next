@@ -104,13 +104,12 @@ export function KanbanColumn({
         </div>
       </div>
 
-      {/* Droppable Card list container */}
       <Droppable droppableId={stage}>
         {(provided, snapshot) => (
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`flex-1 overflow-y-auto pt-3 pb-6 space-y-1.5 transition-colors duration-150 min-h-[450px] ${
+            className={`flex-1 pt-3 pb-6 space-y-1.5 transition-colors duration-150 min-h-[450px] ${
               snapshot.isDraggingOver ? 'bg-violet-50/10 rounded-lg' : ''
             }`}
           >

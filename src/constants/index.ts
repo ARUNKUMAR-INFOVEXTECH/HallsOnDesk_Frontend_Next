@@ -58,6 +58,12 @@ export const DASHBOARD_NAV_ITEMS: NavigationItem[] = [
     roles: ['owner', 'manager'],
   },
   {
+    title: 'Invoices',
+    href: '/dashboard/invoices',
+    icon: 'FileText',
+    roles: ['owner', 'manager', 'staff'],
+  },
+  {
     title: 'Vendors',
     href: '/dashboard/vendors',
     icon: 'Briefcase',
@@ -75,10 +81,11 @@ export const DASHBOARD_NAV_ITEMS: NavigationItem[] = [
     icon: 'Inbox',
     roles: ['owner', 'manager', 'staff'],
   },
+
   {
-    title: 'Hall Profile',
-    href: '/dashboard/profile',
-    icon: 'Building',
+    title: 'Support Center',
+    href: '/dashboard/support',
+    icon: 'LifeBuoy',
     roles: ['owner', 'manager'],
   },
   {

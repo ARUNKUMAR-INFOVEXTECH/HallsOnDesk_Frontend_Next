@@ -26,8 +26,8 @@ export function VendorStatsCards({ stats, isLoading = false }: VendorStatsCardsP
       value: totalVendors,
       label: 'All vendors',
       icon: Users2,
-      color: 'bg-violet-50 text-violet-755 border-violet-100',
-      iconColor: 'text-violet-600',
+      color: 'bg-primary-lighter text-primary-light border-primary-light/10',
+      iconColor: 'text-primary-light',
     },
     {
       title: 'Active Vendors',

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useAdminHallDetails, useAdminHalls } from '@/hooks/useAdmin';
+import { useAdminHallDetails, useAdminHalls, useAdminHallStats, useAdminHallActivity } from '@/hooks/useAdmin';
 import { STATUS_STYLES } from '@/constants';
 import {
   Building2,
@@ -25,13 +25,16 @@ import {
   BadgeAlert
 } from 'lucide-react';
 import Link from 'next/link';
+import { deobfuscateId } from '@/utils/obfuscate';
 
 export default function AdminHallDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const id = params.id as string;
+  const id = deobfuscateId(params.id as string);
 
   const { data: hall, isLoading, isError } = useAdminHallDetails(id);
+  const { data: hallStats, isLoading: statsLoading } = useAdminHallStats(id);
+  const { data: hallActivity = [], isLoading: activityLoading } = useAdminHallActivity(id);
   const { suspendHall, activateHall } = useAdminHalls();
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'billing' | 'activity'>('overview');
 
@@ -67,11 +70,15 @@ export default function AdminHallDetailPage() {
   const statusStyle = STATUS_STYLES.hall[hall.status === 'active' ? 'active' : 'inactive'];
   const subStyle = STATUS_STYLES.subscription[subStatus as 'active' | 'trial' | 'suspended' | 'expired'];
 
-  // Deriving dummy bookings and financial statistics for premium presentation
-  const bookingsCount = hall.bookings_count || 32;
-  const staffCount = hall.staff_count || 4;
-  const totalRevenue = activeSub?.packages?.price ? activeSub.packages.price * 5 : 0; // estimate
-  const pendingRevenue = activeSub?.status === 'trial' ? 0 : 4999;
+  // Real bookings and financial statistics from API
+  const bookingsCount = hallStats?.bookingsCount ?? 0;
+  const confirmedBookings = hallStats?.confirmedBookings ?? 0;
+  const pendingBookings = hallStats?.pendingBookings ?? 0;
+  const staffCount = hallStats?.staffCount ?? 0;
+  const totalRevenue = hallStats?.totalRevenue ?? 0;
+  const pendingRevenue = hallStats?.pendingBalance ?? 0;
+  const maxUsers = hallStats?.maxUsers ?? activeSub?.packages?.max_users ?? null;
+  const maxBookings = hallStats?.maxBookings ?? activeSub?.packages?.max_bookings ?? null;
 
   const handleStatusToggle = async () => {
     if (hall.status === 'active') {
@@ -107,7 +114,7 @@ export default function AdminHallDetailPage() {
                 <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full border ${subStyle.bg}`}>
                   {subStyle.label}
                 </span>
-                <span className="text-[10px] text-gray-400 font-medium">Since: {hall.created_at ? new Date(hall.created_at).toLocaleDateString() : 'N/A'}</span>
+                <span className="text-[10px] text-gray-400 font-medium">Since: {hall.created_at ? new Date(hall.created_at).toLocaleDateString('en-GB') : 'N/A'}</span>
               </div>
             </div>
           </div>
@@ -211,17 +218,16 @@ export default function AdminHallDetailPage() {
                       <span className="text-[9px] font-bold text-gray-400 uppercase">Total</span>
                     </div>
                     <div className="bg-green-50/50 rounded-lg p-3 border border-green-100">
-                      <span className="text-xl font-extrabold text-green-700 block font-mono">{Math.round(bookingsCount * 0.7)}</span>
-                      <span className="text-[9px] font-bold text-gray-400 uppercase">Confirmed</span>
-                    </div>
-                    <div className="bg-amber-50/50 rounded-lg p-3 border border-amber-100">
-                      <span className="text-xl font-extrabold text-amber-700 block font-mono">{Math.round(bookingsCount * 0.3)}</span>
-                      <span className="text-[9px] font-bold text-gray-400 uppercase">Pending</span>
-                    </div>
+                       <span className="text-xl font-extrabold text-green-700 block font-mono">{confirmedBookings}</span>
+                       <span className="text-[9px] font-bold text-gray-400 uppercase">Confirmed</span>
+                     </div>
+                     <div className="bg-amber-50/50 rounded-lg p-3 border border-amber-100">
+                       <span className="text-xl font-extrabold text-amber-700 block font-mono">{pendingBookings}</span>
+                       <span className="text-[9px] font-bold text-gray-400 uppercase">Pending</span>
+                     </div>
                   </div>
                 </div>
 
-                {/* Financials */}
                 <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
                   <div className="flex items-center gap-2 font-bold text-gray-900 text-sm border-b border-gray-50 pb-3 mb-4">
                     <DollarSign className="h-4.5 w-4.5 text-violet-600" />
@@ -336,13 +342,13 @@ export default function AdminHallDetailPage() {
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold text-gray-400 uppercase block">Contract Start Date</span>
                     <span className="text-gray-900 block">
-                      {activeSub?.start_date ? new Date(activeSub.start_date).toLocaleDateString() : 'N/A'}
+                      {activeSub?.start_date ? new Date(activeSub.start_date).toLocaleDateString('en-GB') : 'N/A'}
                     </span>
                   </div>
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold text-gray-400 uppercase block">Contract Expiry Date</span>
                     <span className="text-gray-900 block">
-                      {activeSub?.end_date ? new Date(activeSub.end_date).toLocaleDateString() : 'N/A'}
+                      {activeSub?.end_date ? new Date(activeSub.end_date).toLocaleDateString('en-GB') : 'N/A'}
                     </span>
                   </div>
                   <div className="space-y-1">
@@ -374,27 +380,38 @@ export default function AdminHallDetailPage() {
           {activeTab === 'activity' && (
             <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
               <h3 className="font-bold text-gray-900 text-sm border-b border-gray-50 pb-3 mb-4">Venue Activity Timeline</h3>
-              
-              <div className="space-y-6 pl-3 relative border-l border-gray-100 py-2">
-                {[
-                  { time: 'June 04, 2026', title: 'System Login Successful', desc: 'Owner logged in from IP 42.109.112.5.' },
-                  { time: 'May 29, 2026', title: 'Payment Invoice Settled', desc: 'Invoice INF-HOD-1024 of Rs. 4,999 paid successfully via UPI.' },
-                  { time: 'May 20, 2026', title: 'Trial Converted to Paid Plan', desc: 'Package updated to Professional Tier by Infovex Superadmin Suresh.' },
-                  { time: 'May 06, 2026', title: 'Hall Setup & Sign Up', desc: 'Hall registered. Free trial initiated for 14 days.' },
-                ].map((act, i) => (
-                  <div key={i} className="relative space-y-1">
-                    {/* timeline node dot */}
-                    <span className="absolute -left-5 top-1 h-3.5 w-3.5 rounded-full bg-white border-2 border-violet-600 flex items-center justify-center">
-                      <span className="h-1 w-1 bg-violet-600 rounded-full" />
-                    </span>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-bold text-xs text-gray-900">{act.title}</span>
-                      <span className="text-[10px] text-gray-400 font-semibold">{act.time}</span>
+
+              {activityLoading ? (
+                <div className="flex items-center justify-center py-10 gap-2 text-slate-400">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span className="text-xs font-medium">Loading activity logs...</span>
+                </div>
+              ) : hallActivity.length === 0 ? (
+                <div className="py-10 text-center text-gray-400">
+                  <Activity className="h-8 w-8 mx-auto mb-2" />
+                  <p className="text-xs font-medium">No activity logs found for this venue.</p>
+                </div>
+              ) : (
+                <div className="space-y-6 pl-3 relative border-l border-gray-100 py-2">
+                  {hallActivity.map((act, i) => (
+                    <div key={act.id} className="relative space-y-1">
+                      <span className="absolute -left-5 top-1 h-3.5 w-3.5 rounded-full bg-white border-2 border-violet-600 flex items-center justify-center">
+                        <span className="h-1 w-1 bg-violet-600 rounded-full" />
+                      </span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-xs text-gray-900">{act.title}</span>
+                        <span className="text-[10px] text-gray-400 font-semibold">
+                          {new Date(act.timestamp).toLocaleDateString('en-GB')}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 font-medium leading-relaxed">{act.description}</p>
+                      {act.actor && (
+                        <span className="text-[10px] text-violet-600 font-semibold">by {act.actor}</span>
+                      )}
                     </div>
-                    <p className="text-xs text-gray-500 font-medium leading-relaxed">{act.desc}</p>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -408,30 +425,20 @@ export default function AdminHallDetailPage() {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold text-gray-400 uppercase">Staff Accounts</span>
-                  <span className="text-gray-900">{staffCount} / 10 used</span>
+                  <span className="text-gray-900">{staffCount} / {maxUsers !== null ? maxUsers : '∞'} used</span>
                 </div>
                 <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-violet-600 rounded-full" style={{ width: `${(staffCount / 10) * 100}%` }} />
+                  <div className="h-full bg-violet-600 rounded-full" style={{ width: `${maxUsers ? Math.min((staffCount / maxUsers) * 100, 100) : 50}%` }} />
                 </div>
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold text-gray-400 uppercase">Monthly Bookings</span>
-                  <span className="text-gray-900">{bookingsCount} / 100 limit</span>
+                  <span className="text-gray-900">{bookingsCount} / {maxBookings !== null ? maxBookings : '∞'} limit</span>
                 </div>
                 <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-violet-600 rounded-full" style={{ width: `${(bookingsCount / 100) * 100}%` }} />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase">Media Storage</span>
-                  <span className="text-gray-900">1.2 GB / 10 GB</span>
-                </div>
-                <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-violet-600 rounded-full" style={{ width: '12%' }} />
+                  <div className="h-full bg-violet-600 rounded-full" style={{ width: `${maxBookings ? Math.min((bookingsCount / maxBookings) * 100, 100) : 50}%` }} />
                 </div>
               </div>
             </div>

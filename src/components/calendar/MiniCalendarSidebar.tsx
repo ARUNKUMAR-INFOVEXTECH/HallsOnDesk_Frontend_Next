@@ -107,7 +107,7 @@ export function MiniCalendarSidebar({
   }
 
   return (
-    <div className="w-64 border-r border-slate-200 bg-white h-full flex flex-col shrink-0 transition-all duration-300 overflow-y-auto">
+    <div className="w-64 border-r border-slate-200 bg-white h-full flex flex-col shrink-0 transition-all duration-300 overflow-y-auto no-scrollbar">
       {/* Sidebar Header / Collapser */}
       <div className="p-4 border-b border-slate-100 flex items-center justify-between shrink-0">
         <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">

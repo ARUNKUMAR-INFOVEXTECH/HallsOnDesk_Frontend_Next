@@ -25,7 +25,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Payment } from '@/types';
+import { Payment } from '@/types/payment';
+import { obfuscateId, deobfuscateId } from '@/utils/obfuscate';
 
 // Queries & Mutations
 import {
@@ -41,11 +42,22 @@ import {
 import {
   useInvoiceByBooking,
   useCreateInvoice,
+  useDeleteInvoice,
 } from '@/hooks/useInvoices';
 import {
   getInvoiceHtml,
   getReceiptHtml,
 } from '@/services/api/modules/invoices.service';
+import { useAuthStore } from '@/store/authStore';
+
+// Vendor Allocation Imports
+import {
+  useBookingVendors,
+  useDeallocateVendor,
+} from '@/hooks/useVendors';
+import { BookingVendor } from '@/types/vendor';
+import { AllocateVendorDrawer } from '@/components/bookings/AllocateVendorDrawer';
+import { Edit, ExternalLink, IndianRupee } from 'lucide-react';
 
 // Subcomponents & Helpers
 import { BookingDetailHeader } from '@/components/bookings/BookingDetailHeader';
@@ -76,10 +88,15 @@ function BookingDetailPage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const id = params.id as string;
+  const id = deobfuscateId(params.id as string);
 
   const [isEditing, setIsEditing] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+
+  // Vendor allocation states
+  const [activeTab, setActiveTab] = useState<'overview' | 'vendors'>('overview');
+  const [isVendorDrawerOpen, setIsVendorDrawerOpen] = useState(false);
+  const [editingVendorAllocation, setEditingVendorAllocation] = useState<BookingVendor | null>(null);
 
   // Modal form states
   const [payAmount, setPayAmount] = useState('');
@@ -121,17 +138,30 @@ function BookingDetailPage() {
 
   const invoice = rawInvoice && (rawInvoice as any).invoice_number === undefined && (rawInvoice as any).data ? (rawInvoice as any).data : rawInvoice;
 
+  // Booking vendors query
+  const {
+    data: bookingVendors = [],
+    isLoading: isBookingVendorsLoading,
+    refetch: refetchBookingVendors,
+  } = useBookingVendors(id);
+
   // Mutations
   const updateMutation = useUpdateBooking();
   const deleteMutation = useDeleteBooking();
   const createPaymentMutation = useCreatePayment();
   const deletePaymentMutation = useDeletePayment(id);
   const createInvoiceMutation = useCreateInvoice();
+  const deleteInvoiceMutation = useDeleteInvoice();
+  const deallocateMutation = useDeallocateVendor(id);
+
+  const { role } = useAuthStore();
+  const isAllowedToDeleteInvoice = role === 'owner' || role === 'manager';
 
   const handleRefresh = () => {
     refetchBooking();
     refetchPayments();
     refetchInvoice();
+    refetchBookingVendors();
   };
 
   // Perform updates
@@ -139,7 +169,7 @@ function BookingDetailPage() {
     try {
       await updateMutation.mutateAsync({ id, data });
       setIsEditing(false);
-      router.push(`/dashboard/bookings/${id}`);
+      router.push(`/dashboard/bookings/${obfuscateId(id)}`);
     } catch (err) {
       console.error('Update booking failed:', err);
     }
@@ -253,6 +283,21 @@ function BookingDetailPage() {
     }
   };
 
+  // Delete vendor allocation confirmation
+  const handleDeallocateVendor = async (vendorId: string, vendorName: string) => {
+    if (
+      window.confirm(
+        `Are you sure you want to remove vendor "${vendorName}" from this booking reservation?`
+      )
+    ) {
+      try {
+        await deallocateMutation.mutateAsync(vendorId);
+      } catch (err) {
+        console.error('Deallocate vendor failed:', err);
+      }
+    }
+  };
+
   if (isBookingLoading) {
     return (
       <div className="space-y-6 animate-pulse py-2">
@@ -303,6 +348,11 @@ function BookingDetailPage() {
   const pendingBalance = Math.max(0, netAmount - totalPaid);
   const paymentProgress = netAmount > 0 ? Math.min(100, Math.round((totalPaid / netAmount) * 100)) : 0;
 
+  // Calculate live vendor details
+  const totalAllocatedCost = bookingVendors.reduce((sum, bv) => sum + (bv.allocatedCost || 0), 0);
+  const totalVendorAmountPaid = bookingVendors.reduce((sum, bv) => sum + (bv.amountPaid || 0), 0);
+  const totalVendorAmountPending = Math.max(0, totalAllocatedCost - totalVendorAmountPaid);
+
   // Determine status color configurations
   const paymentStatusConfig = {
     paid: 'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -325,7 +375,7 @@ function BookingDetailPage() {
           <button
             onClick={() => {
               setIsEditing(false);
-              router.push(`/dashboard/bookings/${id}`);
+              router.push(`/dashboard/bookings/${obfuscateId(id)}`);
             }}
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-primary-light transition-colors cursor-pointer"
           >
@@ -356,13 +406,15 @@ function BookingDetailPage() {
             discountAmount: booking.discountAmount,
             status: booking.status,
             notes: booking.notes,
+            coordinatorName: booking.coordinatorName || '',
+            coordinatorPhone: booking.coordinatorPhone || '',
           }}
           onSubmit={handleEditSubmit}
           loading={updateMutation.isPending}
           submitLabel="Save Updates"
           onCancel={() => {
             setIsEditing(false);
-            router.push(`/dashboard/bookings/${id}`);
+            router.push(`/dashboard/bookings/${obfuscateId(id)}`);
           }}
           excludeBookingId={id}
         />
@@ -381,14 +433,41 @@ function BookingDetailPage() {
         }}
         onEditClick={() => {
           setIsEditing(true);
-          router.push(`/dashboard/bookings/${id}?tab=edit`);
+          router.push(`/dashboard/bookings/${obfuscateId(id)}?tab=edit`);
         }}
         onDeleteClick={handleDeleteBooking}
         isDeleting={deleteMutation.isPending}
       />
 
-      {/* 2. Main Two-Column Split Panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      {/* Tab Selector Header */}
+      <div className="border-b border-slate-200 flex gap-2 overflow-x-auto text-xs font-bold scrollbar-none mb-2 mt-4">
+        <button
+          onClick={() => setActiveTab('overview')}
+          className={`flex items-center gap-1.5 py-3 px-4 shrink-0 transition-all cursor-pointer border-b-2 -mb-[1px] ${
+            activeTab === 'overview'
+              ? 'border-primary-light text-primary-light'
+              : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+          }`}
+        >
+          <Calendar className="h-3.5 w-3.5 shrink-0" />
+          Overview Details
+        </button>
+        <button
+          onClick={() => setActiveTab('vendors')}
+          className={`flex items-center gap-1.5 py-3 px-4 shrink-0 transition-all cursor-pointer border-b-2 -mb-[1px] ${
+            activeTab === 'vendors'
+              ? 'border-primary-light text-primary-light'
+              : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+          }`}
+        >
+          <Users className="h-3.5 w-3.5 shrink-0" />
+          Vendor Allocations ({bookingVendors.length})
+        </button>
+      </div>
+
+      {activeTab === 'overview' && (
+        /* 2. Main Two-Column Split Panel */
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Client Contact, Event Meta, and Activity Lifecycles */}
         <div className="lg:col-span-8 space-y-6">
           
@@ -472,6 +551,30 @@ function BookingDetailPage() {
                   <span className="text-slate-800 font-bold block mt-1.5 font-mono">{booking.guestCount.toLocaleString()} Guests</span>
                 </div>
               </div>
+
+              {booking.coordinatorName && (
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-primary-lighter text-primary-light border border-primary-light/10 flex items-center justify-center shrink-0">
+                    <User className="h-4.5 w-4.5" />
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-slate-400 block uppercase tracking-wider font-bold leading-none">On-Site Coordinator</span>
+                    <span className="text-slate-800 font-bold block mt-1.5">{booking.coordinatorName}</span>
+                  </div>
+                </div>
+              )}
+
+              {booking.coordinatorPhone && (
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-primary-lighter text-primary-light border border-primary-light/10 flex items-center justify-center shrink-0">
+                    <Phone className="h-4.5 w-4.5" />
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-slate-400 block uppercase tracking-wider font-bold leading-none">Coordinator Phone</span>
+                    <span className="text-slate-800 font-bold block mt-1.5 font-mono">{booking.coordinatorPhone}</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Render Notes if they exist */}
@@ -607,13 +710,42 @@ function BookingDetailPage() {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => handlePrintInvoice(invoice.id)}
-                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 border border-slate-200 hover:border-slate-350 bg-white hover:bg-slate-50 text-slate-650 rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer mt-1"
-                >
-                  <Printer className="h-3.5 w-3.5" />
-                  Print / Download Invoice
-                </button>
+                <div className="flex gap-2 mt-1">
+                  <button
+                    onClick={() => handlePrintInvoice(invoice.id)}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 border border-slate-200 hover:border-slate-350 bg-white hover:bg-slate-50 text-slate-655 rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
+                  >
+                    <Printer className="h-3.5 w-3.5" />
+                    Print / Download
+                  </button>
+                  {isAllowedToDeleteInvoice && (
+                    <button
+                      onClick={async () => {
+                        if (
+                          window.confirm(
+                            `Are you sure you want to permanently delete invoice #${invoice.invoice_number}?`
+                          )
+                        ) {
+                          try {
+                            await deleteInvoiceMutation.mutateAsync(invoice.id);
+                            refetchInvoice();
+                          } catch (err) {
+                            console.error('Delete invoice failed:', err);
+                          }
+                        }
+                      }}
+                      disabled={deleteInvoiceMutation.isPending}
+                      className="flex items-center justify-center gap-1.5 py-2 px-3 border border-rose-100 hover:border-rose-350 bg-rose-50/50 hover:bg-rose-50 text-rose-600 rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                      title="Delete Invoice"
+                    >
+                      {deleteInvoiceMutation.isPending ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-3.5 w-3.5 shrink-0" />
+                      )}
+                    </button>
+                  )}
+                </div>
               </div>
             ) : (
               <div className="space-y-4 text-center py-2 font-medium">
@@ -663,9 +795,9 @@ function BookingDetailPage() {
                         {formatCurrency(payment.amount)}
                       </span>
                       <div className="flex items-center gap-2 text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-1.5 leading-none">
-                        <span>{payment.payment_method.replace('_', ' ')}</span>
+                        <span>{(payment.paymentMethod || 'cash').replace('_', ' ')}</span>
                         <span>•</span>
-                        <span className="font-mono">{formatDate(payment.payment_date)}</span>
+                        <span className="font-mono">{formatDate(payment.paymentDate)}</span>
                       </div>
                     </div>
 
@@ -697,7 +829,195 @@ function BookingDetailPage() {
           </div>
 
         </div>
-      </div>      {/* 3. Sliding / Modal record payment form overlay */}
+      </div>
+      )}
+
+      {activeTab === 'vendors' && (
+        <div className="space-y-6 animate-fadeIn">
+          {/* Expenses summary metrics cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex items-center justify-between text-xs font-semibold">
+              <div className="space-y-1">
+                <span className="text-[10px] text-slate-400 block uppercase tracking-wider font-bold">Total Allocated Cost</span>
+                <span className="text-slate-800 font-extrabold text-lg font-mono">{formatCurrency(totalAllocatedCost)}</span>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400">
+                <IndianRupee className="h-5 w-5" />
+              </div>
+            </div>
+
+            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex items-center justify-between text-xs font-semibold">
+              <div className="space-y-1">
+                <span className="text-[10px] text-slate-400 block uppercase tracking-wider font-bold">Total Amount Paid</span>
+                <span className="text-emerald-600 font-extrabold text-lg font-mono">{formatCurrency(totalVendorAmountPaid)}</span>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-500">
+                <IndianRupee className="h-5 w-5" />
+              </div>
+            </div>
+
+            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex items-center justify-between text-xs font-semibold">
+              <div className="space-y-1">
+                <span className="text-[10px] text-slate-400 block uppercase tracking-wider font-bold">Pending Vendor Balance</span>
+                <span className={`font-extrabold text-lg font-mono ${totalVendorAmountPending > 0 ? 'text-amber-600' : 'text-slate-500'}`}>{formatCurrency(totalVendorAmountPending)}</span>
+              </div>
+              <div className={`h-10 w-10 rounded-full flex items-center justify-center border ${totalVendorAmountPending > 0 ? 'bg-amber-50 border-amber-100 text-amber-500' : 'bg-slate-50 border-slate-100 text-slate-400'}`}>
+                <IndianRupee className="h-5 w-5" />
+              </div>
+            </div>
+          </div>
+
+          {/* Allocated vendors list table card */}
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-5">
+              <div>
+                <h3 className="text-sm font-semibold text-slate-800">Allocated Vendor Partners</h3>
+                <p className="text-[11px] text-slate-400 font-medium mt-0.5">Manage decorators, caterers, photographers, and payment balances for this event</p>
+              </div>
+              <button
+                onClick={() => {
+                  setEditingVendorAllocation(null);
+                  setIsVendorDrawerOpen(true);
+                }}
+                className="flex items-center gap-1.5 py-2 px-4 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
+              >
+                <Plus className="h-4 w-4 shrink-0" />
+                Allocate Vendor Partner
+              </button>
+            </div>
+
+            {isBookingVendorsLoading ? (
+              <div className="flex items-center justify-center py-12 text-slate-450 gap-2 font-medium">
+                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                Loading allocated vendors...
+              </div>
+            ) : bookingVendors.length > 0 ? (
+              <div className="overflow-x-auto -mx-6">
+                <table className="w-full text-left border-collapse text-xs font-semibold text-slate-650">
+                  <thead>
+                    <tr className="border-b border-slate-100 bg-slate-50/50 text-[10px] text-slate-400 uppercase tracking-wider font-bold">
+                      <th className="px-6 py-3">Vendor Name</th>
+                      <th className="px-6 py-3">Service Category</th>
+                      <th className="px-6 py-3">Contact Phone</th>
+                      <th className="px-6 py-3">Allocated Cost</th>
+                      <th className="px-6 py-3">Amount Paid</th>
+                      <th className="px-6 py-3">Payment Status</th>
+                      <th className="px-6 py-3 max-w-[200px]">Notes</th>
+                      <th className="px-6 py-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-105">
+                    {bookingVendors.map((vendorAlloc) => {
+                      const vName = vendorAlloc.vendors?.vendor_name || 'Unnamed Vendor';
+                      const vPhone = vendorAlloc.vendors?.phone || 'N/A';
+                      const vCat = vendorAlloc.serviceType;
+                      
+                      return (
+                        <tr key={vendorAlloc.id} className="hover:bg-slate-50/40 transition-colors">
+                          <td className="px-6 py-3.5">
+                            <Link
+                              href={`/dashboard/vendors/${obfuscateId(vendorAlloc.vendorId)}`}
+                              className="text-primary hover:text-primary-hover hover:underline flex items-center gap-1 font-bold"
+                            >
+                              {vName}
+                              <ExternalLink className="h-3 w-3 shrink-0" />
+                            </Link>
+                          </td>
+                          <td className="px-6 py-3.5">
+                            <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-[10px] font-bold text-slate-600 uppercase border border-slate-200/40">
+                              {vCat}
+                            </span>
+                          </td>
+                          <td className="px-6 py-3.5 font-mono text-slate-800">{vPhone}</td>
+                          <td className="px-6 py-3.5 font-mono text-slate-800 font-bold">{formatCurrency(vendorAlloc.allocatedCost)}</td>
+                          <td className="px-6 py-3.5 font-mono text-emerald-600 font-bold">{formatCurrency(vendorAlloc.amountPaid)}</td>
+                          <td className="px-6 py-3.5">
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider border ${
+                                vendorAlloc.paymentStatus === 'paid'
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                  : vendorAlloc.paymentStatus === 'partial'
+                                  ? 'bg-amber-50 text-amber-700 border-amber-250'
+                                  : 'bg-rose-50 text-rose-700 border-rose-250'
+                              }`}
+                            >
+                              {vendorAlloc.paymentStatus === 'paid'
+                                ? 'Paid'
+                                : vendorAlloc.paymentStatus === 'partial'
+                                ? 'Partial'
+                                : 'Unpaid'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-3.5 text-slate-400 truncate max-w-[200px] font-medium" title={vendorAlloc.notes}>
+                            {vendorAlloc.notes || '-'}
+                          </td>
+                          <td className="px-6 py-3.5 text-right space-x-2 shrink-0">
+                            <button
+                              onClick={() => {
+                                setEditingVendorAllocation(vendorAlloc);
+                                setIsVendorDrawerOpen(true);
+                              }}
+                              title="Edit Allocation"
+                              className="h-7 w-7 inline-flex items-center justify-center text-slate-450 hover:text-slate-700 border border-slate-200 hover:border-slate-350 bg-white rounded-md transition-all cursor-pointer shadow-sm"
+                            >
+                              <Edit className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleDeallocateVendor(vendorAlloc.vendorId, vName)}
+                              title="Deallocate Vendor"
+                              disabled={deallocateMutation.isPending}
+                              className="h-7 w-7 inline-flex items-center justify-center text-red-500 hover:text-red-750 border border-red-100 hover:border-red-200 bg-white hover:bg-rose-50 rounded-md transition-all cursor-pointer shadow-sm disabled:opacity-50"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-12 border border-slate-150 border-dashed rounded-xl bg-slate-50/50 space-y-4 font-medium">
+                <div className="h-10 w-10 rounded-full bg-slate-100/70 border border-slate-200 flex items-center justify-center mx-auto text-slate-450">
+                  <Users className="h-5 w-5" />
+                </div>
+                <p className="text-[11px] text-slate-450 leading-relaxed max-w-[240px] mx-auto">
+                  No vendor partners allocated to this event yet.
+                </p>
+                <button
+                  onClick={() => {
+                    setEditingVendorAllocation(null);
+                    setIsVendorDrawerOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 py-2 px-4 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
+                >
+                  <Plus className="h-4 w-4 shrink-0" />
+                  Allocate First Vendor
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Allocate Vendor Drawer component */}
+      {booking && (
+        <AllocateVendorDrawer
+          isOpen={isVendorDrawerOpen}
+          onClose={() => {
+            setIsVendorDrawerOpen(false);
+            setEditingVendorAllocation(null);
+          }}
+          bookingId={id}
+          bookingStartDate={booking.eventDate}
+          bookingEndDate={booking.eventEndDate}
+          bookingNumber={booking.bookingNumber}
+          editingAllocation={editingVendorAllocation}
+        />
+      )}
+
+      {/* 3. Sliding / Modal record payment form overlay */}
       <AnimatePresence>
         {showPaymentModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

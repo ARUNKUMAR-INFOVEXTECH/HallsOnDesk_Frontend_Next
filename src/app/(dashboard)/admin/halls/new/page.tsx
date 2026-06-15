@@ -1,0 +1,421 @@
+'use client';
+
+import React, { useState } from 'react';
+import { useAdminHalls, useAdminPackages } from '@/hooks/useAdmin';
+import { Building2, Phone, Mail, MapPin, Lock, User, Key, ArrowLeft, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+
+export default function RegisterHallPage() {
+  const router = useRouter();
+  const { createHall, isCreating } = useAdminHalls();
+  const { packages = [], isLoading: packagesLoading } = useAdminPackages();
+
+  const [formData, setFormData] = useState({
+    hall_name: '',
+    owner_name: '',
+    owner_email: '',
+    phone: '',
+    city: '',
+    address: '',
+    package_id: '',
+    password: '',
+    confirm_password: '',
+  });
+
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.hall_name.trim()) errors.hall_name = 'Hall name is required';
+    if (!formData.owner_name.trim()) errors.owner_name = 'Owner name is required';
+
+    // Phone validation (10 digits)
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!formData.phone) {
+      errors.phone = 'Phone number is required';
+    } else if (!phoneRegex.test(formData.phone)) {
+      errors.phone = 'Phone number must be exactly 10 digits';
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.owner_email) {
+      errors.owner_email = 'Email address is required';
+    } else if (!emailRegex.test(formData.owner_email)) {
+      errors.owner_email = 'Please enter a valid email address';
+    }
+
+    // Password validation
+    if (!formData.password) {
+      errors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      errors.password = 'Password must be at least 6 characters';
+    }
+
+    // Confirm password
+    if (formData.password !== formData.confirm_password) {
+      errors.confirm_password = 'Passwords do not match';
+    }
+
+    if (!formData.city.trim()) errors.city = 'City is required';
+    if (!formData.address.trim()) errors.address = 'Address is required';
+    if (!formData.package_id) errors.package_id = 'Please select a package';
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Set default package if not selected
+    if (!formData.package_id && packages.length > 0) {
+      formData.package_id = packages[0].id;
+    }
+
+    if (!validateForm()) {
+      toast.error('Please fix the validation errors in the form.');
+      return;
+    }
+
+    try {
+      const payload = {
+        hall_name: formData.hall_name,
+        owner_name: formData.owner_name,
+        owner_email: formData.owner_email,
+        phone: formData.phone,
+        city: formData.city,
+        address: formData.address,
+        package_id: formData.package_id,
+        password: formData.password,
+      };
+
+      await createHall(payload);
+      router.push('/admin/halls');
+    } catch {
+      // Error is already handled by useAdminHalls hook/toast
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear validation error on change
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    }
+  };
+
+  return (
+    <div className="space-y-6 max-w-4xl mx-auto">
+      {/* Header with Back button */}
+      <div className="flex items-center gap-4">
+        <Link
+          href="/admin/halls"
+          className="p-2 bg-white border border-gray-100 hover:bg-gray-50 text-gray-500 rounded-lg shadow-sm transition-colors cursor-pointer"
+        >
+          <ArrowLeft className="h-4.5 w-4.5" />
+        </Link>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 font-sans">Register New Venue</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Fill in the details to deploy a new HallFlow instance for a partner venue.
+          </p>
+        </div>
+      </div>
+
+      {/* Main Form Card */}
+      <form onSubmit={handleSubmit} className="bg-white border border-gray-100 shadow-sm rounded-xl overflow-hidden">
+        {/* Progress header */}
+        <div className="bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-5 text-white flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white/10 rounded-lg">
+              <Building2 className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-violet-200">System Integration</span>
+              <h3 className="text-base font-bold">Venue Information Profile</h3>
+            </div>
+          </div>
+          <span className="text-xs bg-white/20 font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Step 1 of 1</span>
+        </div>
+
+        <div className="p-6 space-y-8">
+          {/* Section 1: Venue Details */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold text-violet-600 uppercase tracking-wider border-b border-gray-50 pb-2">1. Venue Space Details</h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Hall / Venue Name</label>
+                <div className="relative">
+                  <Building2 className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    name="hall_name"
+                    required
+                    placeholder="e.g. Infovex Tech Mahal"
+                    value={formData.hall_name}
+                    onChange={handleInputChange}
+                    className={`pl-10 pr-4 py-2.5 w-full text-xs font-semibold bg-gray-50/50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all ${
+                      validationErrors.hall_name ? 'border-red-500 bg-red-50/10' : 'border-gray-200'
+                    }`}
+                  />
+                </div>
+                {validationErrors.hall_name && (
+                  <p className="text-[10px] text-red-500 font-bold">{validationErrors.hall_name}</p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">District / City</label>
+                <div className="relative">
+                  <MapPin className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    name="city"
+                    required
+                    placeholder="e.g. Chennai"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    className={`pl-10 pr-4 py-2.5 w-full text-xs font-semibold bg-gray-50/50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all ${
+                      validationErrors.city ? 'border-red-500 bg-red-50/10' : 'border-gray-200'
+                    }`}
+                  />
+                </div>
+                {validationErrors.city && (
+                  <p className="text-[10px] text-red-500 font-bold">{validationErrors.city}</p>
+                )}
+              </div>
+
+              <div className="col-span-1 md:col-span-2 space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Full Physical Address</label>
+                <textarea
+                  name="address"
+                  required
+                  rows={2}
+                  placeholder="Enter physical street location, landmark, pincode..."
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  className={`px-4 py-2.5 w-full text-xs font-semibold bg-gray-50/50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all ${
+                    validationErrors.address ? 'border-red-500 bg-red-50/10' : 'border-gray-200'
+                  }`}
+                />
+                {validationErrors.address && (
+                  <p className="text-[10px] text-red-500 font-bold">{validationErrors.address}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Owner / Credentials */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold text-violet-600 uppercase tracking-wider border-b border-gray-50 pb-2">2. Owner profile & Admin Account</h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Owner Full Name</label>
+                <div className="relative">
+                  <User className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    name="owner_name"
+                    required
+                    placeholder="e.g. Rajesh Nair"
+                    value={formData.owner_name}
+                    onChange={handleInputChange}
+                    className={`pl-10 pr-4 py-2.5 w-full text-xs font-semibold bg-gray-50/50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all ${
+                      validationErrors.owner_name ? 'border-red-500 bg-red-50/10' : 'border-gray-200'
+                    }`}
+                  />
+                </div>
+                {validationErrors.owner_name && (
+                  <p className="text-[10px] text-red-500 font-bold">{validationErrors.owner_name}</p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Phone Number (10 Digits)</label>
+                <div className="relative">
+                  <Phone className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
+                  <input
+                    type="tel"
+                    name="phone"
+                    required
+                    placeholder="e.g. 9840123456"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className={`pl-10 pr-4 py-2.5 w-full text-xs font-semibold bg-gray-50/50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all ${
+                      validationErrors.phone ? 'border-red-500 bg-red-50/10' : 'border-gray-200'
+                    }`}
+                  />
+                </div>
+                {validationErrors.phone && (
+                  <p className="text-[10px] text-red-500 font-bold">{validationErrors.phone}</p>
+                )}
+              </div>
+
+              <div className="col-span-1 md:col-span-2 space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Owner Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
+                  <input
+                    type="email"
+                    name="owner_email"
+                    required
+                    placeholder="owner@infovexmahal.com"
+                    value={formData.owner_email}
+                    onChange={handleInputChange}
+                    className={`pl-10 pr-4 py-2.5 w-full text-xs font-semibold bg-gray-50/50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all ${
+                      validationErrors.owner_email ? 'border-red-500 bg-red-50/10' : 'border-gray-200'
+                    }`}
+                  />
+                </div>
+                {validationErrors.owner_email && (
+                  <p className="text-[10px] text-red-500 font-bold">{validationErrors.owner_email}</p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Default Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
+                  <input
+                    type="password"
+                    name="password"
+                    required
+                    placeholder="Minimum 6 characters"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className={`pl-10 pr-4 py-2.5 w-full text-xs font-semibold bg-gray-50/50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all ${
+                      validationErrors.password ? 'border-red-500 bg-red-50/10' : 'border-gray-200'
+                    }`}
+                  />
+                </div>
+                {validationErrors.password && (
+                  <p className="text-[10px] text-red-500 font-bold">{validationErrors.password}</p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Confirm Password</label>
+                <div className="relative">
+                  <Key className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
+                  <input
+                    type="password"
+                    name="confirm_password"
+                    required
+                    placeholder="Repeat default password"
+                    value={formData.confirm_password}
+                    onChange={handleInputChange}
+                    className={`pl-10 pr-4 py-2.5 w-full text-xs font-semibold bg-gray-50/50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all ${
+                      validationErrors.confirm_password ? 'border-red-500 bg-red-50/10' : 'border-gray-200'
+                    }`}
+                  />
+                </div>
+                {validationErrors.confirm_password && (
+                  <p className="text-[10px] text-red-500 font-bold">{validationErrors.confirm_password}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Billing Package */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold text-violet-600 uppercase tracking-wider border-b border-gray-50 pb-2">3. Subscription billing configuration</h4>
+            
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">System Billing Plan Tier</label>
+              {packagesLoading ? (
+                <div className="flex items-center gap-2 p-3 text-xs bg-gray-50 border border-gray-150 text-gray-400 rounded-lg">
+                  <Loader2 className="h-4 w-4 animate-spin text-violet-600" />
+                  <span>Loading available package plans...</span>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {packages.map((pkg) => {
+                    const isSelected = formData.package_id === pkg.id || (!formData.package_id && packages[0]?.id === pkg.id);
+                    if (isSelected && !formData.package_id) {
+                      // Seed package_id state dynamically if not set
+                      setFormData((prev) => ({ ...prev, package_id: pkg.id }));
+                    }
+                    return (
+                      <div
+                        key={pkg.id}
+                        onClick={() => handleInputChange({ target: { name: 'package_id', value: pkg.id } } as any)}
+                        className={`border rounded-xl p-4 flex flex-col justify-between cursor-pointer transition-all hover:shadow-sm ${
+                          isSelected
+                            ? 'border-violet-600 bg-violet-50/30 ring-1 ring-violet-600 shadow-xs'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-gray-900">{pkg.name}</span>
+                            <div className={`h-4.5 w-4.5 rounded-full border flex items-center justify-center ${
+                              isSelected ? 'border-violet-600 bg-violet-600' : 'border-gray-300'
+                            }`}>
+                              {isSelected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                            </div>
+                          </div>
+                          <div className="mt-2.5 flex items-baseline">
+                            <span className="text-lg font-extrabold text-gray-900">₹{pkg.price.toLocaleString('en-IN')}</span>
+                            <span className="text-[10px] text-gray-400 font-bold uppercase ml-1">
+                              /{pkg.billing_cycle === 'yearly' ? 'yr' : 'mo'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 pt-3 border-t border-gray-100 space-y-1.5">
+                          <div className="flex items-center justify-between text-[10px] font-bold text-gray-500">
+                            <span>Max Bookings</span>
+                            <span className="text-gray-700">{pkg.max_bookings || 'Unlimited'}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-[10px] font-bold text-gray-500">
+                            <span>Max Users</span>
+                            <span className="text-gray-700">{pkg.max_users || 'Unlimited'}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Form Actions Footer */}
+        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3.5">
+          <Link
+            href="/admin/halls"
+            className="px-4 py-2.5 text-xs font-semibold border border-gray-250 text-gray-500 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer bg-white"
+          >
+            Cancel
+          </Link>
+          <button
+            type="submit"
+            disabled={isCreating || packagesLoading}
+            className="flex items-center gap-2 px-5 py-2.5 text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-lg shadow-sm transition-colors cursor-pointer disabled:bg-violet-400 disabled:cursor-not-allowed"
+          >
+            {isCreating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Creating Instance...</span>
+              </>
+            ) : (
+              <span>Deploy Venue Profile</span>
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}

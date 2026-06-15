@@ -1,7 +1,7 @@
 import React from 'react';
 import { Calendar, DollarSign, UserCheck, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { Booking } from '@/types/booking';
-import { Payment } from '@/types';
+import { Payment } from '@/types/payment';
 import { formatDate, formatCurrency } from '@/utils/formatters';
 
 interface BookingTimelineProps {
@@ -28,8 +28,12 @@ export function BookingTimeline({ booking, payments = [] }: BookingTimelineProps
     color: 'bg-primary-lighter border-primary-light/15 text-primary-light',
   });
 
-  // 2. Advance Received
-  if (booking.advanceAmount > 0) {
+  // 2. Advance Received (fallback: only if not already in payments list)
+  const hasAdvanceInPayments = payments.some(
+    (pay) => (pay.paymentMethod as string) === 'advance' || pay.notes?.toLowerCase().includes('advance')
+  );
+
+  if (booking.advanceAmount > 0 && !hasAdvanceInPayments) {
     events.push({
       title: 'Advance Deposit Paid',
       desc: `Logged deposit amount ${formatCurrency(booking.advanceAmount)} on registration.`,
@@ -41,10 +45,15 @@ export function BookingTimeline({ booking, payments = [] }: BookingTimelineProps
 
   // 3. Payments
   payments.forEach((pay) => {
+    const isAdvance = (pay.paymentMethod as string) === 'advance' || pay.notes?.toLowerCase().includes('advance');
+    const title = isAdvance ? 'Advance Deposit Paid' : 'Installment Payment Received';
+    const notesStr = pay.notes ? ` Notes: "${pay.notes}"` : '';
+    const refStr = pay.referenceNumber && pay.referenceNumber !== '—' ? ` (Ref: ${pay.referenceNumber})` : '';
+
     events.push({
-      title: 'Payment Received',
-      desc: `Logged transaction of ${formatCurrency(pay.amount)} via ${pay.payment_method.toUpperCase()}.`,
-      date: formatDate(pay.payment_date),
+      title,
+      desc: `Logged transaction of ${formatCurrency(pay.amount)} via ${(pay.paymentMethod || 'cash').replace('_', ' ').toUpperCase()}${refStr}.${notesStr}`,
+      date: formatDate(pay.paymentDate),
       icon: DollarSign,
       color: 'bg-emerald-50 border-emerald-100 text-emerald-600',
     });

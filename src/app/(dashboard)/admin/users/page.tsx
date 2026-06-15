@@ -180,7 +180,7 @@ export default function AdminUsersPage() {
                         </span>
                       </td>
                       <td className="px-5 py-4 text-gray-500 font-medium">
-                        {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}
+                        {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('en-GB') : 'Never'}
                       </td>
                       <td className="px-5 py-4 text-right relative">
                         <button

@@ -33,7 +33,7 @@ export function VendorActivityTimeline({ vendor }: VendorActivityTimelineProps) 
       description: `Vendor profile marked as "${vendor.status}" for reservation bookings.`,
       date: vendor.updatedAt,
       icon: ToggleLeft,
-      color: 'bg-violet-500 ring-violet-100 text-white',
+      color: 'bg-primary ring-primary/10 text-white',
     },
     {
       id: 'rating',

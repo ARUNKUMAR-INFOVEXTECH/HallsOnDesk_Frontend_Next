@@ -7,6 +7,7 @@ import { Vendor, VendorCategory } from '@/types/vendor';
 import { StarRating } from './StarRating';
 import { CategoryBadge } from './CategoryBadge';
 import { formatCurrency } from '@/utils/currency';
+import { obfuscateId } from '@/utils/obfuscate';
 
 interface VendorCardProps {
   vendor: Vendor;
@@ -82,13 +83,13 @@ export function VendorCard({ vendor, onEdit, onDelete }: VendorCardProps) {
   };
 
   const handleCardClick = () => {
-    router.push(`/dashboard/vendors/${vendor.id}`);
+    router.push(`/dashboard/vendors/${obfuscateId(vendor.id)}`);
   };
 
   return (
     <div
       onClick={handleCardClick}
-      className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-custom-md hover:border-violet-200 hover:-translate-y-0.5 transition-all p-4.5 space-y-4 cursor-pointer relative select-none"
+      className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-custom-md hover:border-primary-light hover:-translate-y-0.5 transition-all p-4.5 space-y-4 cursor-pointer relative select-none"
     >
       {/* CARD TOP */}
       <div className="flex items-start justify-between gap-3 relative">
@@ -138,7 +139,7 @@ export function VendorCard({ vendor, onEdit, onDelete }: VendorCardProps) {
                 onClick={(e) => {
                   e.stopPropagation();
                   setMenuOpen(false);
-                  router.push(`/dashboard/vendors/${vendor.id}`);
+                  router.push(`/dashboard/vendors/${obfuscateId(vendor.id)}`);
                 }}
                 className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 text-left transition-colors cursor-pointer"
               >

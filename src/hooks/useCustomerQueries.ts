@@ -8,6 +8,7 @@ import {
   createCustomer,
   updateCustomer,
   deleteCustomer,
+  logCustomerInteraction,
   CustomersQuery,
   CustomersListResponse,
 } from '@/services/api/modules/customers.service';
@@ -85,6 +86,26 @@ export function useDeleteCustomerMutation() {
     },
     onError: (err: any) => {
       const errorMsg = err.response?.data?.message || 'Failed to delete customer profile.';
+      toast.error(errorMsg);
+    },
+  });
+}
+
+// 6. Log Customer Touchpoint/Interaction Mutation
+export function useLogCustomerInteractionMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, type, notes }: { id: string; type: string; notes: string }) =>
+      logCustomerInteraction(id, { type, notes }),
+    onSuccess: (_, variables) => {
+      toast.success('Touchpoint interaction logged successfully!');
+      // Invalidate customer details to refresh any activities/timeline
+      queryClient.invalidateQueries({ queryKey: ['customers', 'detail', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['activity-logs', 'customer', variables.id] });
+    },
+    onError: (err: any) => {
+      const errorMsg = err.response?.data?.message || 'Failed to log interaction touchpoint.';
       toast.error(errorMsg);
     },
   });

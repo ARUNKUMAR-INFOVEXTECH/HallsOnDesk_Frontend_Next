@@ -20,12 +20,16 @@ export function CalendarFilterPanel({
   const [localEventTypes, setLocalEventTypes] = useState<CalendarEventType[]>(filters.eventTypes);
   const [localStatus, setLocalStatus] = useState<EventStatus[]>(filters.status);
   const [localHallSection, setLocalHallSection] = useState<string>(filters.hallSection);
+  const [localSearch, setLocalSearch] = useState<string>(filters.search || '');
+  const [localColorBy, setLocalColorBy] = useState<'category' | 'section'>(filters.colorBy || 'category');
 
   // Sync state when filters prop updates
   useEffect(() => {
     setLocalEventTypes(filters.eventTypes);
     setLocalStatus(filters.status);
     setLocalHallSection(filters.hallSection);
+    setLocalSearch(filters.search || '');
+    setLocalColorBy(filters.colorBy || 'category');
   }, [filters, isOpen]);
 
   if (!isOpen) return null;
@@ -62,6 +66,8 @@ export function CalendarFilterPanel({
     setLocalEventTypes([]);
     setLocalStatus([]);
     setLocalHallSection('All Sections');
+    setLocalSearch('');
+    setLocalColorBy('category');
   };
 
   const handleApply = () => {
@@ -69,6 +75,8 @@ export function CalendarFilterPanel({
       eventTypes: localEventTypes,
       status: localStatus,
       hallSection: localHallSection,
+      search: localSearch,
+      colorBy: localColorBy,
     });
     onClose();
   };
@@ -89,10 +97,25 @@ export function CalendarFilterPanel({
           </span>
           <button
             onClick={onClose}
-            className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+            className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-650 transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
+        </div>
+
+        {/* Search Input Filter */}
+        <div className="space-y-2">
+          <label htmlFor="filterSearch" className="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">
+            Search Keyword
+          </label>
+          <input
+            id="filterSearch"
+            type="text"
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            placeholder="Search event, client, notes..."
+            className="w-full h-9 px-3 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:bg-white rounded-lg text-slate-700 focus:outline-none focus:ring-1 focus:ring-violet-500 shadow-sm font-semibold"
+          />
         </div>
 
         {/* Section A: Event Types */}
@@ -113,7 +136,7 @@ export function CalendarFilterPanel({
                     <span>{item.label}</span>
                   </div>
                   <div className={`h-4.5 w-4.5 rounded border flex items-center justify-center transition-all ${
-                    isChecked ? 'bg-primary-light border-primary-light text-white' : 'border-slate-200 bg-white'
+                    isChecked ? 'bg-violet-600 border-violet-600 text-white' : 'border-slate-200 bg-white'
                   }`}>
                     {isChecked && <Check className="h-3 w-3" />}
                   </div>
@@ -136,7 +159,7 @@ export function CalendarFilterPanel({
                   onClick={() => handleToggleStatus(status)}
                   className={`px-2.5 py-1 rounded-full border font-semibold capitalize text-[10px] transition-all cursor-pointer ${
                     isChecked
-                      ? 'bg-primary-lighter text-primary-light border-primary-light/30 font-bold'
+                      ? 'bg-violet-50 text-violet-750 border-violet-250 font-bold'
                       : 'bg-white text-slate-500 border-slate-200 hover:border-slate-350'
                   }`}
                 >
@@ -156,7 +179,7 @@ export function CalendarFilterPanel({
             id="filterHall"
             value={localHallSection}
             onChange={(e) => setLocalHallSection(e.target.value)}
-            className="w-full h-9 px-2 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none focus:ring-1 focus:ring-primary cursor-pointer shadow-sm font-semibold"
+            className="w-full h-9 px-2 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none focus:ring-1 focus:ring-violet-500 cursor-pointer shadow-sm font-semibold"
           >
             {hallSections.map((section) => (
               <option key={section} value={section}>
@@ -166,19 +189,48 @@ export function CalendarFilterPanel({
           </select>
         </div>
 
+        {/* Section D: Color-Coding mode Selection */}
+        <div className="space-y-2.5 border-t border-slate-100 pt-3">
+          <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">Color-Coding Mode</span>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setLocalColorBy('category')}
+              className={`py-1.5 border font-bold text-[10px] uppercase rounded-lg transition-all cursor-pointer ${
+                localColorBy === 'category'
+                  ? 'bg-violet-600 text-white border-violet-600'
+                  : 'bg-white text-slate-500 border-slate-205 hover:border-slate-350'
+              }`}
+            >
+              By Category
+            </button>
+            <button
+              type="button"
+              onClick={() => setLocalColorBy('section')}
+              className={`py-1.5 border font-bold text-[10px] uppercase rounded-lg transition-all cursor-pointer ${
+                localColorBy === 'section'
+                  ? 'bg-violet-600 text-white border-violet-600'
+                  : 'bg-white text-slate-500 border-slate-205 hover:border-slate-350'
+              }`}
+            >
+              By Hall Section
+            </button>
+          </div>
+        </div>
+
         {/* Footer Actions */}
         <div className="flex items-center justify-between pt-3.5 border-t border-slate-100">
           <button
             type="button"
             onClick={handleClear}
-            className="text-slate-400 hover:text-slate-600 font-bold transition-colors"
+            className="text-slate-400 hover:text-slate-600 font-bold transition-colors cursor-pointer"
           >
             Clear Filters
           </button>
           <button
             type="button"
             onClick={handleApply}
-            className="bg-primary-light hover:bg-[#D48A00] text-white px-3.5 py-1.5 rounded-lg transition-colors font-bold shadow-sm"
+            className="bg-violet-600 hover:bg-violet-750 text-white px-3.5 py-1.5 rounded-lg transition-colors font-bold shadow-sm cursor-pointer"
           >
             Apply Filters
           </button>

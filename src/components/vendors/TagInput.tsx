@@ -45,13 +45,13 @@ export function TagInput({
           {value.map((tag, idx) => (
             <span
               key={idx}
-              className="inline-flex items-center gap-1 bg-violet-50 text-violet-700 border border-violet-200 rounded-lg px-2.5 py-1 text-xs font-bold font-mono"
+              className="inline-flex items-center gap-1 bg-primary-lighter text-primary-light border border-primary-light/20 rounded-lg px-2.5 py-1 text-xs font-bold font-mono"
             >
               <span>{tag}</span>
               <button
                 type="button"
                 onClick={() => removeTag(idx)}
-                className="hover:bg-violet-200/50 p-0.5 rounded-full text-violet-500 hover:text-violet-700 cursor-pointer"
+                className="hover:bg-primary-light/20 p-0.5 rounded-full text-primary-light/70 hover:text-primary-light cursor-pointer"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -68,12 +68,12 @@ export function TagInput({
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="flex-1 min-h-[36px] bg-white border border-gray-250 rounded-lg px-3 text-xs focus:outline-none focus:ring-1 focus:ring-violet-500 focus:border-violet-500"
+          className="flex-1 min-h-[36px] bg-white border border-gray-250 rounded-lg px-3 text-xs focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
         />
         <button
           type="button"
           onClick={addTag}
-          className="h-9 px-3 bg-violet-50 hover:bg-violet-100 text-violet-700 border border-violet-200 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+          className="h-9 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
         >
           <Plus className="h-3.5 w-3.5" />
           <span>Add</span>

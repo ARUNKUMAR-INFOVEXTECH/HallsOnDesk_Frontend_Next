@@ -57,3 +57,43 @@ export async function deleteVendor(id: string): Promise<{ message: string }> {
   const res = await apiClient.delete<{ message: string }>(`/vendors/${id}`);
   return res.data;
 }
+
+export async function getBookingVendors(bookingId: string): Promise<any[]> {
+  const res = await apiClient.get<any[]>(`/bookings/${bookingId}/vendors`);
+  return res.data;
+}
+
+export async function allocateVendorToBooking(
+  bookingId: string,
+  payload: any
+): Promise<{ message: string; conflict: boolean; conflictMessage: string; data: any }> {
+  const res = await apiClient.post<any>(`/bookings/${bookingId}/vendors`, payload);
+  return res.data;
+}
+
+export async function updateVendorAllocation(
+  bookingId: string,
+  vendorId: string,
+  payload: any
+): Promise<any> {
+  const res = await apiClient.put<any>(`/bookings/${bookingId}/vendors/${vendorId}`, payload);
+  return res.data;
+}
+
+export async function deallocateVendorFromBooking(
+  bookingId: string,
+  vendorId: string
+): Promise<any> {
+  const res = await apiClient.delete<any>(`/bookings/${bookingId}/vendors/${vendorId}`);
+  return res.data;
+}
+
+export async function getVendorAllocations(vendorId: string): Promise<any[]> {
+  const res = await apiClient.get<any[]>(`/vendors/${vendorId}/allocations`);
+  return res.data;
+}
+
+export async function getVendorAllocationStats(vendorId: string): Promise<any> {
+  const res = await apiClient.get<any>(`/vendors/${vendorId}/allocation-stats`);
+  return res.data;
+}

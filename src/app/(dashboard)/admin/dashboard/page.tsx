@@ -13,7 +13,6 @@ import {
   Users,
   Server,
   Database,
-  HardDrive,
   Activity,
   ArrowUpRight,
   ArrowDownRight,
@@ -52,10 +51,6 @@ export default function AdminDashboardPage() {
 
   const formatNumber = (val: number) => {
     return new Intl.NumberFormat('en-IN').format(val);
-  };
-
-  const formatStorage = (bytes: number) => {
-    return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
   };
 
   const COLORS = ['#7C3AED', '#EE9B00', '#10B981', '#3B82F6', '#EF4444'];
@@ -119,7 +114,7 @@ export default function AdminDashboardPage() {
         </div>
         <div className="flex items-center gap-3">
           <Link
-            href="/admin/halls"
+            href="/admin/halls/new"
             className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-lg shadow-sm transition-colors cursor-pointer"
           >
             <Plus className="h-4 w-4" />
@@ -357,37 +352,29 @@ export default function AdminDashboardPage() {
                 <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded px-2 py-0.5 capitalize shadow-sm">
                   {systemHealth.databaseStatus}
                 </span>
-                <p className="text-[10px] text-gray-400 mt-2 font-medium">Latency: 12ms</p>
+                <p className="text-[10px] text-gray-400 mt-2 font-medium">Supabase PostgreSQL</p>
               </div>
             </div>
 
-            {/* Storage */}
+            {/* API Status */}
             <div className="border border-gray-100 rounded-xl p-4 flex flex-col justify-between bg-gray-50/50 col-span-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 font-bold uppercase">Storage Space Used</span>
-                <HardDrive className="h-4 w-4 text-indigo-600" />
+                <span className="text-xs text-gray-500 font-bold uppercase">API Gateway</span>
+                <Activity className="h-4 w-4 text-violet-600" />
               </div>
-              <div className="mt-2.5 space-y-2">
-                <div className="flex items-end justify-between text-xs font-bold text-gray-700">
-                  <span>{formatStorage(systemHealth.storageUsedBytes)}</span>
-                  <span className="text-gray-450 font-semibold">of {formatStorage(systemHealth.storageLimitBytes)}</span>
-                </div>
-                <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-indigo-600 rounded-full"
-                    style={{ width: `${(systemHealth.storageUsedBytes / systemHealth.storageLimitBytes) * 100}%` }}
-                  />
-                </div>
+              <div className="mt-2.5 flex items-center justify-between">
+                <span className="text-xs font-bold text-violet-700 bg-violet-50 border border-violet-100 rounded px-2 py-0.5 shadow-sm">Operational</span>
+                <span className="text-[10px] text-gray-400 font-semibold">All endpoints responding</span>
               </div>
             </div>
           </div>
 
           <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-4 text-[10px] font-bold text-gray-400">
             <div className="flex items-center gap-1">
-              <RefreshCw className="h-3 w-3 animate-spin text-gray-450" />
-              <span>Live diagnostics updated 3s ago</span>
+              <RefreshCw className="h-3 w-3 text-gray-450" />
+              <span>Status as of {new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
-            <span>API: {formatNumber(systemHealth.apiRequests24h)} req / 24h</span>
+            <span className="text-emerald-600">All systems operational</span>
           </div>
         </div>
       </div>

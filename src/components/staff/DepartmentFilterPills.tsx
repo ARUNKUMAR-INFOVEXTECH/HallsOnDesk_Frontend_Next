@@ -41,8 +41,8 @@ export function DepartmentFilterPills({
               onClick={() => onSelectDept(dept.value)}
               className={`flex items-center gap-1.5 shrink-0 px-4 py-1.5 text-sm rounded-full font-bold border transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-violet-600 text-white border-violet-600 shadow-sm'
-                  : 'bg-white border-gray-200 text-gray-655 hover:border-violet-300'
+                  ? 'bg-primary text-white border-primary shadow-sm'
+                  : 'bg-white border-gray-200 text-gray-655 hover:border-primary-light'
               }`}
             >
               <span>{dept.label}</span>

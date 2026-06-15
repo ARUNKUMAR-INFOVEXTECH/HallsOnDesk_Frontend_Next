@@ -20,6 +20,7 @@ import { format, differenceInDays, isToday, isPast } from 'date-fns';
 import { Enquiry } from '@/types/enquiry';
 import { SourceBadge } from './SourceBadge';
 import { useRouter } from 'next/navigation';
+import { obfuscateId } from '@/utils/obfuscate';
 
 interface KanbanCardProps {
   enquiry: Enquiry;
@@ -151,7 +152,7 @@ export function KanbanCard({
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          onClick={() => router.push(`/dashboard/enquiries/${enquiry.id}`)}
+          onClick={() => router.push(`/dashboard/enquiries/${obfuscateId(enquiry.id)}`)}
           className={`bg-white rounded-xl border border-slate-150 p-4.5 mb-3 shadow-custom-xs select-none transition-all hover:shadow-custom-sm cursor-grab active:cursor-grabbing ${
             snapshot.isDragging ? 'opacity-50 rotate-1 bg-violet-50/20 border-violet-300' : ''
           }`}
@@ -188,7 +189,7 @@ export function KanbanCard({
                     onClick={(e) => {
                       e.stopPropagation();
                       setMenuOpen(false);
-                      router.push(`/dashboard/enquiries/${enquiry.id}`);
+                      router.push(`/dashboard/enquiries/${obfuscateId(enquiry.id)}`);
                     }}
                     className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 text-left transition-colors cursor-pointer"
                   >
@@ -236,18 +237,28 @@ export function KanbanCard({
           </div>
 
           {/* Customer Row */}
-          <div className="mt-3 flex items-center gap-2.5">
-            <div className="h-7 w-7 rounded-lg bg-violet-50 text-violet-755 font-black text-[10px] flex items-center justify-center border border-violet-100 shrink-0 uppercase">
-              {getInitials(enquiry.name)}
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="h-7 w-7 rounded-lg bg-violet-50 text-violet-755 font-black text-[10px] flex items-center justify-center border border-violet-100 shrink-0 uppercase">
+                {getInitials(enquiry.name)}
+              </div>
+              <div className="min-w-0">
+                <h4 className="text-xs font-extrabold text-slate-850 truncate leading-none">
+                  {enquiry.name}
+                </h4>
+                <p className="text-[9px] font-mono text-slate-400 mt-1 truncate font-semibold">
+                  {enquiry.phone}
+                </p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <h4 className="text-xs font-extrabold text-slate-850 truncate leading-none">
-                {enquiry.name}
-              </h4>
-              <p className="text-[9px] font-mono text-slate-400 mt-1 truncate">
-                {enquiry.phone}
-              </p>
-            </div>
+            {enquiry.assignee && (
+              <div
+                className="h-6 w-6 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 flex items-center justify-center font-black text-[8px] shrink-0 uppercase"
+                title={`Assigned to ${enquiry.assignee.name}`}
+              >
+                {getInitials(enquiry.assignee.name)}
+              </div>
+            )}
           </div>
 
           {/* Event and Date */}

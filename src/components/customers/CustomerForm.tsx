@@ -17,11 +17,19 @@ const customerSchema = z.object({
   email: z
     .string()
     .optional()
-    .or(z.string().email('Please enter a valid email address').optional()),
+    .or(z.string().email('Please enter a valid email address').optional().or(z.literal(''))),
   address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
   notes: z.string().optional(),
+  company_name: z.string().optional(),
+  gst_number: z
+    .string()
+    .optional()
+    .refine((val) => !val || /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i.test(val), {
+      message: 'Please enter a valid 15-character Indian GSTIN (e.g. 22AAAAA0000A1Z5)',
+    }),
+  vip_status: z.boolean().optional(),
 });
 
 export type CustomerFormValues = z.infer<typeof customerSchema>;
@@ -51,6 +59,9 @@ export function CustomerForm({
       city: '',
       state: '',
       notes: '',
+      company_name: '',
+      gst_number: '',
+      vip_status: false,
       ...initialValues,
     },
   });
@@ -138,6 +149,42 @@ export function CustomerForm({
           </div>
         </div>
 
+      </div>
+
+      {/* Corporate & CRM Details */}
+      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col gap-4">
+        <div className="border-b border-slate-100 pb-3 mb-1">
+          <h3 className="text-sm font-semibold text-slate-800">Corporate & CRM Details</h3>
+          <p className="text-xs text-slate-400 font-medium mt-0.5">Tax registration, company profiles and customer status</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <InputField
+            name="company_name"
+            label="Company Name (Optional)"
+            placeholder="e.g. Acme Corporation"
+            disabled={loading}
+          />
+          <InputField
+            name="gst_number"
+            label="GSTIN Number (Optional)"
+            placeholder="e.g. 22AAAAA0000A1Z5"
+            disabled={loading}
+          />
+        </div>
+
+        <div className="flex items-center gap-2 pt-2 text-xs font-semibold text-slate-700">
+          <input
+            id="vip_status"
+            type="checkbox"
+            disabled={loading}
+            className="rounded border-slate-200 text-primary focus:ring-primary h-4 w-4 accent-primary cursor-pointer"
+            {...form.register('vip_status')}
+          />
+          <label htmlFor="vip_status" className="cursor-pointer select-none">
+            Mark as <span className="text-amber-600 font-bold">👑 VIP Customer</span> (highlights in directories and activity logs)
+          </label>
+        </div>
       </div>
 
       {/* Internal Notes Card */}

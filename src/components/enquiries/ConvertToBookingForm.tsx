@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useAuthStore } from '@/store/authStore';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CheckCircle, Info, ArrowRight, Sparkles } from 'lucide-react';
 import { convertFormSchema, ConvertFormValues } from '@/schemas/enquiry.schema';
@@ -12,6 +13,8 @@ import { Enquiry } from '@/types/enquiry';
 import { useConvertToBooking } from '@/hooks/useEnquiries';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { obfuscateId } from '@/utils/obfuscate';
+import { useCreateCustomerMutation } from '@/hooks/useCustomerQueries';
 
 interface ConvertToBookingFormProps {
   enquiry: Enquiry;
@@ -20,7 +23,16 @@ interface ConvertToBookingFormProps {
 export function ConvertToBookingForm({ enquiry }: ConvertToBookingFormProps) {
   const router = useRouter();
   const convertMutation = useConvertToBooking();
+  const createCustomerMutation = useCreateCustomerMutation();
   const [successBookingId, setSuccessBookingId] = useState<string | null>(null);
+
+  const user = useAuthStore((state) => state.user);
+  const activeHallId = useAuthStore((state) => state.activeHallId);
+  const halls = user?.accessible_halls || [];
+  const activeHall = halls.find((h) => h.id === activeHallId)
+    || halls.find((h) => h.id === user?.hall_id)
+    || halls[0];
+  const activeHallName = activeHall?.hall_name || 'Venue';
 
   const form = useForm<ConvertFormValues>({
     resolver: zodResolver(convertFormSchema),
@@ -32,6 +44,40 @@ export function ConvertToBookingForm({ enquiry }: ConvertToBookingFormProps) {
       notes: enquiry.notes || '',
     },
   });
+
+  const handleAddCustomerAndRedirect = async () => {
+    try {
+      const res = await createCustomerMutation.mutateAsync({
+        customer_name: enquiry.name,
+        phone: enquiry.phone,
+        email: enquiry.email || undefined,
+        address: enquiry.address || undefined,
+        city: enquiry.city || undefined,
+        notes: `Created from Enquiry #${enquiry.enquiryNumber}`,
+      });
+      
+      const customerId = res.data.id;
+      
+      // Build query parameters
+      const queryParams = new URLSearchParams({
+        customerId: customerId,
+        eventType: enquiry.eventType || 'other',
+        eventDate: enquiry.eventDate || '',
+        hallSection: enquiry.hallSection || 'Main Hall',
+        guestCount: String(enquiry.guestCount || ''),
+        bookingAmount: String(enquiry.budgetMax || ''),
+        notes: enquiry.notes || '',
+        enquiryId: enquiry.id,
+      });
+      
+      toast.success('Customer profile created! Redirecting to booking builder...');
+      
+      // Redirect to the new booking form
+      router.push(`/dashboard/bookings/new?${queryParams.toString()}`);
+    } catch (err) {
+      console.error('Failed to create customer and redirect:', err);
+    }
+  };
 
   const { watch, formState: { isSubmitting } } = form;
   const bookingAmount = watch('bookingAmount') || 0;
@@ -103,7 +149,7 @@ export function ConvertToBookingForm({ enquiry }: ConvertToBookingFormProps) {
             <span>Enquiry Successfully Converted!</span>
           </h3>
           <p className="text-xs text-slate-450 max-w-sm mx-auto leading-relaxed">
-            The enquiry record has been archived and translated into a live booking contract inside your Mandapam CRM.
+            The enquiry record has been archived and translated into a live booking contract inside your {activeHallName} CRM.
           </p>
         </div>
 
@@ -115,7 +161,7 @@ export function ConvertToBookingForm({ enquiry }: ConvertToBookingFormProps) {
             </div>
 
             <button
-              onClick={() => router.push(`/dashboard/bookings/${bookingId}`)}
+              onClick={() => router.push(`/dashboard/bookings/${obfuscateId(bookingId)}`)}
               className="w-full h-8.5 bg-violet-650 hover:bg-violet-755 text-white rounded-lg font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-sm shadow-violet-100"
             >
               <span>View Booking File</span>
@@ -175,6 +221,26 @@ export function ConvertToBookingForm({ enquiry }: ConvertToBookingFormProps) {
             <span className="font-mono">₹{enquiry.budgetMin?.toLocaleString('en-IN') || 0} — ₹{enquiry.budgetMax?.toLocaleString('en-IN') || 'TBD'}</span>
           </div>
         )}
+      </div>
+
+      {/* Quick Option: Direct Booking Form */}
+      <div className="bg-amber-50/30 border border-dashed border-amber-200 rounded-xl p-4.5 space-y-3">
+        <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+          <Sparkles className="h-4.5 w-4.5 text-amber-500 shrink-0" />
+          <span>Alternate Conversion: Use Full Booking Form</span>
+        </h4>
+        <p className="text-[11px] text-slate-550 leading-relaxed font-semibold">
+          Prefer using the full, detailed booking builder? Click below to save this lead details as a customer profile and launch the detailed booking registry form prefilled with their parameters.
+        </p>
+        <button
+          type="button"
+          onClick={handleAddCustomerAndRedirect}
+          disabled={createCustomerMutation.isPending}
+          className="w-full sm:w-auto h-9 px-4.5 bg-slate-900 hover:bg-slate-950 text-white font-bold text-xs rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-sm transition-all disabled:opacity-50"
+        >
+          {createCustomerMutation.isPending ? 'Adding Customer...' : 'Add as Customer & Open Booking Builder'}
+          <ArrowRight className="h-4 w-4 text-slate-305" />
+        </button>
       </div>
 
       {/* Conversion Form inputs */}

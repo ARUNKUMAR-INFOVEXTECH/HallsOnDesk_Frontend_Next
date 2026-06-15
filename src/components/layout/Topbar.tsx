@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 import { useNotificationStore } from '@/store/notificationStore';
+import * as notificationService from '@/services/api/modules/notification.service';
 import { Menu, Bell, LogOut, User, ChevronRight, Check, Search } from 'lucide-react';
 
 export default function Topbar() {
@@ -14,9 +15,75 @@ export default function Topbar() {
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
   
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotificationStore();
+  const { notifications, unreadCount, setNotifications, markAsRead: localMarkAsRead, markAllAsRead: localMarkAllAsRead } = useNotificationStore();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const notificationsRef = useRef<HTMLDivElement>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setShowProfileMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchNotifications = async () => {
+      try {
+        const response = await notificationService.getNotifications({ limit: 50 });
+        setNotifications(response.data, response.unread_count);
+      } catch (err) {
+        console.error('Error fetching notifications:', err);
+      }
+    };
+
+    fetchNotifications();
+
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [user, setNotifications]);
+
+  const formatNotificationTime = (isoString: string) => {
+    const date = new Date(isoString);
+    const today = new Date();
+    const isToday = date.getDate() === today.getDate() &&
+                    date.getMonth() === today.getMonth() &&
+                    date.getFullYear() === today.getFullYear();
+    
+    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (isToday) {
+      return `Today at ${timeStr}`;
+    }
+    return `${date.toLocaleDateString('en-GB')} at ${timeStr}`;
+  };
+
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      await notificationService.markAsRead(id);
+      localMarkAsRead(id);
+    } catch (err) {
+      console.error('Failed to mark notification as read:', err);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await notificationService.markAllAsRead();
+      localMarkAllAsRead();
+    } catch (err) {
+      console.error('Failed to mark all notifications as read:', err);
+    }
+  };
 
   // Generate dynamic breadcrumbs based on pathname
   const pathSegments = pathname.split('/').filter(Boolean);
@@ -77,7 +144,7 @@ export default function Topbar() {
         </button>
 
         {/* Notifications Center */}
-        <div className="relative">
+        <div className="relative" ref={notificationsRef}>
           <button
             onClick={() => {
               setShowNotifications(!showNotifications);
@@ -97,7 +164,7 @@ export default function Topbar() {
                 <span>Alerts & Notifications</span>
                 {unreadCount > 0 && (
                   <button
-                    onClick={markAllAsRead}
+                    onClick={handleMarkAllAsRead}
                     className="text-[#EE9B00] hover:text-[#D48A00] hover:underline font-bold lowercase first-letter:uppercase"
                   >
                     Mark all read
@@ -117,7 +184,7 @@ export default function Topbar() {
                         </span>
                         {!notif.is_read && (
                           <button
-                            onClick={() => markAsRead(notif.id)}
+                            onClick={() => handleMarkAsRead(notif.id)}
                             className="p-0.5 rounded text-gray-400 hover:text-green-500 hover:bg-green-50 transition-colors"
                           >
                             <Check className="h-3 w-3" />
@@ -128,7 +195,7 @@ export default function Topbar() {
                         {notif.message}
                       </p>
                       <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider font-mono">
-                        {new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {formatNotificationTime(notif.created_at)}
                       </span>
                     </div>
                   ))
@@ -143,7 +210,7 @@ export default function Topbar() {
         </div>
 
         {/* User Account Menu Avatar Dropdown */}
-        <div className="relative">
+        <div className="relative" ref={profileMenuRef}>
           <button
             onClick={() => {
               setShowProfileMenu(!showProfileMenu);

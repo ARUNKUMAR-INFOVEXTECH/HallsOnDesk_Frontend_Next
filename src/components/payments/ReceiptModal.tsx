@@ -6,6 +6,8 @@ import { Payment } from '@/types/payment';
 import { formatDate } from '@/utils/formatters';
 import { formatCurrency } from '@/utils/currency';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getReceiptHtml } from '@/services/api/modules/invoices.service';
+import { toast } from 'sonner';
 
 interface ReceiptModalProps {
   isOpen: boolean;
@@ -16,8 +18,21 @@ interface ReceiptModalProps {
 export function ReceiptModal({ isOpen, onClose, payment }: ReceiptModalProps) {
   if (!isOpen || !payment) return null;
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = async () => {
+    try {
+      const html = await getReceiptHtml(payment.id);
+      const win = window.open('', '_blank');
+      if (win) {
+        win.document.write(html);
+        win.document.close();
+        setTimeout(() => {
+          win.print();
+        }, 500);
+      }
+    } catch (err) {
+      console.error('Print receipt failed:', err);
+      toast.error('Failed to load receipt layout.');
+    }
   };
 
   const receiptNumber = `REC-${payment.id.slice(0, 8).toUpperCase()}`;
@@ -88,7 +103,7 @@ export function ReceiptModal({ isOpen, onClose, payment }: ReceiptModalProps) {
               <div className="flex items-center justify-center gap-2 text-slate-800">
                 <Globe className="h-5 w-5 text-violet-600" />
                 <span className="font-extrabold text-base tracking-tight leading-none">
-                  Halls<span className="text-violet-600">OnDesk</span>
+                  Infovex <span className="text-violet-600">Halls</span>
                 </span>
               </div>
               <h2 className="text-sm font-black tracking-widest text-slate-800 uppercase">
@@ -181,7 +196,7 @@ export function ReceiptModal({ isOpen, onClose, payment }: ReceiptModalProps) {
             <div className="text-center text-[10px] text-slate-450 font-medium space-y-1 pt-2">
               <p>Thank you for your payment!</p>
               <p className="text-[9px] text-slate-400">
-                Powered by HallsOnDesk — Infovex Technologies
+                Powered by Infovex Halls — Infovex Technologies
               </p>
             </div>
           </div>

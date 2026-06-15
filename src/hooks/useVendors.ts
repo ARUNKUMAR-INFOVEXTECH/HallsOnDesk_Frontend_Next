@@ -8,9 +8,15 @@ import {
   createVendor,
   updateVendor,
   deleteVendor,
+  getBookingVendors,
+  allocateVendorToBooking,
+  updateVendorAllocation,
+  deallocateVendorFromBooking,
+  getVendorAllocations,
+  getVendorAllocationStats,
   VendorsQuery,
 } from '@/services/api/modules/vendors.service';
-import { Vendor, VendorCategory, VendorStatus, VendorStats } from '@/types/vendor';
+import { Vendor, VendorCategory, VendorStatus, VendorStats, BookingVendor } from '@/types/vendor';
 
 // ----------------------------------------------------------------------
 // Backend <-> Frontend Adapter Layer
@@ -318,3 +324,164 @@ export function useDeleteVendor() {
     },
   });
 }
+
+// ----------------------------------------------------------------------
+// Booking Vendor Allocation Hooks & Mappers
+// ----------------------------------------------------------------------
+export const mapBackendBookingVendorToFrontend = (bv: any): BookingVendor => {
+  return {
+    id: String(bv.id || ''),
+    hallId: String(bv.hall_id || ''),
+    bookingId: String(bv.booking_id || ''),
+    vendorId: String(bv.vendor_id || ''),
+    serviceType: bv.service_type || 'other',
+    allocatedCost: Number(bv.allocated_cost || 0),
+    paymentStatus:
+      bv.payment_status === 'paid'
+        ? 'paid'
+        : bv.payment_status === 'partially_paid' || bv.payment_status === 'partial'
+        ? 'partial'
+        : 'unpaid',
+    amountPaid: Number(bv.amount_paid || 0),
+    notes: bv.notes || '',
+    createdAt: bv.created_at || bv.createdAt,
+    updatedAt: bv.updated_at || bv.updatedAt,
+    vendors: bv.vendors
+      ? {
+          id: String(bv.vendors.id || ''),
+          vendor_name: bv.vendors.vendor_name || '',
+          phone: bv.vendors.phone || '',
+          service_type: bv.vendors.service_type || 'other',
+          upi_id: bv.vendors.upi_id || '',
+        }
+      : undefined,
+    bookings: bv.bookings
+      ? {
+          id: String(bv.bookings.id || ''),
+          event_name: bv.bookings.event_name || '',
+          start_date: bv.bookings.start_date || '',
+          end_date: bv.bookings.end_date || '',
+          status: bv.bookings.status || '',
+          booking_number: bv.bookings.booking_number || '',
+        }
+      : undefined,
+  };
+};
+
+export function useBookingVendors(bookingId: string) {
+  return useQuery<BookingVendor[], Error>({
+    queryKey: ['booking-vendors', bookingId],
+    queryFn: async () => {
+      const res = await getBookingVendors(bookingId);
+      return (res || []).map(mapBackendBookingVendorToFrontend);
+    },
+    enabled: !!bookingId,
+  });
+}
+
+export function useVendorAllocations(vendorId: string) {
+  return useQuery<BookingVendor[], Error>({
+    queryKey: ['vendor-allocations', vendorId],
+    queryFn: async () => {
+      const res = await getVendorAllocations(vendorId);
+      return (res || []).map(mapBackendBookingVendorToFrontend);
+    },
+    enabled: !!vendorId,
+  });
+}
+
+export function useVendorAllocationStats(vendorId: string) {
+  return useQuery<
+    { total_bookings: number; total_earnings: number; total_paid: number; total_pending: number },
+    Error
+  >({
+    queryKey: ['vendor-allocation-stats', vendorId],
+    queryFn: async () => {
+      return getVendorAllocationStats(vendorId);
+    },
+    enabled: !!vendorId,
+  });
+}
+
+export function useAllocateVendor(bookingId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: {
+      vendor_id: string;
+      service_type: string;
+      allocated_cost: number;
+      amount_paid: number;
+      notes?: string;
+      payment_status?: string;
+    }) => {
+      return allocateVendorToBooking(bookingId, payload);
+    },
+    onSuccess: (data) => {
+      if (data.conflict) {
+        toast.warning(data.conflictMessage || data.message || 'Scheduling conflict detected.');
+      } else {
+        toast.success(data.message || 'Vendor allocated successfully');
+      }
+      queryClient.invalidateQueries({ queryKey: ['booking-vendors', bookingId] });
+      queryClient.invalidateQueries({ queryKey: ['vendor-allocation-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['vendor-allocations'] });
+    },
+    onError: (err: any) => {
+      const errMsg = err.response?.data?.message || 'Failed to allocate vendor.';
+      toast.error(errMsg);
+    },
+  });
+}
+
+export function useUpdateVendorAllocation(bookingId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      vendorId,
+      payload,
+    }: {
+      vendorId: string;
+      payload: {
+        allocated_cost?: number;
+        amount_paid?: number;
+        notes?: string;
+        payment_status?: string;
+      };
+    }) => {
+      return updateVendorAllocation(bookingId, vendorId, payload);
+    },
+    onSuccess: (_, variables) => {
+      toast.success('Vendor allocation updated successfully');
+      queryClient.invalidateQueries({ queryKey: ['booking-vendors', bookingId] });
+      queryClient.invalidateQueries({ queryKey: ['vendor-allocation-stats', variables.vendorId] });
+      queryClient.invalidateQueries({ queryKey: ['vendor-allocations', variables.vendorId] });
+    },
+    onError: (err: any) => {
+      const errMsg = err.response?.data?.message || 'Failed to update vendor allocation.';
+      toast.error(errMsg);
+    },
+  });
+}
+
+export function useDeallocateVendor(bookingId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (vendorId: string) => {
+      return deallocateVendorFromBooking(bookingId, vendorId);
+    },
+    onSuccess: (_, vendorId) => {
+      toast.success('Vendor deallocated successfully');
+      queryClient.invalidateQueries({ queryKey: ['booking-vendors', bookingId] });
+      queryClient.invalidateQueries({ queryKey: ['vendor-allocation-stats', vendorId] });
+      queryClient.invalidateQueries({ queryKey: ['vendor-allocations', vendorId] });
+    },
+    onError: (err: any) => {
+      const errMsg = err.response?.data?.message || 'Failed to deallocate vendor.';
+      toast.error(errMsg);
+    },
+  });
+}
+

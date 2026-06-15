@@ -8,6 +8,7 @@ export interface User {
   multi_hall_enabled?: boolean;
   different_staff_management?: boolean;
   accessible_halls?: Array<{ id: string; hall_name: string }>;
+  status?: 'active' | 'suspended';
 }
 
 export interface Booking {
@@ -37,6 +38,11 @@ export interface Customer {
   email?: string;
   address?: string;
   notes?: string;
+  city?: string;
+  state?: string;
+  gst_number?: string;
+  company_name?: string;
+  vip_status?: boolean;
 }
 
 export interface Payment {
@@ -87,12 +93,14 @@ export interface CalendarEvent {
 
 export interface Notification {
   id: string;
-  hall_id: string;
+  hall_id: string | null;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
+  type: string;
   is_read: boolean;
   created_at: string;
+  entity_type?: string;
+  entity_id?: string;
 }
 
 export interface Package {
@@ -173,4 +181,27 @@ export interface Invoice {
   currency_symbol: string;
   notes?: string;
   status: 'paid' | 'unpaid' | 'partial';
+}
+
+export interface SupportTicketMessage {
+  sender: 'admin' | 'user';
+  senderName: string;
+  message: string;
+  timestamp: string;
+}
+
+export interface SupportTicket {
+  id: string;
+  ticketNumber: string;
+  hallId: string;
+  hallName?: string;
+  subject: string;
+  description: string;
+  category: 'bug' | 'billing' | 'enquiry' | 'other';
+  priority: 'low' | 'medium' | 'high';
+  status: 'open' | 'in_progress' | 'resolved';
+  assignedTo?: string;
+  messages: SupportTicketMessage[];
+  createdAt: string;
+  updatedAt: string;
 }

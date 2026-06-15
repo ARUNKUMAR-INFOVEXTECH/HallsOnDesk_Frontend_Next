@@ -97,7 +97,7 @@ export default function PaymentsListPage() {
     const link = document.createElement('a');
     const dateStr = new Date().toISOString().split('T')[0];
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `hallsondesk-payments-${dateStr}.csv`);
+    link.setAttribute('download', `infovexhalls-payments-${dateStr}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

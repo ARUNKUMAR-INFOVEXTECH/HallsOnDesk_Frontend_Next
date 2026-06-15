@@ -3,7 +3,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import SettingsSidebar from '@/components/settings/SettingsSidebar';
 
 export const metadata = {
-  title: 'Settings - HallsOnDesk',
+  title: 'Settings - Infovex Halls',
   description: 'Manage venue profiles, tax configurations, and system settings.',
 };
 

@@ -22,6 +22,7 @@ import { CategoryFilterPills } from '@/components/vendors/CategoryFilterPills';
 import { VendorCard } from '@/components/vendors/VendorCard';
 import { VendorTable } from '@/components/vendors/VendorTable';
 import { Vendor } from '@/types/vendor';
+import { obfuscateId } from '@/utils/obfuscate';
 
 export default function VendorsPage() {
   const router = useRouter();
@@ -117,7 +118,7 @@ export default function VendorsPage() {
   };
 
   const handleEditVendor = (vendor: Vendor) => {
-    router.push(`/dashboard/vendors/${vendor.id}?edit=true`);
+    router.push(`/dashboard/vendors/${obfuscateId(vendor.id)}?edit=true`);
   };
 
   // 6. CSV Exporter Utility
@@ -172,7 +173,7 @@ export default function VendorsPage() {
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
     const dateStr = new Date().toISOString().substring(0, 10);
-    link.setAttribute('download', `hallsondesk-vendors-${dateStr}.csv`);
+    link.setAttribute('download', `infovexhalls-vendors-${dateStr}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -218,7 +219,7 @@ export default function VendorsPage() {
               onClick={() => handleToggleView('grid')}
               className={`p-2 transition-all cursor-pointer ${
                 viewMode === 'grid'
-                  ? 'bg-violet-50 text-violet-650'
+                  ? 'bg-primary-lighter text-primary-light'
                   : 'text-slate-400 hover:text-slate-700 hover:bg-slate-50'
               }`}
               title="Grid View"
@@ -229,7 +230,7 @@ export default function VendorsPage() {
               onClick={() => handleToggleView('table')}
               className={`p-2 border-l border-slate-200 transition-all cursor-pointer ${
                 viewMode === 'table'
-                  ? 'bg-violet-50 text-violet-650'
+                  ? 'bg-primary-lighter text-primary-light'
                   : 'text-slate-400 hover:text-slate-700 hover:bg-slate-50'
               }`}
               title="Table View"
@@ -251,7 +252,7 @@ export default function VendorsPage() {
           {/* Add Vendor button */}
           <button
             onClick={() => router.push('/dashboard/vendors/new')}
-            className="flex items-center justify-center gap-1.5 h-9 px-4.5 bg-violet-650 hover:bg-violet-755 text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
+            className="flex items-center justify-center gap-1.5 h-9 px-4.5 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
           >
             <Plus className="h-4 w-4 shrink-0" />
             <span>Add Vendor</span>
@@ -274,7 +275,7 @@ export default function VendorsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search vendor name, phone, city..."
-              className="w-full h-9 pl-9 pr-4 text-xs bg-slate-50 border border-slate-200 rounded-lg outline-none hover:border-slate-300 focus:bg-white focus:ring-1 focus:ring-violet-500 focus:border-violet-500 transition-all font-semibold text-slate-700"
+              className="w-full h-9 pl-9 pr-4 text-xs bg-slate-50 border border-slate-200 rounded-lg outline-none hover:border-slate-300 focus:bg-white focus:ring-1 focus:ring-primary focus:border-primary transition-all font-semibold text-slate-700"
             />
             {search && (
               <button
@@ -292,7 +293,7 @@ export default function VendorsPage() {
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="h-9 px-3 text-xs bg-white border border-slate-250 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 font-bold text-slate-700 cursor-pointer"
+              className="h-9 px-3 text-xs bg-white border border-slate-250 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-bold text-slate-700 cursor-pointer"
             >
               <option value="all">All Statuses</option>
               <option value="active">Active Only</option>
@@ -304,7 +305,7 @@ export default function VendorsPage() {
             <select
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className="h-9 px-3 text-xs bg-white border border-slate-250 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 font-bold text-slate-700 cursor-pointer max-w-[150px]"
+              className="h-9 px-3 text-xs bg-white border border-slate-250 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-bold text-slate-700 cursor-pointer max-w-[150px]"
             >
               <option value="all">All Cities</option>
               {citiesList.map((c) => (
@@ -318,7 +319,7 @@ export default function VendorsPage() {
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="text-xs font-bold text-violet-650 hover:text-violet-755 hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-xs font-bold text-primary-light hover:text-primary-light/80 hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <X className="h-3.5 w-3.5" />
                 <span>Clear Filters</span>
@@ -371,7 +372,7 @@ export default function VendorsPage() {
             </p>
             <button
               onClick={clearFilters}
-              className="text-violet-650 hover:text-violet-755 border border-violet-200 hover:bg-violet-50/50 h-8.5 px-4 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer"
+              className="text-primary-light hover:text-primary-light/80 border border-primary-light/20 hover:bg-primary-lighter h-8.5 px-4 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer"
             >
               Clear Search Filters
             </button>

@@ -86,7 +86,7 @@ export function VendorForm({
       {/* CARD 1: Basic Information */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
         <div className="border-b border-slate-50 pb-2 flex items-center gap-2">
-          <Briefcase className="h-4.5 w-4.5 text-violet-650 shrink-0" />
+          <Briefcase className="h-4.5 w-4.5 text-primary shrink-0" />
           <h3 className="text-sm font-extrabold text-slate-850">Basic Information</h3>
         </div>
 
@@ -328,7 +328,7 @@ export function VendorForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="h-9 px-5 bg-violet-650 hover:bg-violet-755 text-white rounded-lg text-xs font-bold shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+          className="h-9 px-5 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
         >
           {isSubmitting && (
             <svg className="animate-spin h-3.5 w-3.5 text-white shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

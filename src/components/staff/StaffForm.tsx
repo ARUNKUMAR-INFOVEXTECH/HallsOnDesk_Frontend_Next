@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronDown, ChevronUp, User, ShieldCheck } from 'lucide-react';
-import { staffFormSchema, StaffFormValues } from '@/schemas/staff.schema';
+import { staffCreateSchema, StaffCreateValues } from '@/schemas/staff.schema';
 import { FormProvider } from '@/components/forms/FormProvider';
 import { InputField } from '@/components/forms/InputField';
 import { PhoneField } from '@/components/forms/PhoneField';
@@ -14,8 +14,8 @@ import { RolePresetButton } from './RolePresetButton';
 import { StaffRole, StaffPermission } from '@/types/staff';
 
 interface StaffFormProps {
-  onSubmit: (data: StaffFormValues) => void;
-  defaultValues?: Partial<StaffFormValues>;
+  onSubmit: (data: StaffCreateValues) => void;
+  defaultValues?: Partial<StaffCreateValues>;
   isSubmitting?: boolean;
   onCancel: () => void;
   submitButtonText?: string;
@@ -31,8 +31,8 @@ export function StaffForm({
   const [locationExpanded, setLocationExpanded] = useState(false);
   const [additionalExpanded, setAdditionalExpanded] = useState(false);
 
-  const form = useForm<StaffFormValues>({
-    resolver: zodResolver(staffFormSchema),
+  const form = useForm<StaffCreateValues>({
+    resolver: zodResolver(staffCreateSchema),
     defaultValues: {
       name: '',
       email: '',
@@ -50,6 +50,7 @@ export function StaffForm({
       status: 'active',
       permissions: [],
       notes: '',
+      password: '',
       ...defaultValues,
     },
   });
@@ -149,7 +150,7 @@ export function StaffForm({
       {/* CARD 1: Personal Information */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
         <div className="border-b border-slate-50 pb-2 flex items-center gap-2">
-          <User className="h-4.5 w-4.5 text-violet-650 shrink-0" />
+          <User className="h-4.5 w-4.5 text-primary shrink-0" />
           <h3 className="text-sm font-extrabold text-slate-850">Personal Information</h3>
         </div>
 
@@ -191,6 +192,14 @@ export function StaffForm({
             placeholder="e.g. ramesh@mandapam.com"
             required
           />
+
+          <InputField
+            name="password"
+            label="Password"
+            type="password"
+            placeholder="Min 6 characters"
+            required
+          />
         </div>
       </div>
 
@@ -209,7 +218,7 @@ export function StaffForm({
               placeholder="Select role"
               required
             />
-            <span className="text-[10px] text-violet-650 font-bold bg-violet-50 px-2.5 py-0.5 rounded border border-violet-100 inline-block font-mono">
+            <span className="text-[10px] text-primary-light font-bold bg-primary-lighter px-2.5 py-0.5 rounded border border-primary-light/20 inline-block font-mono">
               {roleDescriptions[selectedRole] || 'No role details selected'}
             </span>
           </div>
@@ -235,7 +244,7 @@ export function StaffForm({
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-5">
         <div className="border-b border-slate-50 pb-2.5 flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="h-4.5 w-4.5 text-violet-650 shrink-0" />
+            <ShieldCheck className="h-4.5 w-4.5 text-primary shrink-0" />
             <div>
               <h3 className="text-sm font-extrabold text-slate-850">Access Permissions</h3>
               <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Control staff permissions rules</p>
@@ -418,7 +427,7 @@ export function StaffForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="h-9 px-5 bg-violet-650 hover:bg-violet-755 text-white rounded-lg text-xs font-bold shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+          className="h-9 px-5 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
         >
           {isSubmitting && (
             <svg className="animate-spin h-3.5 w-3.5 text-white shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

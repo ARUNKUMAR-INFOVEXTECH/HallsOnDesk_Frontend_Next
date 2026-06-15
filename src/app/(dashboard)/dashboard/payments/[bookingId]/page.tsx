@@ -15,10 +15,12 @@ import { formatCurrency } from '@/utils/currency';
 import { formatDate } from '@/utils/formatters';
 import { Payment, PaymentMethod } from '@/types/payment';
 import { toast } from 'sonner';
+import { deobfuscateId, obfuscateId } from '@/utils/obfuscate';
 
 export default function BookingPaymentsPage() {
   const router = useRouter();
-  const { bookingId } = useParams() as { bookingId: string };
+  const params = useParams();
+  const bookingId = deobfuscateId(params.bookingId as string);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<Payment | null>(null);
@@ -168,7 +170,7 @@ export default function BookingPaymentsPage() {
       {/* Navigation and Back button */}
       <div className="flex items-center gap-2 text-xs font-bold text-slate-650 print:hidden">
         <button
-          onClick={() => router.push(`/dashboard/bookings/${bookingId}`)}
+          onClick={() => router.push(`/dashboard/bookings/${obfuscateId(bookingId)}`)}
           className="p-1 rounded-md hover:bg-slate-50 border border-slate-200 shadow-sm text-slate-500 hover:text-slate-700 cursor-pointer"
           title="Back to Booking details"
         >
@@ -290,7 +292,7 @@ export default function BookingPaymentsPage() {
             </button>
 
             <Link
-              href={`/dashboard/bookings/${bookingId}`}
+              href={`/dashboard/bookings/${obfuscateId(bookingId)}`}
               className="w-full flex items-center justify-center gap-1.5 py-2 px-3 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 text-slate-650 rounded-lg text-xs font-bold shadow-sm transition-all"
             >
               <ExternalLink className="h-4 w-4 text-slate-400 shrink-0" />

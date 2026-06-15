@@ -60,6 +60,7 @@ export interface Enquiry {
   stage: EnquiryStage;
   priority: EnquiryPriority;
   assignedTo?: string;
+  assignee?: { id: string; name: string; email: string };
   customerId?: string;
   bookingId?: string;
   convertedAt?: string; // ISO datetime string

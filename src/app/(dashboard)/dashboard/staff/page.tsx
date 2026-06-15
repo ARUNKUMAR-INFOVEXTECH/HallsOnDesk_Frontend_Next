@@ -189,7 +189,7 @@ export default function StaffPage() {
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
     const dateStr = new Date().toISOString().substring(0, 10);
-    link.setAttribute('download', `hallsondesk-staff-${dateStr}.csv`);
+    link.setAttribute('download', `infovexhalls-staff-${dateStr}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -235,7 +235,7 @@ export default function StaffPage() {
               onClick={() => handleToggleView('grid')}
               className={`p-2 transition-all cursor-pointer ${
                 viewMode === 'grid'
-                  ? 'bg-violet-50 text-violet-650'
+                  ? 'bg-primary-lighter text-primary-light'
                   : 'text-slate-400 hover:text-slate-700 hover:bg-slate-55'
               }`}
               title="Grid View"
@@ -246,7 +246,7 @@ export default function StaffPage() {
               onClick={() => handleToggleView('table')}
               className={`p-2 border-l border-slate-200 transition-all cursor-pointer ${
                 viewMode === 'table'
-                  ? 'bg-violet-50 text-violet-650'
+                  ? 'bg-primary-lighter text-primary-light'
                   : 'text-slate-400 hover:text-slate-700 hover:bg-slate-55'
               }`}
               title="Table View"
@@ -268,7 +268,7 @@ export default function StaffPage() {
           {/* Add Staff button */}
           <button
             onClick={() => router.push('/dashboard/staff/new')}
-            className="flex items-center justify-center gap-1.5 h-9 px-4.5 bg-violet-650 hover:bg-violet-755 text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
+            className="flex items-center justify-center gap-1.5 h-9 px-4.5 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
           >
             <Plus className="h-4 w-4 shrink-0" />
             <span>Add Staff Member</span>
@@ -290,7 +290,7 @@ export default function StaffPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search name, email, employee ID..."
-              className="w-full h-9 pl-9 pr-4 text-xs bg-slate-50 border border-slate-200 rounded-lg outline-none hover:border-slate-305 focus:bg-white focus:ring-1 focus:ring-violet-500 focus:border-violet-500 transition-all font-semibold text-slate-705"
+              className="w-full h-9 pl-9 pr-4 text-xs bg-slate-50 border border-slate-200 rounded-lg outline-none hover:border-slate-305 focus:bg-white focus:ring-1 focus:ring-primary focus:border-primary transition-all font-semibold text-slate-705"
             />
             {search && (
               <button
@@ -308,7 +308,7 @@ export default function StaffPage() {
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="h-9 px-3 text-xs bg-white border border-slate-250 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 font-bold text-slate-700 cursor-pointer"
+              className="h-9 px-3 text-xs bg-white border border-slate-250 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-bold text-slate-700 cursor-pointer"
             >
               <option value="all">All Roles</option>
               <option value="owner">Owner</option>
@@ -325,7 +325,7 @@ export default function StaffPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-9 px-3 text-xs bg-white border border-slate-250 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 font-bold text-slate-700 cursor-pointer"
+              className="h-9 px-3 text-xs bg-white border border-slate-250 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-bold text-slate-700 cursor-pointer"
             >
               <option value="all">All Statuses</option>
               <option value="active">Active Only</option>
@@ -337,7 +337,7 @@ export default function StaffPage() {
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="text-xs font-bold text-violet-650 hover:text-violet-755 hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-xs font-bold text-primary-light hover:text-primary-light/80 hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <X className="h-3.5 w-3.5" />
                 <span>Clear Filters</span>
@@ -390,7 +390,7 @@ export default function StaffPage() {
             </p>
             <button
               onClick={clearFilters}
-              className="text-violet-650 hover:text-violet-755 border border-violet-200 hover:bg-violet-50/50 h-8.5 px-4 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer"
+              className="text-primary-light hover:text-primary-light/80 border border-primary-light/20 hover:bg-primary-lighter h-8.5 px-4 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer"
             >
               Clear Search Filters
             </button>

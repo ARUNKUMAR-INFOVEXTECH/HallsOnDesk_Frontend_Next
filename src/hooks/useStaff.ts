@@ -106,6 +106,7 @@ export const mapFrontendStaffToBackend = (s: any) => {
     status: s.status || 'active',
     permissions: s.permissions || [],
     notes: s.notes || '',
+    password: s.password || undefined,
 
     // Duplicate fields for camelCase database adapters
     employeeId: s.employeeId,

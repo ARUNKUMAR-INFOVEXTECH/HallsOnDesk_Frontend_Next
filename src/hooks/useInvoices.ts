@@ -5,8 +5,25 @@ import { toast } from 'sonner';
 import {
   getInvoiceByBooking,
   createInvoice,
+  getInvoices,
+  InvoicesResponse,
+  deleteInvoice,
 } from '@/services/api/modules/invoices.service';
 import { Invoice } from '@/types';
+
+// 0. Fetch list of invoices
+export function useInvoices(params?: {
+  status?: string;
+  from_date?: string;
+  to_date?: string;
+  page?: number;
+  limit?: number;
+}) {
+  return useQuery<InvoicesResponse, Error>({
+    queryKey: ['invoices', 'list', params],
+    queryFn: () => getInvoices(params),
+  });
+}
 
 // 1. Fetch invoice associated with a booking
 export function useInvoiceByBooking(bookingId: string) {
@@ -35,9 +52,30 @@ export function useCreateInvoice() {
       });
       queryClient.invalidateQueries({ queryKey: ['invoices', 'booking', bookingId] });
       queryClient.invalidateQueries({ queryKey: ['booking', bookingId] });
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
     },
     onError: (err: any) => {
       const errMsg = err.response?.data?.message || 'Failed to generate invoice.';
+      toast.error(errMsg);
+    },
+  });
+}
+
+// 3. Delete an invoice
+export function useDeleteInvoice() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteInvoice(id),
+    onSuccess: (res) => {
+      toast.success('Invoice deleted successfully!', {
+        description: `Invoice #${res.invoice_number} has been deleted.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['booking'] });
+    },
+    onError: (err: any) => {
+      const errMsg = err.response?.data?.message || 'Failed to delete invoice.';
       toast.error(errMsg);
     },
   });

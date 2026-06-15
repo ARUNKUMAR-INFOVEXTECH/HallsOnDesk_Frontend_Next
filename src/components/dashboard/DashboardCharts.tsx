@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useAuthStore } from '@/store/authStore';
 import {
   XAxis,
   YAxis,
@@ -162,6 +163,14 @@ export function PaymentStatusChart({
 }: BookingStatusChartProps) {
   // Aggregate details dynamically
   const { data: dashboardData } = useDashboardQuery();
+
+  const user = useAuthStore((state) => state.user);
+  const activeHallId = useAuthStore((state) => state.activeHallId);
+  const halls = user?.accessible_halls || [];
+  const activeHall = halls.find((h) => h.id === activeHallId)
+    || halls.find((h) => h.id === user?.hall_id)
+    || halls[0];
+  const activeHallName = activeHall?.hall_name || 'venue';
   
   const totalVal = dashboardData?.summary?.total_bookings ?? total;
   const confirmedVal = dashboardData?.summary?.confirmed_bookings ?? confirmed;
@@ -179,7 +188,7 @@ export function PaymentStatusChart({
   return (
     <ChartCard
       title="Booking Fulfillment"
-      subtitle="Percentage breakdown of Mandapam bookings states."
+      subtitle={`Percentage breakdown of ${activeHallName} bookings states.`}
       className="lg:col-span-4"
     >
       <div className="relative w-full h-full flex flex-col items-center justify-center">
@@ -313,23 +322,31 @@ export function BookingTrendsChart() {
 // 4. ENQUIRY FUNNEL PIPELINE CHART (Navy/Gold/Amber composed)
 // ----------------------------------------------------
 interface EnquiryFunnelProps {
-  enquiries: any[];
+  data?: Array<{ stage: string; count: number }>;
 }
 
-export function EnquiryFunnelChart({ enquiries }: EnquiryFunnelProps) {
+export function EnquiryFunnelChart({ data }: EnquiryFunnelProps) {
   const defaultFunnel = [
-    { stage: 'Enquiries', count: 48, fill: '#0A2540' },
-    { stage: 'Interested', count: 35, fill: '#1E3D59' },
-    { stage: 'Visit Scheduled', count: 24, fill: '#2D5F8A' },
-    { stage: 'Visited', count: 18, fill: '#4385C2' },
-    { stage: 'Booked', count: 12, fill: '#EE9B00' },
+    { stage: 'Enquiries', count: 0, fill: '#0A2540' },
+    { stage: 'Interested', count: 0, fill: '#1E3D59' },
+    { stage: 'Visit Scheduled', count: 0, fill: '#2D5F8A' },
+    { stage: 'Visited', count: 0, fill: '#4385C2' },
+    { stage: 'Booked', count: 0, fill: '#EE9B00' },
   ];
 
-  const totalEnquiries = enquiries.length || 48;
-  const bookedCount = enquiries.filter(e => e.status === 'converted').length || 12;
-  const conversionRate = ((bookedCount / totalEnquiries) * 100).toFixed(0);
+  const COLORS = ['#0A2540', '#1E3D59', '#2D5F8A', '#4385C2', '#EE9B00'];
 
-  const chartData = defaultFunnel;
+  const chartData = data && data.length > 0
+    ? data.map((item, idx) => ({
+        stage: item.stage,
+        count: item.count,
+        fill: COLORS[idx % COLORS.length]
+      }))
+    : defaultFunnel;
+
+  const totalEnquiries = chartData[0]?.count || 0;
+  const bookedCount = chartData[chartData.length - 1]?.count || 0;
+  const conversionRate = totalEnquiries > 0 ? ((bookedCount / totalEnquiries) * 100).toFixed(0) : '0';
 
   return (
     <ChartCard
@@ -387,13 +404,24 @@ export function EnquiryFunnelChart({ enquiries }: EnquiryFunnelProps) {
 // ----------------------------------------------------
 // 5. EVENT CATEGORIES PIE CHART (New Analytics Feature!)
 // ----------------------------------------------------
-export function EventCategoryChart() {
-  const chartData = [
-    { name: 'Marriage Muhurtham', value: 45, color: '#0A2540' },
-    { name: 'Wedding Reception', value: 30, color: '#EE9B00' },
-    { name: 'Corporate Event', value: 15, color: '#3B82F6' },
-    { name: 'Birthday/Social Party', value: 10, color: '#10B981' },
+interface EventCategoryProps {
+  data?: Array<{ name: string; value: number }>;
+}
+
+export function EventCategoryChart({ data }: EventCategoryProps) {
+  const COLORS = ['#0A2540', '#EE9B00', '#3B82F6', '#10B981', '#EF4444'];
+
+  const defaultData = [
+    { name: 'No Bookings', value: 100, color: '#94a3b8' }
   ];
+
+  const chartData = data && data.length > 0
+    ? data.map((item, idx) => ({
+        name: item.name,
+        value: item.value,
+        color: COLORS[idx % COLORS.length]
+      }))
+    : defaultData;
 
   return (
     <ChartCard

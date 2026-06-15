@@ -64,6 +64,8 @@ export const mapBackendToFrontend = (b: BackendBooking): FrontendBooking => {
     status,
     paymentStatus,
     notes: b.notes || '',
+    coordinatorName: anyB.coordinator_name || '',
+    coordinatorPhone: anyB.coordinator_phone || '',
     createdAt: anyB.created_at || new Date().toISOString(),
     updatedAt: anyB.updated_at || new Date().toISOString(),
   };
@@ -85,6 +87,8 @@ export const mapFrontendToBackend = (data: BookingFormValues) => {
     hall_section: data.hallSection,
     guest_count: data.guestCount,
     discount_amount: data.discountAmount || 0,
+    coordinator_name: data.coordinatorName || null,
+    coordinator_phone: data.coordinatorPhone || null,
   };
 };
 
@@ -107,6 +111,7 @@ export function useBookings(params: FilterParams = {}) {
         status,
         from_date,
         to_date,
+        search,
         page,
         limit,
       });

@@ -2,136 +2,177 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { X, Check, Notebook, Smartphone, HelpCircle } from 'lucide-react';
+import { 
+  X, 
+  Check, 
+  Notebook, 
+  Smartphone, 
+  HelpCircle, 
+  ShieldCheck, 
+  AlertTriangle, 
+  Calendar, 
+  Users, 
+  CreditCard, 
+  Globe,
+  ArrowRight,
+  Sparkles
+} from 'lucide-react';
 
 export default function Problems() {
-  const oldWorkflow = [
-    { text: 'Double Bookings', desc: 'Writing dates in physical register books leads to overlapping wedding bookings during heavy seasons.' },
-    { text: 'Missed Collections', desc: 'Losing track of client advance amounts, due dates, and pending rental payments.' },
-    { text: 'Coordination Gaps', desc: 'Relying on scattered WhatsApp threads to coordinate decorators, catering staff, and photographers.' },
-    { text: 'Manual Record Loss', desc: 'Notebook register logs getting damaged or misplaced, wiping out booking and payment histories.' },
-  ];
-
-  const newWorkflow = [
-    { text: 'Dynamic Visual Schedules', desc: 'Visual calendar logs automatically cross-reference dates and prevent booking conflicts.' },
-    { text: 'Automated Invoices', desc: 'Track pending rentals, record UPI/cash receipts, and calculate due balances instantly.' },
-    { text: 'Integrated Workflows', desc: 'Manage catering teams, cleaners, and audio operators with role-gated sub-accounts.' },
-    { text: 'Secure Cloud Syncing', desc: 'Store data on secure, automated cloud servers accessible via phone or laptop anytime.' },
+  const comparisonRows = [
+    {
+      category: 'BOOKING RECORDS',
+      manual: {
+        title: 'Manual Register Tracking',
+        desc: 'Scribbling reservation dates in physical notebooks, leading to records getting damaged, lost, or misplaced.',
+      },
+      system: {
+        title: 'Centralized Dashboard',
+        desc: 'Verify bookings, view client directories, and monitor calendar tasks from any phone or laptop.',
+        icon: <Calendar className="h-4.5 w-4.5 text-amber-600" />
+      }
+    },
+    {
+      category: 'SEASONAL SCHEDULES',
+      manual: {
+        title: 'Double Booking Risks',
+        desc: 'Writing overlapping dates in diary pages, causing high-stress wedding day schedule conflicts during heavy seasons.',
+      },
+      system: {
+        title: 'Professional Operations',
+        desc: 'Coordinate decorators, catering staff, and managers with secure, role-gated operator accounts.',
+        icon: <Users className="h-4.5 w-4.5 text-amber-600" />
+      }
+    },
+    {
+      category: 'CUSTOMER REACH',
+      manual: {
+        title: 'No Online Presence',
+        desc: 'No customer website, forcing prospective clients to physically visit the hall to verify open dates.',
+      },
+      system: {
+        title: 'Website Included',
+        desc: 'Receive a dedicated, premium website for your hall with a public-facing availability calendar.',
+        icon: <Globe className="h-4.5 w-4.5 text-amber-600" />
+      }
+    },
+    {
+      category: 'FINANCIAL SECURITY',
+      manual: {
+        title: 'Payment Confusion',
+        desc: 'Losing track of client advance amounts, scattered tax receipts, and pending collection dates.',
+      },
+      system: {
+        title: 'Payment Tracking',
+        desc: 'Record UPI/cash advance payments, log expenses, and generate professional receipts instantly.',
+        icon: <CreditCard className="h-4.5 w-4.5 text-amber-600" />
+      }
+    }
   ];
 
   return (
-    <section className="py-24 bg-slate-50/50 border-b border-slate-100" id="problems">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="py-28 bg-[#F8FAFC] border-b border-slate-200/80 relative overflow-hidden" id="problems">
+      {/* Background soft lighting */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[450px] bg-[radial-gradient(ellipse_at_top,rgba(238,155,0,0.03),transparent_50%)] pointer-events-none select-none" />
+      
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-          <span className="text-[10px] font-bold text-primary-light uppercase tracking-widest block">
+        <div className="text-center max-w-3xl mx-auto mb-24 space-y-4">
+          <span className="text-[10px] font-extrabold text-[#EE9B00] bg-[#FFF9E6] border border-[#EE9B00]/20 rounded-full px-3.5 py-1 inline-block uppercase tracking-widest">
             The Venue Operator Dilemma
           </span>
-          <h2 className="text-3xl font-bold text-primary tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight leading-tight">
             Still Managing Your Venue With Notebooks And WhatsApp?
           </h2>
-          <p className="text-sm text-slate-500 font-medium leading-relaxed">
-            Manual registers cost you time, double-bookings, and missing advance payments. Compare the manual chaos with HallsOnDesk operations.
+          <p className="text-xs sm:text-sm text-slate-500 font-semibold leading-relaxed max-w-2xl mx-auto">
+            Manual registers cost you time, double-bookings, and missing advance payments. Compare the manual chaos directly with Infovex Halls operations.
           </p>
         </div>
 
-        {/* Comparison Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-          
-          {/* Card 1: The Old Manual Chaos */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="border border-slate-200 bg-white rounded-xl p-8 shadow-sm flex flex-col justify-between"
-          >
-            <div>
-              <div className="flex items-center gap-3.5 border-b border-slate-100 pb-4 mb-6">
-                <div className="h-10 w-10 rounded-lg bg-slate-50 text-slate-500 flex items-center justify-center border border-slate-200">
-                  <Notebook className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-800 text-sm leading-none">The Manual Registers Chaos</h3>
-                  <span className="text-[9px] text-slate-400 font-bold tracking-widest uppercase block mt-1">
-                    Risk of Errors & Leakages
-                  </span>
-                </div>
+        {/* Row-by-Row Comparison Grid */}
+        <div className="max-w-5xl mx-auto space-y-12">
+          {comparisonRows.map((row, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.5, delay: idx * 0.1 }}
+              className="group"
+            >
+              {/* Category Subheader */}
+              <div className="flex items-center gap-2 mb-3.5 px-1">
+                <span className="text-[9px] font-black text-slate-400 tracking-wider font-mono">
+                  {row.category}
+                </span>
+                <div className="h-[1px] bg-slate-200 flex-1" />
               </div>
 
-              <div className="space-y-6">
-                {oldWorkflow.map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-4">
-                    <div className="h-5 w-5 rounded-full bg-red-50 border border-red-200 flex items-center justify-center shrink-0 mt-0.5 text-red-650">
-                      <X className="h-3 w-3" />
-                    </div>
-                    <div>
-                      <span className="font-bold text-slate-800 text-sm leading-none block">
-                        {item.text}
-                      </span>
-                      <p className="text-xs text-slate-500 font-medium leading-relaxed mt-1.5">
-                        {item.desc}
-                      </p>
-                    </div>
+              {/* Row Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-11 items-center gap-4 lg:gap-6">
+                
+                {/* 1. Manual Chaos Card (Left Side) */}
+                <div className="lg:col-span-5 bg-[#FFFDF9] border border-red-150/50 rounded-2xl p-5 md:p-6 shadow-sm relative overflow-hidden flex items-start gap-4">
+                  {/* Left warning vertical line */}
+                  <div className="absolute top-0 bottom-0 left-0 w-[3px] bg-red-400/30" />
+                  
+                  <div className="h-8 w-8 rounded-full bg-red-50 border border-red-100 flex items-center justify-center shrink-0 text-red-500 shadow-sm mt-0.5">
+                    <X className="h-4.5 w-4.5" />
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-slate-100 text-slate-400 text-xs font-semibold flex items-center gap-2 mt-8">
-              <HelpCircle className="h-4 w-4" />
-              Unorganized, prone to manual mistakes and lost revenues.
-            </div>
-          </motion.div>
-
-          {/* Card 2: The HallsOnDesk Peace */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="border border-primary-light/20 bg-white rounded-xl p-8 shadow-sm flex flex-col justify-between hover:border-primary-light/50 transition-colors duration-200"
-          >
-            <div>
-              <div className="flex items-center gap-3.5 border-b border-primary-lighter pb-4 mb-6">
-                <div className="h-10 w-10 rounded-lg bg-primary-lighter text-primary-light flex items-center justify-center border border-primary-light/20">
-                  <Smartphone className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-850 text-sm leading-none">The HallsOnDesk System</h3>
-                  <span className="text-[9px] text-primary-light font-bold tracking-widest uppercase block mt-1">
-                    Automated & 100% Secure
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                {newWorkflow.map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-4">
-                    <div className="h-5 w-5 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 mt-0.5 text-emerald-600">
-                      <Check className="h-3 w-3" />
-                    </div>
-                    <div>
-                      <span className="font-bold text-slate-800 text-sm leading-none block">
-                        {item.text}
-                      </span>
-                      <p className="text-xs text-slate-500 font-medium leading-relaxed mt-1.5">
-                        {item.desc}
-                      </p>
-                    </div>
+                  
+                  <div className="space-y-1">
+                    <span className="font-extrabold text-slate-700 text-sm leading-none block line-through decoration-red-400/40">
+                      {row.manual.title}
+                    </span>
+                    <p className="text-xs text-slate-450 font-semibold leading-relaxed font-serif italic pt-1.5">
+                      {row.manual.desc}
+                    </p>
                   </div>
-                ))}
+                </div>
+
+                {/* 2. Dotted Transition Arrow (Center) */}
+                <div className="lg:col-span-1 flex lg:flex-col items-center justify-center py-2 lg:py-0 select-none pointer-events-none">
+                  {/* Dotted connector */}
+                  <div className="hidden lg:block h-1 w-8 border-t-2 border-dotted border-slate-300" />
+                  <div className="h-6 w-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shadow-sm my-1 group-hover:bg-[#EE9B00]/10 group-hover:text-[#EE9B00] group-hover:border-[#EE9B00]/25 transition-all duration-300">
+                    <ArrowRight className="h-3.5 w-3.5 rotate-90 lg:rotate-0" />
+                  </div>
+                  <div className="hidden lg:block h-1 w-8 border-t-2 border-dotted border-slate-300" />
+                </div>
+
+                {/* 3. Infovex Halls Solution Card (Right Side) */}
+                <div className="lg:col-span-5 bg-white border border-slate-200/80 hover:border-[#EE9B00]/40 rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-custom-md transition-all duration-300 flex items-start gap-4 group-hover:scale-[1.01]">
+                  <div className="h-9 w-9 rounded-xl bg-[#FFF9E6] border border-[#EE9B00]/15 flex items-center justify-center shrink-0 shadow-inner">
+                    {row.system.icon}
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-extrabold text-[#0A2540] text-sm leading-none block">
+                        {row.system.title}
+                      </span>
+                      <span className="inline-flex px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-[8px] font-black uppercase tracking-wider">
+                        Secure
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 font-semibold leading-relaxed pt-1.5">
+                      {row.system.desc}
+                    </p>
+                  </div>
+                </div>
+
               </div>
-            </div>
-
-            <div className="pt-6 border-t border-primary-lighter text-primary/70 text-xs font-semibold flex items-center gap-2 mt-8">
-              <Check className="h-4 w-4 text-emerald-600" />
-              Real-time records, cloud synced, role-gated, and accessible anywhere.
-            </div>
-          </motion.div>
-
+            </motion.div>
+          ))}
         </div>
+
+        {/* Global Summary Tagline */}
+        <div className="max-w-xl mx-auto mt-20 p-4 rounded-2xl bg-white border border-slate-200 shadow-premium flex items-center justify-center gap-3 text-[11px] font-bold text-slate-655 text-center">
+          <ShieldCheck className="h-5 w-5 text-emerald-500 animate-pulse shrink-0" />
+          <span>Infovex Halls maps real-time records, cloud syncing, and role-gated access in one unified platform.</span>
+        </div>
+
       </div>
     </section>
   );

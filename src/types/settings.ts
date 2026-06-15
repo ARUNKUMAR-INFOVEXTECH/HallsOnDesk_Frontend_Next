@@ -81,7 +81,39 @@ export interface HallSettings {
   autoInvoice: boolean;
   invoiceFooterNote: string;
   termsAndConditions: string;
+  invoiceTemplate: string;
   notifications: NotificationSettings;
   bookingSettings: BookingSettings;
   updatedAt: string;
+}
+
+export interface PackageFeatures {
+  reports?: boolean;
+  vendors?: boolean;
+  priority_support?: boolean;
+  staff_management?: boolean;
+  [key: string]: boolean | undefined;
+}
+
+export interface SubscriptionPackage {
+  id: string;
+  name: string;
+  price: number;
+  billing_cycle: 'monthly' | 'yearly' | string;
+  max_users: number;
+  max_bookings: number;
+  features: PackageFeatures;
+  createdAt?: string;
+}
+
+export interface HallSubscription {
+  id: string;
+  hall_id: string;
+  package_id: string;
+  start_date: string;
+  end_date: string;
+  status: 'active' | 'suspended' | 'expired' | string;
+  payment_status: 'pending' | 'paid' | string;
+  created_at: string;
+  packages?: SubscriptionPackage;
 }

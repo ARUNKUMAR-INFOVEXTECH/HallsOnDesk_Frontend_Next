@@ -6,13 +6,13 @@ import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { StaffForm } from '@/components/staff/StaffForm';
 import { useCreateStaff } from '@/hooks/useStaff';
-import { StaffFormValues } from '@/schemas/staff.schema';
+import { StaffCreateValues } from '@/schemas/staff.schema';
 
 export default function NewStaffPage() {
   const router = useRouter();
   const createStaffMutation = useCreateStaff();
 
-  const handleSubmit = async (data: StaffFormValues) => {
+  const handleSubmit = async (data: StaffCreateValues) => {
     try {
       await createStaffMutation.mutateAsync(data);
       // Redirect back to staff listing page
@@ -32,7 +32,7 @@ export default function NewStaffPage() {
       <div>
         <Link
           href="/dashboard/staff"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-violet-650 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-primary-light transition-colors"
         >
           <ChevronLeft className="h-4 w-4" />
           Back to Staff Management

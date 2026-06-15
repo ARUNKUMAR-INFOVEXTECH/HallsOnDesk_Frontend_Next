@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus, SlidersHorizontal } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, SlidersHorizontal, Download } from 'lucide-react';
 import { CalendarView, CalendarFilters } from '@/types/calendar';
 import { CalendarFilterPanel } from './CalendarFilterPanel';
 
@@ -11,6 +11,7 @@ interface CalendarHeaderProps {
   onViewChange: (view: CalendarView) => void;
   onNavigate: (action: 'prev' | 'next' | 'today') => void;
   onAddEvent: () => void;
+  onExportICS: () => void;
   filters: CalendarFilters;
   onFiltersChange: (filters: CalendarFilters) => void;
 }
@@ -21,6 +22,7 @@ export function CalendarHeader({
   onViewChange,
   onNavigate,
   onAddEvent,
+  onExportICS,
   filters,
   onFiltersChange,
 }: CalendarHeaderProps) {
@@ -111,6 +113,16 @@ export function CalendarHeader({
             isOpen={filterPanelOpen}
             onClose={() => setFilterPanelOpen(false)}
           />
+
+          {/* Export iCal Button */}
+          <button
+            onClick={onExportICS}
+            className="flex items-center gap-1.5 px-3 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-650 rounded-lg shadow-sm transition-all cursor-pointer"
+            title="Export Calendar to Google Calendar (iCal/ICS format)"
+          >
+            <Download className="h-4 w-4 text-slate-400" />
+            Export Calendar
+          </button>
 
           {/* New Event Button */}
           <button

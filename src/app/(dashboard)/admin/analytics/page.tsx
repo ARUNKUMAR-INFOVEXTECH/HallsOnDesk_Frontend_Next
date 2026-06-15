@@ -158,37 +158,39 @@ export default function AdminAnalyticsPage() {
           </div>
         </div>
 
-        {/* Adoption distribution widget */}
+        {/* Top Halls by Revenue */}
         <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm lg:col-span-4 flex flex-col justify-between">
           <div className="border-b border-gray-50 pb-4 mb-4">
-            <h3 className="font-bold text-gray-900 text-sm">Performance Standings</h3>
-            <p className="text-[11px] text-gray-400 font-medium">Venues with highest occupancy rates and collections.</p>
+            <h3 className="font-bold text-gray-900 text-sm">Top Halls by Revenue</h3>
+            <p className="text-[11px] text-gray-400 font-medium">Venues with highest total payment collections.</p>
           </div>
 
-          <div className="space-y-4 flex-1 mt-2">
-            {[
-              { name: 'Vasantha Mahal', city: 'Chennai', mrr: 9999, rank: 1, rate: 94 },
-              { name: 'Grand Palace Hall', city: 'Coimbatore', mrr: 7999, rank: 2, rate: 88 },
-              { name: 'Royal Palace', city: 'Madurai', mrr: 4999, rank: 3, rate: 82 },
-            ].map((hall, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg bg-gray-50/50">
-                <div className="flex items-center gap-3">
-                  <span className="h-6 w-6 rounded bg-violet-50 text-violet-700 flex items-center justify-center font-bold text-xs border border-violet-100 shrink-0">
-                    {hall.rank}
-                  </span>
-                  <div>
-                    <span className="font-bold text-xs text-gray-900 block">{hall.name}</span>
-                    <span className="text-[10px] text-gray-500 font-semibold">{hall.city}</span>
+          <div className="space-y-3 flex-1 mt-2">
+            {analyticsData.topHalls && analyticsData.topHalls.length > 0 ? (
+              analyticsData.topHalls.map((hall: any, idx: number) => (
+                <div key={hall.hallId || idx} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg bg-gray-50/50">
+                  <div className="flex items-center gap-3">
+                    <span className="h-6 w-6 rounded bg-violet-50 text-violet-700 flex items-center justify-center font-bold text-xs border border-violet-100 shrink-0">
+                      {hall.rank || idx + 1}
+                    </span>
+                    <div>
+                      <span className="font-bold text-xs text-gray-900 block">{hall.hallName}</span>
+                      <span className="text-[10px] text-gray-500 font-semibold">{hall.city}</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-bold text-xs text-gray-900 block">{formatCurrency(hall.totalRevenue)}</span>
+                    <span className="text-[9px] text-violet-700 font-bold bg-violet-50 border border-violet-100 rounded px-1.5 py-0.5 mt-0.5 inline-block">
+                      collected
+                    </span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <span className="font-bold text-xs text-gray-900 block">{formatCurrency(hall.mrr)}</span>
-                  <span className="text-[9px] text-emerald-700 font-bold bg-emerald-50 border border-emerald-100 rounded px-1.5 py-0.2 mt-0.5 inline-block">
-                    {hall.rate}% Occ
-                  </span>
-                </div>
+              ))
+            ) : (
+              <div className="py-8 text-center text-gray-400">
+                <p className="text-xs font-medium">No payment data available yet.</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

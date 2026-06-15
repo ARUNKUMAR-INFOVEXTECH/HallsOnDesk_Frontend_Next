@@ -23,9 +23,10 @@ import {
   AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
+import { obfuscateId } from '@/utils/obfuscate';
 
 export default function AdminHallsPage() {
-  const { halls, isLoading, suspendHall, activateHall, deleteHall, createHall, isCreating } = useAdminHalls();
+  const { halls, isLoading, suspendHall, activateHall, deleteHall } = useAdminHalls();
   const { packages = [] } = useAdminPackages();
 
   // Search & Filter state
@@ -34,19 +35,6 @@ export default function AdminHallsPage() {
   const [selectedPackage, setSelectedPackage] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedSubStatus, setSelectedSubStatus] = useState('');
-
-  // Register Modal state
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-  const [newHallData, setNewHallData] = useState({
-    hall_name: '',
-    owner_name: '',
-    owner_email: '',
-    phone: '',
-    city: '',
-    address: '',
-    package_id: '',
-    password: '',
-  });
 
   // Action Menu toggle state
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
@@ -59,8 +47,8 @@ export default function AdminHallsPage() {
     const matchesSearch =
       hall.hall_name.toLowerCase().includes(search.toLowerCase()) ||
       hall.owner_name.toLowerCase().includes(search.toLowerCase()) ||
-      hall.email.toLowerCase().includes(search.toLowerCase()) ||
-      hall.phone.includes(search);
+      (hall.email && hall.email.toLowerCase().includes(search.toLowerCase())) ||
+      (hall.phone && hall.phone.includes(search));
 
     const matchesDistrict = selectedDistrict ? hall.city === selectedDistrict : true;
     
@@ -77,29 +65,6 @@ export default function AdminHallsPage() {
 
     return matchesSearch && matchesDistrict && matchesPackage && matchesStatus && matchesSubStatus;
   });
-
-  const handleCreateSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newHallData.package_id && packages.length > 0) {
-      newHallData.package_id = packages[0].id;
-    }
-    try {
-      await createHall(newHallData);
-      setIsRegisterOpen(false);
-      setNewHallData({
-        hall_name: '',
-        owner_name: '',
-        owner_email: '',
-        phone: '',
-        city: '',
-        address: '',
-        package_id: '',
-        password: '',
-      });
-    } catch {
-      // handled in hook
-    }
-  };
 
   const handleSuspendToggle = async (id: string, currentStatus: string) => {
     if (currentStatus === 'active') {
@@ -129,13 +94,13 @@ export default function AdminHallsPage() {
             Activate, suspend, and configure billing parameters for registered halls.
           </p>
         </div>
-        <button
-          onClick={() => setIsRegisterOpen(true)}
+        <Link
+          href="/admin/halls/new"
           className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-lg shadow-sm transition-colors cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           <span>Register New Venue</span>
-        </button>
+        </Link>
       </div>
 
       {/* Filters Bar */}
@@ -244,7 +209,11 @@ export default function AdminHallsPage() {
               <tbody className="divide-y divide-gray-100 text-xs font-semibold text-gray-700">
                 {filteredHalls.map((hall) => {
                   const activeSub = hall.hall_subscriptions?.[0];
-                  const subStatus = activeSub?.status || 'trial';
+                  const todayStr = new Date().toISOString().split('T')[0];
+                  let subStatus = activeSub?.status || 'trial';
+                  if (activeSub && (subStatus === 'active' || subStatus === 'trial') && activeSub.end_date && activeSub.end_date < todayStr) {
+                    subStatus = 'expired';
+                  }
                   const packageName = activeSub?.packages?.name || 'Free Trial';
                   const statusStyle = STATUS_STYLES.hall[hall.status === 'active' ? 'active' : 'inactive'];
                   const subStyle = STATUS_STYLES.subscription[subStatus as 'active' | 'trial' | 'suspended' | 'expired'];
@@ -297,12 +266,12 @@ export default function AdminHallsPage() {
                             {subStyle.label}
                           </span>
                           <span className="text-[10px] text-gray-400 font-medium">
-                            {activeSub?.end_date ? new Date(activeSub.end_date).toLocaleDateString() : 'N/A'}
+                            {activeSub?.end_date ? new Date(activeSub.end_date).toLocaleDateString('en-GB') : 'N/A'}
                           </span>
                         </div>
                       </td>
                       <td className="px-5 py-4 text-gray-500 font-medium">
-                        {hall.created_at ? new Date(hall.created_at).toLocaleDateString() : 'N/A'}
+                        {hall.created_at ? new Date(hall.created_at).toLocaleDateString('en-GB') : 'N/A'}
                       </td>
                       <td className="px-5 py-4 text-right relative">
                         <button
@@ -318,7 +287,7 @@ export default function AdminHallsPage() {
                             <div className="fixed inset-0 z-10" onClick={() => setActiveMenuId(null)} />
                             <div className="absolute right-5 mt-1 w-48 bg-white border border-gray-150 rounded-lg shadow-lg py-1.5 z-20 text-left">
                               <Link
-                                href={`/admin/halls/${hall.id}`}
+                                href={`/admin/halls/${obfuscateId(hall.id)}`}
                                 className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 text-gray-700 text-xs font-semibold"
                               >
                                 <Eye className="h-3.5 w-3.5 text-gray-450" />
@@ -326,7 +295,7 @@ export default function AdminHallsPage() {
                               </Link>
                               
                               <Link
-                                href={`/admin/subscriptions/${hall.id}`}
+                                href={`/admin/subscriptions/${obfuscateId(`sub-${hall.id}`)}`}
                                 className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 text-gray-700 text-xs font-semibold"
                               >
                                 <CreditCard className="h-3.5 w-3.5 text-gray-450" />
@@ -373,152 +342,6 @@ export default function AdminHallsPage() {
           </div>
         )}
       </div>
-
-      {/* Register Modal Backdrop */}
-      {isRegisterOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl border border-gray-100 w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-              <div className="flex items-center gap-2 text-violet-600">
-                <Building2 className="h-5 w-5" />
-                <h3 className="font-bold text-gray-900 text-sm">Register New Hall</h3>
-              </div>
-              <button
-                onClick={() => setIsRegisterOpen(false)}
-                className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-150 transition-all cursor-pointer"
-              >
-                <X className="h-4.5 w-4.5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateSubmit} className="flex-1 overflow-y-auto p-5 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2 space-y-1">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Hall / Venue Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Vasantha Mahal Mandapam"
-                    value={newHallData.hall_name}
-                    onChange={(e) => setNewHallData({ ...newHallData, hall_name: e.target.value })}
-                    className="px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Owner Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Rajesh Nair"
-                    value={newHallData.owner_name}
-                    onChange={(e) => setNewHallData({ ...newHallData, owner_name: e.target.value })}
-                    className="px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Phone Number</label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="e.g. 9840123456"
-                    value={newHallData.phone}
-                    onChange={(e) => setNewHallData({ ...newHallData, phone: e.target.value })}
-                    className="px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500"
-                  />
-                </div>
-
-                <div className="col-span-2 space-y-1">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Owner Email Address</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="e.g. owner@vasanthamahal.com"
-                    value={newHallData.owner_email}
-                    onChange={(e) => setNewHallData({ ...newHallData, owner_email: e.target.value })}
-                    className="px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Default Password</label>
-                  <input
-                    type="password"
-                    placeholder="Optional (System will generate)"
-                    value={newHallData.password}
-                    onChange={(e) => setNewHallData({ ...newHallData, password: e.target.value })}
-                    className="px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">District / City</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Chennai"
-                    value={newHallData.city}
-                    onChange={(e) => setNewHallData({ ...newHallData, city: e.target.value })}
-                    className="px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500"
-                  />
-                </div>
-
-                <div className="col-span-2 space-y-1">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Billing Package / Tier</label>
-                  <select
-                    value={newHallData.package_id}
-                    onChange={(e) => setNewHallData({ ...newHallData, package_id: e.target.value })}
-                    className="px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 cursor-pointer"
-                  >
-                    {packages.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} - ₹{p.price.toLocaleString('en-IN')}/{p.billing_cycle === 'yearly' ? 'yr' : 'mo'}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="col-span-2 space-y-1">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Full Physical Address</label>
-                  <textarea
-                    required
-                    rows={2}
-                    placeholder="Enter physical location address..."
-                    value={newHallData.address}
-                    onChange={(e) => setNewHallData({ ...newHallData, address: e.target.value })}
-                    className="px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-gray-100 flex items-center justify-end gap-3 bg-gray-50/50 -mx-5 -mb-5 p-5">
-                <button
-                  type="button"
-                  onClick={() => setIsRegisterOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold border border-gray-250 text-gray-500 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isCreating}
-                  className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-lg shadow-sm transition-colors cursor-pointer disabled:bg-violet-400"
-                >
-                  {isCreating ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span>Registering...</span>
-                    </>
-                  ) : (
-                    <span>Register Hall</span>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -74,7 +74,7 @@ export function StaffTable({ data, onEdit, onDelete, onStatusChange }: StaffTabl
 
   const getRoleAvatarStyles = (role: StaffRole) => {
     const styles: Record<StaffRole, string> = {
-      owner: 'bg-violet-100 text-violet-755 border-violet-200',
+      owner: 'bg-primary-lighter text-primary-light border-primary-light/20',
       manager: 'bg-blue-100 text-blue-700 border-blue-200',
       staff: 'bg-green-100 text-green-700 border-green-200',
       receptionist: 'bg-pink-100 text-pink-700 border-pink-200',
@@ -266,8 +266,8 @@ export function StaffTable({ data, onEdit, onDelete, onStatusChange }: StaffTabl
         cell: (info) => {
           const list = info.getValue();
           return (
-            <span className="inline-flex items-center gap-1 bg-violet-50 text-violet-755 border border-violet-100 rounded px-2 py-0.5 text-[10px] font-bold font-mono">
-              <Shield className="h-3 w-3 shrink-0 text-violet-600" />
+            <span className="inline-flex items-center gap-1 bg-primary-lighter text-primary-light border border-primary-light/25 rounded px-2 py-0.5 text-[10px] font-bold font-mono">
+              <Shield className="h-3 w-3 shrink-0 text-primary-light" />
               {list.length} rules
             </span>
           );
@@ -408,7 +408,7 @@ export function StaffTable({ data, onEdit, onDelete, onStatusChange }: StaffTabl
           <select
             value={pageSize}
             onChange={(e) => setPageSize(Number(e.target.value))}
-            className="bg-slate-50 border border-slate-200 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-violet-500 font-bold text-slate-705 cursor-pointer"
+            className="bg-slate-50 border border-slate-200 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary font-bold text-slate-755 cursor-pointer"
           >
             {[10, 25, 50].map((size) => (
               <option key={size} value={size}>

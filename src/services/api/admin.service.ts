@@ -1,5 +1,13 @@
 import apiClient from './client';
 import { User, Package, Hall } from '@/types';
+import {
+  SystemHealth,
+  SupportTicket,
+  AdminSettings,
+  AdminActivity,
+  GlobalUser,
+  AdminAnalyticsData
+} from '@/types/admin';
 
 export interface AdminStats {
   total: number;
@@ -36,6 +44,8 @@ export interface HallDetails extends Hall {
       price: number;
       billing_cycle: string;
       features: string[];
+      max_users?: number | null;
+      max_bookings?: number | null;
     };
   }>;
   users?: User[];
@@ -144,5 +154,106 @@ export async function changePackage(hallId: string, packageId: string): Promise<
     `/subscriptions/${hallId}/change-package`,
     { package_id: packageId }
   );
+  return res.data;
+}
+
+export interface AdminDashboardStats {
+  kpis: {
+    totalHalls: { value: number; growth: number; trend: 'up' | 'down' };
+    activeHalls: { value: number; growth: number; trend: 'up' | 'down' };
+    trialHalls: { value: number; growth: number; trend: 'up' | 'down' };
+    expiredSubscriptions: { value: number; growth: number; trend: 'up' | 'down' };
+    monthlyRevenue: { value: number; growth: number; trend: 'up' | 'down' };
+    annualRevenue: { value: number; growth: number; trend: 'up' | 'down' };
+    newSignups: { value: number; growth: number; trend: 'up' | 'down' };
+    totalUsers: { value: number; growth: number; trend: 'up' | 'down' };
+  };
+  systemHealth: SystemHealth;
+  activities: AdminActivity[];
+}
+
+export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
+  const res = await apiClient.get<AdminDashboardStats>('/admin/dashboard-stats');
+  return res.data;
+}
+
+export async function getAdminAnalytics(timePeriod: '30d' | '3m' | '6m' | '1y'): Promise<AdminAnalyticsData> {
+  const res = await apiClient.get<AdminAnalyticsData>(`/admin/analytics?timePeriod=${timePeriod}`);
+  return res.data;
+}
+
+export async function getAdminUsers(): Promise<GlobalUser[]> {
+  const res = await apiClient.get<GlobalUser[]>('/admin/users');
+  return res.data;
+}
+
+export async function getAdminSettings(): Promise<AdminSettings> {
+  const res = await apiClient.get<AdminSettings>('/admin/settings');
+  return res.data;
+}
+
+export async function updateAdminSettings(data: AdminSettings): Promise<{ message: string; data: any }> {
+  const res = await apiClient.put<{ message: string; data: any }>('/admin/settings', data);
+  return res.data;
+}
+
+export async function getAdminTickets(): Promise<SupportTicket[]> {
+  const res = await apiClient.get<SupportTicket[]>('/admin/tickets');
+  return res.data;
+}
+
+export async function updateAdminTicketStatus(
+  id: string,
+  data: { status?: SupportTicket['status']; assignedTo?: string }
+): Promise<{ message: string; data: any }> {
+  const res = await apiClient.patch<{ message: string; data: any }>(`/admin/tickets/${id}`, data);
+  return res.data;
+}
+
+export async function addAdminTicketMessage(
+  id: string,
+  data: { message: string; senderName?: string }
+): Promise<{ message: string; data: any }> {
+  const res = await apiClient.post<{ message: string; data: any }>(`/admin/tickets/${id}/messages`, data);
+  return res.data;
+}
+
+export async function toggleAdminUserStatus(id: string, status: 'active' | 'suspended'): Promise<{ message: string; data: any }> {
+  const res = await apiClient.patch<{ message: string; data: any }>(`/admin/users/${id}/status`, { status });
+  return res.data;
+}
+
+export async function resetAdminUserPassword(id: string): Promise<{ message: string }> {
+  const res = await apiClient.post<{ message: string }>(`/admin/users/${id}/reset-password`);
+  return res.data;
+}
+
+export interface HallStats {
+  bookingsCount: number;
+  confirmedBookings: number;
+  pendingBookings: number;
+  staffCount: number;
+  totalRevenue: number;
+  pendingBalance: number;
+  maxUsers: number | null;
+  maxBookings: number | null;
+}
+
+export interface HallActivityItem {
+  id: string;
+  title: string;
+  description: string;
+  timestamp: string;
+  actor: string;
+  type: 'activity' | 'subscription';
+}
+
+export async function getHallStats(id: string): Promise<HallStats> {
+  const res = await apiClient.get<HallStats>(`/admin/halls/${id}/stats`);
+  return res.data;
+}
+
+export async function getHallActivity(id: string): Promise<HallActivityItem[]> {
+  const res = await apiClient.get<HallActivityItem[]>(`/admin/halls/${id}/activity`);
   return res.data;
 }

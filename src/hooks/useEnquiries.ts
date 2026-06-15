@@ -6,10 +6,12 @@ import {
   getEnquiries,
   getEnquiryById,
   createEnquiry,
+  bulkCreateEnquiries,
   updateEnquiry,
   convertEnquiryToBooking,
   getTodayFollowups,
   EnquiriesQuery,
+  deleteEnquiry,
 } from '@/services/api/modules/enquiries.service';
 import {
   Enquiry,
@@ -78,6 +80,8 @@ export const mapBackendEnquiryToFrontend = (e: any): Enquiry => {
       stage = 'booked';
     } else if (status === 'lost') {
       stage = 'lost';
+    } else if (['new', 'interested', 'visit_scheduled', 'visited'].includes(status)) {
+      stage = status as EnquiryStage;
     } else {
       stage = 'new';
     }
@@ -124,6 +128,7 @@ export const mapBackendEnquiryToFrontend = (e: any): Enquiry => {
     stage,
     priority,
     assignedTo: e.assigned_to || e.assignedTo || undefined,
+    assignee: e.assignee || undefined,
     customerId: e.customer_id || e.customerId || undefined,
     bookingId: e.booking_id || e.bookingId || undefined,
     convertedAt: e.converted_at || e.convertedAt || undefined,
@@ -153,7 +158,7 @@ export const mapFrontendEnquiryToBackend = (e: any) => {
     hall_section: e.hallSection || 'Main Hall',
     source: e.source,
     stage: e.stage,
-    status: e.stage === 'booked' ? 'converted' : e.stage === 'lost' ? 'lost' : 'pending', // status fallback
+    status: e.stage === 'booked' ? 'booked' : e.stage === 'lost' ? 'lost' : e.stage, // status fallback
     priority: e.priority,
     assigned_to: e.assignedTo || null,
     customer_id: e.customerId || null,
@@ -175,6 +180,8 @@ export function useEnquiries(params: {
   source?: string;
   priority?: string;
   eventType?: string;
+  fromEventDate?: string;
+  toEventDate?: string;
   page?: number;
   limit?: number;
 } = {}) {
@@ -184,6 +191,8 @@ export function useEnquiries(params: {
     source: params.source === 'all' || !params.source ? undefined : params.source,
     priority: params.priority === 'all' || !params.priority ? undefined : params.priority,
     eventType: params.eventType === 'all' || !params.eventType ? undefined : params.eventType,
+    from_date: params.fromEventDate || undefined,
+    to_date: params.toEventDate || undefined,
     page: params.page,
     limit: params.limit,
   };
@@ -222,6 +231,16 @@ export function useEnquiries(params: {
 
       if (params.eventType && params.eventType !== 'all') {
         filtered = filtered.filter((e) => e.eventType === params.eventType);
+      }
+
+      if (params.fromEventDate) {
+        const fromD = new Date(params.fromEventDate);
+        filtered = filtered.filter((e) => e.eventDate && new Date(e.eventDate) >= fromD);
+      }
+
+      if (params.toEventDate) {
+        const toD = new Date(params.toEventDate);
+        filtered = filtered.filter((e) => e.eventDate && new Date(e.eventDate) <= toD);
       }
 
       // Sort by creation date descending
@@ -393,6 +412,24 @@ export function useCreateEnquiry() {
   });
 }
 
+export function useBulkCreateEnquiry() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: bulkCreateEnquiries,
+    onSuccess: (res) => {
+      toast.success(`Successfully imported ${res.count || 0} enquiries!`);
+      queryClient.invalidateQueries({ queryKey: ['enquiries'] });
+      queryClient.invalidateQueries({ queryKey: ['enquiry-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['followups-today'] });
+    },
+    onError: (err: any) => {
+      const errMsg = err.response?.data?.message || 'Failed to import enquiries.';
+      toast.error(errMsg);
+    },
+  });
+}
+
 export function useUpdateEnquiry() {
   const queryClient = useQueryClient();
 
@@ -417,14 +454,13 @@ export function useUpdateEnquiry() {
 
 export function useUpdateEnquiryStage() {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: async ({ id, stage, lostReason, notes }: { id: string; stage: EnquiryStage; lostReason?: string; notes?: string }) => {
+    mutationFn: async ({ id, stage, lostReason, notes, bookingId }: { id: string; stage: EnquiryStage; lostReason?: string; notes?: string; bookingId?: string }) => {
       // We perform stage updates via general updateEnquiry to support flexible payloads
       const existing = queryClient.getQueryData<Enquiry>(['enquiry', id]);
       const updateData = existing
-        ? { ...existing, stage, lostReason, notes }
-        : { stage, lostReason, notes };
+        ? { ...existing, stage, lostReason, notes, bookingId }
+        : { stage, lostReason, notes, bookingId };
       
       const payload = mapFrontendEnquiryToBackend(updateData);
       return updateEnquiry(id, payload);
@@ -479,6 +515,26 @@ export function useConvertToBooking() {
     },
     onError: (err: any) => {
       const errMsg = err.response?.data?.message || 'Failed to convert enquiry to booking.';
+      toast.error(errMsg);
+    },
+  });
+}
+
+export function useDeleteEnquiry() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      return deleteEnquiry(id);
+    },
+    onSuccess: () => {
+      toast.success('Enquiry records purged successfully');
+      queryClient.invalidateQueries({ queryKey: ['enquiries'] });
+      queryClient.invalidateQueries({ queryKey: ['enquiry-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['followups-today'] });
+    },
+    onError: (err: any) => {
+      const errMsg = err.response?.data?.message || 'Failed to delete enquiry records.';
       toast.error(errMsg);
     },
   });

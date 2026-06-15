@@ -183,7 +183,7 @@ export function StaffEditDrawer({
                   onClick={() => setActiveTab(tab.value)}
                   className={`pb-2.5 border-b-2 flex items-center gap-1 cursor-pointer transition-all ${
                     isActive
-                      ? 'border-violet-605 text-violet-650'
+                      ? 'border-primary text-primary'
                       : 'border-transparent hover:text-slate-700'
                   }`}
                 >
@@ -364,7 +364,7 @@ export function StaffEditDrawer({
             <button
               onClick={handleSubmit(handleFormSubmit)}
               disabled={isSaving}
-              className="h-9 px-5 bg-violet-650 hover:bg-violet-755 text-white rounded-lg text-xs font-bold shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+              className="h-9 px-5 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
             >
               {isSaving && (
                 <svg className="animate-spin h-3.5 w-3.5 text-white shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

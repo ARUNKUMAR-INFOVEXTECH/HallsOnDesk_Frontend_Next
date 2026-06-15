@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
 export const metadata: Metadata = {
-  title: 'Dashboard - HallsOnDesk',
+  title: 'Dashboard - Infovex Halls',
   description: 'Enterprise venue management console.',
 };
 

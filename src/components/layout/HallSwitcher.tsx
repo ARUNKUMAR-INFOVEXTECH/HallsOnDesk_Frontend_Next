@@ -29,13 +29,16 @@ export default function HallSwitcher() {
   }
 
   const halls = user.accessible_halls || [];
+  const isConsolidated = activeHallId === 'all';
   
   // Find currently active hall
   const activeHall = halls.find((h) => h.id === activeHallId) 
     || halls.find((h) => h.id === user.hall_id)
     || halls[0];
 
-  if (!activeHall) return null;
+  const activeVenueName = isConsolidated ? 'All Managed Venues' : (activeHall?.hall_name || 'Active Venue');
+
+  if (!activeHall && !isConsolidated) return null;
 
   return (
     <div className="relative w-full" ref={dropdownRef}>
@@ -54,7 +57,7 @@ export default function HallSwitcher() {
               Active Venue
             </span>
             <span className="text-xs font-semibold text-slate-200 truncate group-hover:text-white transition-colors">
-              {activeHall.hall_name}
+              {activeVenueName}
             </span>
           </div>
         </div>
@@ -71,14 +74,35 @@ export default function HallSwitcher() {
           </div>
 
           <div className="max-h-48 overflow-y-auto py-1">
+            {/* Consolidated Option */}
+            <button
+              type="button"
+              onClick={() => {
+                if (!isConsolidated) {
+                  setActiveHall('all');
+                }
+                setIsOpen(false);
+              }}
+              className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left transition-colors cursor-pointer ${
+                isConsolidated
+                  ? 'bg-[#EE9B00]/10 text-[#EE9B00] font-semibold border-l-2 border-[#EE9B00]'
+                  : 'text-slate-300 hover:bg-[#1E2E44]/45 hover:text-white border-l-2 border-transparent'
+              }`}
+            >
+              <span className="text-xs truncate font-bold">All Managed Venues</span>
+              {isConsolidated && <Check className="h-3.5 w-3.5 text-[#EE9B00] shrink-0 font-bold" />}
+            </button>
+
+            <hr className="border-[#1E2E44]/40 my-1" />
+
             {halls.map((hall) => {
-              const isActive = hall.id === activeHall.id;
+              const isActive = !isConsolidated && hall.id === activeHall.id;
               return (
                 <button
                   key={hall.id}
                   type="button"
                   onClick={() => {
-                    if (!isActive) {
+                    if (!isActive || isConsolidated) {
                       setActiveHall(hall.id);
                     }
                     setIsOpen(false);

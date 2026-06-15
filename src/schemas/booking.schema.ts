@@ -26,6 +26,13 @@ export const bookingFormSchema = z
       .default(0),
     status: z.enum(['confirmed', 'pending', 'cancelled', 'completed']),
     notes: z.string().optional().default(''),
+    coordinatorName: z.string().optional(),
+    coordinatorPhone: z
+      .string()
+      .optional()
+      .refine((val) => !val || /^[6-9]\d{9}$/.test(val), {
+        message: 'Invalid Indian phone number (10 digits, starts with 6-9)',
+      }),
   })
   .refine(
     (data) => {

@@ -20,3 +20,35 @@ export async function getReceiptHtml(paymentId: string): Promise<string> {
   const res = await apiClient.get<string>(`/invoices/receipt/${paymentId}`);
   return res.data;
 }
+
+export interface InvoicesResponse {
+  data: Invoice[];
+  summary: {
+    total_invoiced: number;
+    total_paid: number;
+    total_outstanding: number;
+    count: number;
+  };
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
+  };
+}
+
+export async function getInvoices(params?: {
+  status?: string;
+  from_date?: string;
+  to_date?: string;
+  page?: number;
+  limit?: number;
+}): Promise<InvoicesResponse> {
+  const res = await apiClient.get<InvoicesResponse>('/invoices', { params });
+  return res.data;
+}
+
+export async function deleteInvoice(id: string): Promise<{ message: string; invoice_number: string }> {
+  const res = await apiClient.delete<{ message: string; invoice_number: string }>(`/invoices/${id}`);
+  return res.data;
+}

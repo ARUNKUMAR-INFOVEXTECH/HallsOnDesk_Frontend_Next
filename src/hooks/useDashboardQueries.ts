@@ -11,12 +11,14 @@ import {
   getTodayFollowups,
   getNotificationsUnreadCount,
   getSubscriptions,
+  getRecentActivities,
   DashboardResponse,
   RevenueDataPoint,
   BookingTrendPoint,
   UpcomingEvent,
   Followup,
   DashboardSubscription,
+  RecentActivity,
 } from '@/services/api/modules/dashboard.service';
 
 // 1. Core Summary metrics query
@@ -89,5 +91,14 @@ export function useSubscriptionQuery() {
     queryKey: ['dashboard', 'subscriptions'],
     queryFn: getSubscriptions,
     staleTime: 10 * 60 * 1000,
+  });
+}
+
+// 9. Recent activities logs query
+export function useRecentActivitiesQuery() {
+  return useQuery<RecentActivity[], Error>({
+    queryKey: ['dashboard', 'recent-activities'],
+    queryFn: getRecentActivities,
+    staleTime: 1 * 60 * 1000,
   });
 }

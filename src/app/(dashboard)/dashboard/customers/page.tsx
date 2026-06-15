@@ -21,6 +21,7 @@ import { DataTable } from '@/components/tables/DataTable';
 import StatCard from '@/components/dashboard/StatCard';
 import { formatCurrency } from '@/utils/formatters';
 import { ColumnDef } from '@tanstack/react-table';
+import { obfuscateId } from '@/utils/obfuscate';
 
 // Extended customer type for helper definitions
 interface CustomerWithStats {
@@ -40,6 +41,9 @@ interface CustomerWithStats {
   last_event_date?: string;
   status?: string;
   bookings?: any[];
+  gst_number?: string;
+  company_name?: string;
+  vip_status?: boolean;
 }
 
 export default function CustomersPage() {
@@ -153,11 +157,16 @@ export default function CustomersPage() {
               {initials || 'C'}
             </div>
             <div>
-              <span className="font-semibold text-gray-900 block text-sm leading-none">
+              <span className="font-semibold text-gray-900 flex items-center gap-1.5 text-sm leading-none">
                 {name}
+                {row.original.vip_status && (
+                  <span className="bg-amber-100 text-amber-800 text-[9px] font-extrabold px-1.5 py-0.5 rounded border border-amber-200 uppercase tracking-wider scale-90 origin-left select-none flex items-center gap-0.5">
+                    👑 VIP
+                  </span>
+                )}
               </span>
               <span className="text-[10px] text-gray-400 font-mono mt-1.5 block leading-none">
-                #{row.original.id.slice(0, 8)}
+                {row.original.company_name ? `${row.original.company_name} • ` : ''}#{row.original.id.slice(0, 8)}
               </span>
             </div>
           </div>
@@ -273,14 +282,14 @@ export default function CustomersPage() {
                 />
                 <div className="absolute right-0 mt-1 w-36 bg-white border border-gray-150 rounded-lg shadow-lg z-30 py-1 text-left animate-fadeIn text-xs font-semibold">
                   <Link
-                    href={`/dashboard/customers/${id}`}
+                    href={`/dashboard/customers/${obfuscateId(id)}`}
                     className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 text-gray-700"
                   >
                     <Eye className="h-3.5 w-3.5 text-gray-450" />
                     View Profile
                   </Link>
                   <Link
-                    href={`/dashboard/customers/${id}`}
+                    href={`/dashboard/customers/${obfuscateId(id)}`}
                     className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 text-gray-700"
                   >
                     <Edit className="h-3.5 w-3.5 text-gray-450" />

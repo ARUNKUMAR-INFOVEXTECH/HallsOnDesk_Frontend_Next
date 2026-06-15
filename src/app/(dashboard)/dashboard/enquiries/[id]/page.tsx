@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { useAuthStore } from '@/store/authStore';
 import {
   useEnquiry,
   useUpdateEnquiry,
@@ -36,12 +37,21 @@ import {
 } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
+import { deobfuscateId, obfuscateId } from '@/utils/obfuscate';
 
 function EnquiryDetailContent() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
-  const enquiryId = String(params.id || '');
+  const enquiryId = deobfuscateId(String(params.id || ''));
+
+  const user = useAuthStore((state) => state.user);
+  const activeHallId = useAuthStore((state) => state.activeHallId);
+  const halls = user?.accessible_halls || [];
+  const activeHall = halls.find((h) => h.id === activeHallId)
+    || halls.find((h) => h.id === user?.hall_id)
+    || halls[0];
+  const activeHallName = activeHall?.hall_name || 'Venue';
 
   // Tabs management
   const [activeTab, setActiveTab] = useState<'overview' | 'followups' | 'activity' | 'convert'>('overview');
@@ -102,7 +112,7 @@ function EnquiryDetailContent() {
         </div>
         <h4 className="text-sm font-extrabold text-slate-800 font-sans">Enquiry Not Found</h4>
         <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
-          The requested lead file could not be fetched or has been removed from the Mandapam CRM.
+          The requested lead file could not be fetched or has been removed from the {activeHallName} CRM.
         </p>
         <button
           onClick={() => router.push('/dashboard/enquiries')}
@@ -118,7 +128,7 @@ function EnquiryDetailContent() {
     if (newStage === 'booked') {
       // Must use Convert flow
       setActiveTab('convert');
-      router.replace(`/dashboard/enquiries/${enquiry.id}?tab=convert`);
+      router.replace(`/dashboard/enquiries/${obfuscateId(enquiry.id)}?tab=convert`);
       return;
     }
 
@@ -150,7 +160,7 @@ function EnquiryDetailContent() {
         data,
       });
       setIsEditing(false);
-      router.replace(`/dashboard/enquiries/${enquiry.id}`);
+      router.replace(`/dashboard/enquiries/${obfuscateId(enquiry.id)}`);
     } catch (err) {
       console.error('Lead update failed:', err);
     }
@@ -269,7 +279,7 @@ function EnquiryDetailContent() {
         onEdit={() => setIsEditing(true)}
         onConvert={() => {
           setActiveTab('convert');
-          router.replace(`/dashboard/enquiries/${enquiry.id}?tab=convert`);
+          router.replace(`/dashboard/enquiries/${obfuscateId(enquiry.id)}?tab=convert`);
         }}
         onMarkLost={() => setLostModalOpen(true)}
         onStageChange={handleStageChange}
@@ -285,7 +295,7 @@ function EnquiryDetailContent() {
               onClick={() => {
                 setActiveTab(tab.id as any);
                 setIsEditing(false);
-                router.replace(`/dashboard/enquiries/${enquiry.id}?tab=${tab.id}`);
+                router.replace(`/dashboard/enquiries/${obfuscateId(enquiry.id)}?tab=${tab.id}`);
               }}
               className={`pb-2.5 text-xs font-bold tracking-wide transition-all border-b-2 cursor-pointer ${
                 isActive
@@ -308,7 +318,7 @@ function EnquiryDetailContent() {
             <button
               onClick={() => {
                 setIsEditing(false);
-                router.replace(`/dashboard/enquiries/${enquiry.id}`);
+                router.replace(`/dashboard/enquiries/${obfuscateId(enquiry.id)}`);
               }}
               className="text-xs text-slate-400 hover:text-slate-655 font-bold cursor-pointer hover:underline"
             >
@@ -321,7 +331,7 @@ function EnquiryDetailContent() {
             isSubmitting={updateEnquiryMutation.isPending}
             onCancel={() => {
               setIsEditing(false);
-              router.replace(`/dashboard/enquiries/${enquiry.id}`);
+              router.replace(`/dashboard/enquiries/${obfuscateId(enquiry.id)}`);
             }}
             submitButtonText="Save Changes"
           />
@@ -485,7 +495,7 @@ function EnquiryDetailContent() {
                 <button
                   onClick={() => {
                     setActiveTab('followups');
-                    router.replace(`/dashboard/enquiries/${enquiry.id}?tab=followups`);
+                    router.replace(`/dashboard/enquiries/${obfuscateId(enquiry.id)}?tab=followups`);
                   }}
                   className="w-full h-9 border border-violet-200 hover:bg-violet-50/55 text-violet-650 rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-custom-xs"
                 >
@@ -498,7 +508,7 @@ function EnquiryDetailContent() {
                     <button
                       onClick={() => {
                         setActiveTab('convert');
-                        router.replace(`/dashboard/enquiries/${enquiry.id}?tab=convert`);
+                        router.replace(`/dashboard/enquiries/${obfuscateId(enquiry.id)}?tab=convert`);
                       }}
                       className="w-full h-9 bg-green-550 hover:bg-green-650 text-white rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm shadow-green-100"
                     >

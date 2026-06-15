@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import {
   ArrowLeft,
   Phone,
@@ -18,7 +19,13 @@ import {
   Save,
   Briefcase
 } from 'lucide-react';
-import { useVendor, useUpdateVendor, useDeleteVendor } from '@/hooks/useVendors';
+import {
+  useVendor,
+  useUpdateVendor,
+  useDeleteVendor,
+  useVendorAllocations,
+  useVendorAllocationStats,
+} from '@/hooks/useVendors';
 import { VendorProfileHeader } from '@/components/vendors/VendorProfileHeader';
 import { VendorForm } from '@/components/vendors/VendorForm';
 import { VendorActivityTimeline } from '@/components/vendors/VendorActivityTimeline';
@@ -28,15 +35,16 @@ import { CategoryBadge } from '@/components/vendors/CategoryBadge';
 import { copyToClipboard } from '@/utils/clipboard';
 import { formatCurrency } from '@/utils/currency';
 import { formatDate } from '@/utils/formatters';
+import { deobfuscateId, obfuscateId } from '@/utils/obfuscate';
 
-type TabType = 'overview' | 'contact' | 'business' | 'notes' | 'activity';
+type TabType = 'overview' | 'allocations' | 'contact' | 'business' | 'notes' | 'activity';
 
 export default function VendorDetailPage() {
   const router = useRouter();
   const params = useParams() as { id: string };
   const searchParams = useSearchParams();
 
-  const vendorId = params.id;
+  const vendorId = deobfuscateId(params.id);
 
   // Tabs navigation state
   const [activeTab, setActiveTab] = useState<TabType>('overview');
@@ -61,6 +69,8 @@ export default function VendorDetailPage() {
 
   // Queries & Mutations
   const { data: vendor, isLoading, isError, refetch } = useVendor(vendorId);
+  const { data: allocations = [], isLoading: allocationsLoading, refetch: refetchAllocations } = useVendorAllocations(vendorId);
+  const { data: allocationStats, refetch: refetchAllocationStats } = useVendorAllocationStats(vendorId);
   const updateVendorMutation = useUpdateVendor();
   const deleteVendorMutation = useDeleteVendor();
 
@@ -112,7 +122,7 @@ export default function VendorDetailPage() {
       {
         onSuccess: () => {
           setIsEditing(false);
-          router.replace(`/dashboard/vendors/${vendor.id}`);
+          router.replace(`/dashboard/vendors/${obfuscateId(vendor.id)}`);
           refetch();
         },
       }
@@ -203,7 +213,7 @@ export default function VendorDetailPage() {
                       {vendor.tags.map((tag, idx) => (
                         <span
                           key={idx}
-                          className="bg-violet-50 text-violet-750 border border-violet-100 rounded px-2 py-0.5 text-[10px] font-bold font-mono"
+                          className="bg-primary-lighter text-primary-light border border-primary-light/20 rounded px-2 py-0.5 text-[10px] font-bold font-mono"
                         >
                           {tag}
                         </span>
@@ -310,7 +320,7 @@ export default function VendorDetailPage() {
                 
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-violet-650 hover:bg-violet-755 text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
+                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
                 >
                   <Edit3 className="h-4 w-4 shrink-0" />
                   Edit Vendor Profile
@@ -343,6 +353,150 @@ export default function VendorDetailPage() {
                   </button>
                 )}
               </div>
+            </div>
+          </div>
+        );
+
+      // ----------------------------------------------------
+      // 1.5. ALLOCATIONS HISTORY TAB
+      // ----------------------------------------------------
+      case 'allocations':
+        return (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            {/* Allocation Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white border border-gray-150 rounded-xl p-5 shadow-sm flex items-center justify-between text-xs font-semibold">
+                <div className="space-y-1">
+                  <span className="text-[10px] text-slate-400 block uppercase tracking-wider font-bold">Total Earnings</span>
+                  <span className="text-slate-800 font-extrabold text-lg font-mono">
+                    {formatCurrency(allocationStats?.total_earnings || 0)}
+                  </span>
+                </div>
+                <div className="h-10 w-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-450">
+                  <Briefcase className="h-5 w-5" />
+                </div>
+              </div>
+
+              <div className="bg-white border border-gray-150 rounded-xl p-5 shadow-sm flex items-center justify-between text-xs font-semibold">
+                <div className="space-y-1">
+                  <span className="text-[10px] text-slate-400 block uppercase tracking-wider font-bold">Total Paid Collected</span>
+                  <span className="text-emerald-600 font-extrabold text-lg font-mono">
+                    {formatCurrency(allocationStats?.total_paid || 0)}
+                  </span>
+                </div>
+                <div className="h-10 w-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-500">
+                  <Check className="h-5 w-5" />
+                </div>
+              </div>
+
+              <div className="bg-white border border-gray-150 rounded-xl p-5 shadow-sm flex items-center justify-between text-xs font-semibold">
+                <div className="space-y-1">
+                  <span className="text-[10px] text-slate-400 block uppercase tracking-wider font-bold">Outstanding Balance</span>
+                  <span className={`font-extrabold text-lg font-mono ${(allocationStats?.total_pending || 0) > 0 ? 'text-rose-600' : 'text-slate-500'}`}>
+                    {formatCurrency(allocationStats?.total_pending || 0)}
+                  </span>
+                </div>
+                <div className={`h-10 w-10 rounded-full flex items-center justify-center border ${(allocationStats?.total_pending || 0) > 0 ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-slate-50 border-slate-100 text-slate-400'}`}>
+                  <AlertCircle className="h-5 w-5" />
+                </div>
+              </div>
+            </div>
+
+            {/* Allocations Table Card */}
+            <div className="bg-white border border-gray-150 rounded-xl p-6 shadow-sm">
+              <div className="border-b border-slate-100 pb-4 mb-5">
+                <h3 className="text-sm font-semibold text-slate-800">Booking Allocations History</h3>
+                <p className="text-[11px] text-slate-400 font-medium mt-0.5">Schedules and rates details for past and upcoming booking engagements</p>
+              </div>
+
+              {allocationsLoading ? (
+                <div className="flex items-center justify-center py-12 text-slate-450 gap-2 font-medium">
+                  <svg className="animate-spin h-5 w-5 text-primary shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Loading allocations history...
+                </div>
+              ) : allocations.length > 0 ? (
+                <div className="overflow-x-auto -mx-6">
+                  <table className="w-full text-left border-collapse text-xs font-semibold text-slate-600">
+                    <thead>
+                      <tr className="border-b border-slate-100 bg-slate-50/50 text-[10px] text-slate-400 uppercase tracking-wider font-bold">
+                        <th className="px-6 py-3">Event Date</th>
+                        <th className="px-6 py-3">Booking Reference</th>
+                        <th className="px-6 py-3">Event Name</th>
+                        <th className="px-6 py-3">Agreed Cost</th>
+                        <th className="px-6 py-3">Amount Paid</th>
+                        <th className="px-6 py-3">Status</th>
+                        <th className="px-6 py-3 max-w-[200px]">Notes</th>
+                        <th className="px-6 py-3 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {allocations.map((alloc) => {
+                        const bNum = alloc.bookings?.booking_number || 'N/A';
+                        const bName = alloc.bookings?.event_name || 'Unnamed Event';
+                        const bDate = alloc.bookings?.start_date ? formatDate(alloc.bookings.start_date) : 'N/A';
+                        
+                        return (
+                          <tr key={alloc.id} className="hover:bg-slate-50/40 transition-colors">
+                            <td className="px-6 py-3.5 font-mono text-slate-800">{bDate}</td>
+                            <td className="px-6 py-3.5">
+                              <Link
+                                href={`/dashboard/bookings/${obfuscateId(alloc.bookingId)}`}
+                                className="text-primary hover:text-primary-hover hover:underline font-bold font-mono"
+                              >
+                                {bNum}
+                              </Link>
+                            </td>
+                            <td className="px-6 py-3.5 text-slate-800 font-bold">{bName}</td>
+                            <td className="px-6 py-3.5 font-mono text-slate-800">{formatCurrency(alloc.allocatedCost)}</td>
+                            <td className="px-6 py-3.5 font-mono text-emerald-600">{formatCurrency(alloc.amountPaid)}</td>
+                            <td className="px-6 py-3.5">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider border ${
+                                  alloc.paymentStatus === 'paid'
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-250'
+                                    : alloc.paymentStatus === 'partial'
+                                    ? 'bg-amber-50 text-amber-700 border-amber-250'
+                                    : 'bg-rose-50 text-rose-700 border-rose-250'
+                                }`}
+                              >
+                                {alloc.paymentStatus === 'paid'
+                                  ? 'Paid'
+                                  : alloc.paymentStatus === 'partial'
+                                  ? 'Partial'
+                                  : 'Unpaid'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-3.5 text-slate-400 truncate max-w-[200px]" title={alloc.notes}>
+                              {alloc.notes || '-'}
+                            </td>
+                            <td className="px-6 py-3.5 text-right">
+                              <Link
+                                href={`/dashboard/bookings/${obfuscateId(alloc.bookingId)}`}
+                                className="inline-flex items-center gap-1.5 py-1 px-2.5 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 text-slate-655 rounded-md text-[10px] font-bold shadow-sm transition-all"
+                              >
+                                <ExternalLink className="h-3 w-3 shrink-0" />
+                                View Booking
+                              </Link>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-center py-12 border border-slate-150 border-dashed rounded-xl bg-slate-50/50 space-y-3 font-medium">
+                  <div className="h-10 w-10 rounded-full bg-slate-100/70 border border-slate-200 flex items-center justify-center mx-auto text-slate-450">
+                    <Briefcase className="h-5 w-5" />
+                  </div>
+                  <p className="text-xs text-slate-450 leading-relaxed max-w-[240px] mx-auto">
+                    This vendor partner hasn't been allocated to any bookings yet.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         );
@@ -531,7 +685,7 @@ export default function VendorDetailPage() {
                     <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">
                       Business Class
                     </span>
-                    <span className={`block font-bold mt-0.5 ${vendor.gstNumber ? 'text-violet-650' : 'text-slate-500 font-medium'}`}>
+                    <span className={`block font-bold mt-0.5 ${vendor.gstNumber ? 'text-primary' : 'text-slate-500 font-medium'}`}>
                       {vendor.gstNumber ? 'Registered mandapam provider' : 'Unregistered service partner'}
                     </span>
                   </div>
@@ -633,7 +787,7 @@ export default function VendorDetailPage() {
             <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-5 space-y-4">
               <div className="flex justify-between items-center border-b border-slate-50 pb-2">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-4.5 w-4.5 text-violet-650 shrink-0" />
+                  <FileText className="h-4.5 w-4.5 text-primary shrink-0" />
                   <h3 className="text-sm font-extrabold text-slate-800">Internal Billing Notes</h3>
                 </div>
                 
@@ -657,7 +811,7 @@ export default function VendorDetailPage() {
                   {!notesEditMode && (
                     <button
                       onClick={() => setNotesEditMode(true)}
-                      className="text-xs font-bold text-violet-650 hover:text-violet-755 hover:underline cursor-pointer"
+                      className="text-xs font-bold text-primary-light hover:text-primary-light/80 hover:underline cursor-pointer"
                     >
                       Edit Notes
                     </button>
@@ -686,7 +840,7 @@ export default function VendorDetailPage() {
                     </button>
                     <button
                       onClick={handleSaveNotes}
-                      className="h-8 px-3.5 bg-violet-650 hover:bg-violet-755 text-white rounded-md text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+                      className="h-8 px-3.5 bg-primary hover:bg-primary-hover text-white rounded-md text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                       <Save className="h-3.5 w-3.5 shrink-0" />
                       Save Notes
@@ -706,7 +860,7 @@ export default function VendorDetailPage() {
                   </p>
                   <button
                     onClick={() => setNotesEditMode(true)}
-                    className="mt-1 bg-violet-50 hover:bg-violet-100 text-violet-700 border border-violet-200 h-8 px-3.5 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                    className="mt-1 bg-primary-lighter hover:bg-primary-light/10 text-primary-light border border-primary-light/20 h-8 px-3.5 rounded-lg text-xs font-bold transition-all cursor-pointer"
                   >
                     Add Custom Notes
                   </button>
@@ -736,7 +890,7 @@ export default function VendorDetailPage() {
           <button
             onClick={() => {
               setIsEditing(false);
-              router.replace(`/dashboard/vendors/${vendor.id}`);
+              router.replace(`/dashboard/vendors/${obfuscateId(vendor.id)}`);
             }}
             className="flex items-center gap-1.5 text-xs font-extrabold text-slate-500 hover:text-slate-850 group cursor-pointer"
           >
@@ -781,7 +935,7 @@ export default function VendorDetailPage() {
           isSubmitting={updateVendorMutation.isPending}
           onCancel={() => {
             setIsEditing(false);
-            router.replace(`/dashboard/vendors/${vendor.id}`);
+            router.replace(`/dashboard/vendors/${obfuscateId(vendor.id)}`);
           }}
           submitButtonText="Save Changes"
         />
@@ -791,6 +945,7 @@ export default function VendorDetailPage() {
 
   const tabs: { value: TabType; label: string }[] = [
     { value: 'overview', label: 'Overview' },
+    { value: 'allocations', label: 'Allocations History' },
     { value: 'contact', label: 'Contact Details' },
     { value: 'business', label: 'Business & Bank' },
     { value: 'notes', label: 'Notes' },
@@ -829,7 +984,7 @@ export default function VendorDetailPage() {
               onClick={() => setActiveTab(tab.value)}
               className={`pb-3 border-b-2 transition-all cursor-pointer whitespace-nowrap px-0.5 ${
                 isActive
-                  ? 'border-violet-600 text-violet-650'
+                  ? 'border-primary text-primary'
                   : 'border-transparent hover:text-slate-700'
               }`}
             >

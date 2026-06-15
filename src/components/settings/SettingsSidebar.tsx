@@ -2,16 +2,35 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Building2, Settings, AlertTriangle, ExternalLink } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Building2, Settings, AlertTriangle, ExternalLink, CreditCard } from 'lucide-react';
+import { useDashboardQuery } from '@/hooks/useDashboardQueries';
 
 export default function SettingsSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
 
-  const navItems = [
+  const { data: dashboardData } = useDashboardQuery();
+  const activeSubscription = dashboardData?.subscription;
+  const isSubExpired = dashboardData && (!activeSubscription || (activeSubscription.status !== 'active' && activeSubscription.status !== 'trial'));
+
+  React.useEffect(() => {
+    if (isSubExpired && pathname !== '/settings/subscription') {
+      router.replace('/settings/subscription');
+    }
+  }, [isSubExpired, pathname, router]);
+
+  let navItems = [
     { title: 'Hall Profile', href: '/settings/profile', icon: Building2 },
     { title: 'General Settings', href: '/settings/general', icon: Settings },
+    { title: 'Subscription & Plan', href: '/settings/subscription', icon: CreditCard },
   ];
+
+  if (isSubExpired) {
+    navItems = [
+      { title: 'Subscription & Plan', href: '/settings/subscription', icon: CreditCard },
+    ];
+  }
 
   return (
     <aside className="w-64 bg-white rounded-xl border border-gray-150 shadow-sm p-4 sticky top-6 self-start space-y-6 flex flex-col justify-between">

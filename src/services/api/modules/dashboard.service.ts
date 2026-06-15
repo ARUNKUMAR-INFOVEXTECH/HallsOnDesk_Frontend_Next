@@ -7,6 +7,8 @@ export interface DashboardSummary {
   completed_bookings: number;
   cancelled_bookings: number;
   total_customers: number;
+  total_enquiries?: number;
+  active_enquiries?: number;
 }
 
 export interface DashboardRevenue {
@@ -23,6 +25,7 @@ export interface DashboardSubscription {
   plan: string;
   max_users: number;
   max_bookings: number;
+  package_id?: string;
 }
 
 export interface UpcomingEvent {
@@ -54,9 +57,22 @@ export interface RecentBooking {
   };
 }
 
+export interface DashboardAnalytics {
+  enquiry_conversion_rate: number;
+  avg_order_value: number;
+  collection_rate: number;
+  growth_rate: number;
+  bookings_growth: number;
+  customers_growth: number;
+  pending_payments_growth: number;
+  event_distribution: Array<{ name: string; value: number }>;
+  enquiry_funnel: Array<{ stage: string; count: number }>;
+}
+
 export interface DashboardResponse {
   summary: DashboardSummary;
   revenue: DashboardRevenue;
+  analytics: DashboardAnalytics;
   upcoming_events: UpcomingEvent[];
   recent_bookings: RecentBooking[];
   subscription: DashboardSubscription | null;
@@ -77,6 +93,7 @@ export interface BookingTrendPoint {
 
 export interface Followup {
   id: string;
+  enquiry_id?: string;
   customer_name: string;
   phone: string;
   followup_date: string;
@@ -125,8 +142,17 @@ export async function getEnquiries(): Promise<Enquiry[]> {
 // 7. Today's Enquiries Followups
 export async function getTodayFollowups(): Promise<Followup[]> {
   try {
-    const response = await apiClient.get<Followup[]>('/enquiries/followups/today');
-    return response.data;
+    const response = await apiClient.get<{ followups: any[] }>('/enquiries/followups/today');
+    const list = response.data.followups || [];
+    return list.map((f: any) => ({
+      id: f.id,
+      enquiry_id: f.enquiry_id || f.enquiryId || f.enquiries?.id,
+      customer_name: f.enquiries?.customer_name || 'Guest',
+      phone: f.enquiries?.phone || '',
+      followup_date: f.followup_date,
+      notes: f.notes || f.outcome_notes || '',
+      status: f.status,
+    }));
   } catch (error) {
     console.error('Failed to fetch today followups for dashboard. Safe-falling back to empty array.', error);
     return [];
@@ -143,4 +169,25 @@ export async function getNotificationsUnreadCount(): Promise<{ unread: number }>
 export async function getSubscriptions(): Promise<DashboardSubscription[]> {
   const response = await apiClient.get<DashboardSubscription[]>('/subscriptions');
   return response.data;
+}
+
+export interface RecentActivity {
+  id: string;
+  action: string;
+  entity_type: string;
+  entity_id: string;
+  description: string;
+  user_name: string;
+  created_at: string;
+}
+
+// 10. Recent Activity Logs
+export async function getRecentActivities(): Promise<RecentActivity[]> {
+  try {
+    const response = await apiClient.get<RecentActivity[]>('/activity-logs/recent');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch recent activities. Safe-falling back to empty array.', error);
+    return [];
+  }
 }

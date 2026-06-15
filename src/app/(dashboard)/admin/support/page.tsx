@@ -220,7 +220,7 @@ export default function AdminSupportPage() {
                       </div>
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {new Date(t.createdAt).toLocaleDateString()}
+                        {new Date(t.createdAt).toLocaleDateString('en-GB')}
                       </span>
                     </div>
                   </div>

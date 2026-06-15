@@ -199,7 +199,7 @@ export function BookingsTab({ bookings }: BookingsTabProps) {
               {bookings.map((b) => (
                 <tr key={b.id} className="hover:bg-slate-50/50 transition-colors">
                   <td className="px-6 py-3.5 font-mono text-[10px] uppercase text-slate-400 truncate max-w-[80px]">
-                    #{b.id.slice(0, 8)}
+                    #{(b.id || '').slice(0, 8)}
                   </td>
                   <td className="px-6 py-3.5 text-slate-800 font-semibold">{b.event_name}</td>
                   <td className="px-6 py-3.5 capitalize text-slate-600">{b.event_type}</td>
@@ -277,17 +277,17 @@ export function PaymentsTab({ payments }: PaymentsTabProps) {
             <tbody className="divide-y divide-slate-100 bg-white font-medium">
               {payments.map((p) => (
                 <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-3.5 text-slate-500 font-mono">{formatDate(p.payment_date)}</td>
+                  <td className="px-6 py-3.5 text-slate-500 font-mono">{formatDate(p.payment_date || (p as any).paymentDate)}</td>
                   <td className="px-6 py-3.5 text-slate-800 font-bold font-mono">{formatCurrency(p.amount)}</td>
                   <td className="px-6 py-3.5">
                     <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-[10px] text-slate-600 uppercase font-semibold">
                       <CreditCard className="h-3 w-3 text-slate-400" />
-                      {p.payment_method}
+                      {p.payment_method || (p as any).paymentMethod}
                     </span>
                   </td>
                   <td className="px-6 py-3.5">
                     <span className="font-mono text-[10px] uppercase text-slate-400">
-                      #{p.booking_id.slice(0, 8)}
+                      #{(p.booking_id || (p as any).bookingId || '').slice(0, 8)}
                     </span>
                   </td>
                   <td className="px-6 py-3.5 text-slate-400 truncate max-w-[200px]">{p.notes || '-'}</td>

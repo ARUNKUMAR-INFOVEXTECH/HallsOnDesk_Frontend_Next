@@ -7,6 +7,7 @@ import { EventTypeBadge } from './EventTypeBadge';
 import { BookingStatusBadge } from '@/components/bookings/BookingStatusBadge';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import Link from 'next/link';
+import { obfuscateId } from '@/utils/obfuscate';
 
 interface EventDetailContentProps {
   event: CalendarEvent;
@@ -187,7 +188,7 @@ export function EventDetailContent({
         {/* Action Buttons */}
         <div className="flex flex-col gap-2.5 pt-4 border-t border-slate-100">
           <Link
-            href={`/dashboard/bookings/${event.bookingId}`}
+            href={`/dashboard/bookings/${event.bookingId ? obfuscateId(event.bookingId) : ''}`}
             className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-bold shadow-sm transition-all cursor-pointer"
           >
             Inspect Full Booking

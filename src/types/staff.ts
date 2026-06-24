@@ -55,6 +55,7 @@ export interface StaffMember {
   status: StaffStatus;
   permissions: StaffPermission[];
   notes?: string;
+  backupPassword?: string;
   createdAt: string;
   updatedAt: string;
 }

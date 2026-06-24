@@ -40,7 +40,6 @@ export function EnquiryForm({
       guestCount: undefined,
       budgetMin: undefined,
       budgetMax: undefined,
-      hallSection: 'Main Hall',
       source: 'walk_in',
       stage: 'new',
       priority: 'medium',
@@ -209,11 +208,7 @@ export function EnquiryForm({
             placeholder="e.g. 250"
           />
 
-          <InputField
-            name="hallSection"
-            label="Preferred Hall Section"
-            placeholder="e.g. Main Hall"
-          />
+
 
           <CurrencyField
             name="budgetMin"

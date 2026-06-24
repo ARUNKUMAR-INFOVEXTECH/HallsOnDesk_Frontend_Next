@@ -24,3 +24,13 @@ export async function logoutRequest(): Promise<{ message: string }> {
   const response = await apiClient.post<{ message: string }>('/auth/logout');
   return response.data;
 }
+
+export interface ChangePasswordPayload {
+  currentPassword?: string;
+  newPassword?: string;
+}
+
+export async function changePasswordRequest(payload: ChangePasswordPayload): Promise<{ message: string }> {
+  const response = await apiClient.post<{ message: string }>('/auth/change-password', payload);
+  return response.data;
+}

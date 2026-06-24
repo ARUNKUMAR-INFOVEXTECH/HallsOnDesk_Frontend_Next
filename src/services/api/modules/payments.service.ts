@@ -53,8 +53,8 @@ export async function deletePayment(id: string): Promise<{ message: string }> {
   return res.data;
 }
 
-export async function getPaymentsByBooking(bookingId: string): Promise<Payment[]> {
-  const res = await apiClient.get<Payment[]>(`/payments/booking/${bookingId}`);
+export async function getPaymentsByBooking(bookingId: string): Promise<any> {
+  const res = await apiClient.get<any>(`/payments/booking/${bookingId}`);
   return res.data;
 }
 

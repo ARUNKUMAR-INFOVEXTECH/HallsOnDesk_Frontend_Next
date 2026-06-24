@@ -24,23 +24,20 @@ interface EventFormContentProps {
 function AvailabilityWarning({
   start,
   end,
-  hallSection,
   excludeEventId,
 }: {
   start: string;
   end: string;
-  hallSection: string;
   excludeEventId?: string;
 }) {
-  const canCheck = start && start.trim() !== '' && hallSection && hallSection.trim() !== '';
+  const canCheck = start && start.trim() !== '';
   
   // Extract date part YYYY-MM-DD
   const startDay = start ? start.split('T')[0] : '';
   const endDay = end ? end.split('T')[0] : startDay;
 
   const { data: events, isLoading } = useCalendarEvents(
-    canCheck ? { start: startDay, end: endDay } : {},
-    { hallSection }
+    canCheck ? { start: startDay, end: endDay } : {}
   );
 
   if (!canCheck) return null;
@@ -77,7 +74,7 @@ function AvailabilityWarning({
         <div>
           <p className="font-bold">⚠️ Schedule Conflict Warning</p>
           <p className="mt-0.5 text-[10px] text-amber-700 leading-relaxed font-medium">
-            "{conflict.title}" is already scheduled in this section at this time. Please verify slot availability.
+            "{conflict.title}" is already scheduled at this time. Please verify slot availability.
           </p>
         </div>
       </div>
@@ -87,7 +84,7 @@ function AvailabilityWarning({
   return (
     <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-xs font-bold text-emerald-800 animate-fadeIn">
       <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" />
-      <span>✓ Time slot is clear in {hallSection}</span>
+      <span>✓ Time slot is clear</span>
     </div>
   );
 }
@@ -109,7 +106,6 @@ export function EventFormContent({
       end: '',
       allDay: false,
       type: 'personal',
-      hallSection: 'Main Hall',
       guestCount: undefined,
       bookingId: '',
       notes: '',
@@ -137,7 +133,6 @@ export function EventFormContent({
   const watchBookingId = watch('bookingId') || '';
   const watchStart = watch('start') || '';
   const watchEnd = watch('end') || '';
-  const watchHallSection = watch('hallSection') || 'Main Hall';
   const watchAllDay = watch('allDay') || false;
 
   // Autofill form inputs when a booking is linked
@@ -145,7 +140,6 @@ export function EventFormContent({
     if (booking) {
       setValue('bookingId', booking.id, { shouldDirty: true, shouldValidate: true });
       setValue('title', `${booking.customerName} - ${booking.eventType}`, { shouldDirty: true, shouldValidate: true });
-      setValue('hallSection', booking.hallSection || 'Main Hall', { shouldDirty: true, shouldValidate: true });
       setValue('guestCount', booking.guestCount || 100, { shouldDirty: true, shouldValidate: true });
       setValue('status', booking.status || 'confirmed', { shouldDirty: true, shouldValidate: true });
       
@@ -168,11 +162,7 @@ export function EventFormContent({
     { value: 'booking', label: 'Linked Booking' },
   ];
 
-  const hallSectionOptions = [
-    { value: 'Main Hall', label: 'Main Hall' },
-    { value: 'Garden Area', label: 'Garden Area' },
-    { value: 'Terrace', label: 'Terrace' },
-  ];
+
 
   const statusOptions = [
     { value: 'confirmed', label: 'Confirmed' },
@@ -184,11 +174,9 @@ export function EventFormContent({
   return (
     <FormProvider form={form} onSubmit={onSubmit} className="space-y-5">
       
-      {/* Availability warning */}
       <AvailabilityWarning
         start={watchStart}
         end={watchEnd}
-        hallSection={watchHallSection}
         excludeEventId={excludeEventId}
       />
 
@@ -221,14 +209,7 @@ export function EventFormContent({
           disabled={loading}
         />
 
-        {/* Hall Section select */}
-        <SelectField
-          name="hallSection"
-          label="Hall Section"
-          placeholder="Select section"
-          options={hallSectionOptions}
-          disabled={loading}
-        />
+
 
         {/* All day checkbox */}
         <div className="flex items-center gap-2 py-1 select-none">

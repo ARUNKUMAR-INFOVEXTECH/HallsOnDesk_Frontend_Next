@@ -14,7 +14,9 @@ import {
   ShieldAlert,
   Loader2,
   AlertCircle,
-  MoreHorizontal
+  MoreHorizontal,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 export default function AdminUsersPage() {
@@ -26,6 +28,10 @@ export default function AdminUsersPage() {
   
   // Action Menu toggle state
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [visiblePasswords, setVisiblePasswords] = useState<Record<string, boolean>>({});
+  const togglePasswordVisibility = (userId: string) => {
+    setVisiblePasswords((prev) => ({ ...prev, [userId]: !prev[userId] }));
+  };
 
   const filteredUsers = users.filter((u) => {
     const matchesSearch =
@@ -124,6 +130,7 @@ export default function AdminUsersPage() {
                 <tr className="bg-gray-50 border-b border-gray-150 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                   <th className="px-5 py-4">Account Name</th>
                   <th className="px-5 py-4">Contact Info</th>
+                  <th className="px-5 py-4">Password Backup</th>
                   <th className="px-5 py-4">Venue Host</th>
                   <th className="px-5 py-4">Permission Role</th>
                   <th className="px-5 py-4">System State</th>
@@ -159,6 +166,28 @@ export default function AdminUsersPage() {
                             </span>
                           )}
                         </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        {user.backupPassword ? (
+                          <div className="flex items-center gap-1.5 min-w-[90px]">
+                            <span className="font-mono text-xs text-gray-700 bg-gray-100 border border-gray-200 px-1.5 py-0.5 rounded font-bold">
+                              {visiblePasswords[user.id] ? user.backupPassword : '••••••••'}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => togglePasswordVisibility(user.id)}
+                              className="text-gray-400 hover:text-gray-600 p-0.5 cursor-pointer inline-flex items-center"
+                            >
+                              {visiblePasswords[user.id] ? (
+                                <EyeOff className="h-3.5 w-3.5" />
+                              ) : (
+                                <Eye className="h-3.5 w-3.5" />
+                              )}
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-[10px] text-gray-400 font-semibold italic">Self-Updated</span>
+                        )}
                       </td>
                       <td className="px-5 py-4">
                         {user.hallName ? (

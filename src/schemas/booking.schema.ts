@@ -6,7 +6,6 @@ export const bookingFormSchema = z
     eventType: z.string().min(2, 'Event type must be at least 2 characters'),
     eventDate: z.string().min(1, 'Event date is required'),
     eventEndDate: z.string().optional(),
-    hallSection: z.string().min(1, 'Hall section is required'),
     guestCount: z
       .number({ invalid_type_error: 'Guest count must be a number' })
       .min(1, 'Guest count must be at least 1')

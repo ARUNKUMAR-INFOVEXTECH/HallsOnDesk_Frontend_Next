@@ -23,6 +23,7 @@ import { VendorCard } from '@/components/vendors/VendorCard';
 import { VendorTable } from '@/components/vendors/VendorTable';
 import { Vendor } from '@/types/vendor';
 import { obfuscateId } from '@/utils/obfuscate';
+import { getLocalDateString } from '@/utils/formatters';
 
 export default function VendorsPage() {
   const router = useRouter();
@@ -172,7 +173,7 @@ export default function VendorsPage() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    const dateStr = new Date().toISOString().substring(0, 10);
+    const dateStr = getLocalDateString();
     link.setAttribute('download', `infovexhalls-vendors-${dateStr}.csv`);
     document.body.appendChild(link);
     link.click();

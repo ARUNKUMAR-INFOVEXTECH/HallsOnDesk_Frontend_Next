@@ -9,9 +9,7 @@ export type CalendarView = 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay' | 'li
 export interface CalendarFilters {
   eventTypes: CalendarEventType[];
   status: EventStatus[];
-  hallSection: string;
   search: string;
-  colorBy: 'category' | 'section';
 }
 
 export interface CalendarEvent {

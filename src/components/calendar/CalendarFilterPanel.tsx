@@ -19,17 +19,13 @@ export function CalendarFilterPanel({
 }: CalendarFilterPanelProps) {
   const [localEventTypes, setLocalEventTypes] = useState<CalendarEventType[]>(filters.eventTypes);
   const [localStatus, setLocalStatus] = useState<EventStatus[]>(filters.status);
-  const [localHallSection, setLocalHallSection] = useState<string>(filters.hallSection);
   const [localSearch, setLocalSearch] = useState<string>(filters.search || '');
-  const [localColorBy, setLocalColorBy] = useState<'category' | 'section'>(filters.colorBy || 'category');
 
   // Sync state when filters prop updates
   useEffect(() => {
     setLocalEventTypes(filters.eventTypes);
     setLocalStatus(filters.status);
-    setLocalHallSection(filters.hallSection);
     setLocalSearch(filters.search || '');
-    setLocalColorBy(filters.colorBy || 'category');
   }, [filters, isOpen]);
 
   if (!isOpen) return null;
@@ -44,7 +40,7 @@ export function CalendarFilterPanel({
 
   const statusOptions: EventStatus[] = ['confirmed', 'pending', 'cancelled', 'completed'];
 
-  const hallSections = ['All Sections', 'Main Hall', 'Garden Area', 'Terrace'];
+
 
   const handleToggleEventType = (type: CalendarEventType) => {
     if (localEventTypes.includes(type)) {
@@ -65,18 +61,14 @@ export function CalendarFilterPanel({
   const handleClear = () => {
     setLocalEventTypes([]);
     setLocalStatus([]);
-    setLocalHallSection('All Sections');
     setLocalSearch('');
-    setLocalColorBy('category');
   };
 
   const handleApply = () => {
     onChange({
       eventTypes: localEventTypes,
       status: localStatus,
-      hallSection: localHallSection,
       search: localSearch,
-      colorBy: localColorBy,
     });
     onClose();
   };
@@ -170,53 +162,7 @@ export function CalendarFilterPanel({
           </div>
         </div>
 
-        {/* Section C: Hall Section */}
-        <div className="space-y-2">
-          <label htmlFor="filterHall" className="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">
-            Hall Section Filter
-          </label>
-          <select
-            id="filterHall"
-            value={localHallSection}
-            onChange={(e) => setLocalHallSection(e.target.value)}
-            className="w-full h-9 px-2 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none focus:ring-1 focus:ring-violet-500 cursor-pointer shadow-sm font-semibold"
-          >
-            {hallSections.map((section) => (
-              <option key={section} value={section}>
-                {section}
-              </option>
-            ))}
-          </select>
-        </div>
 
-        {/* Section D: Color-Coding mode Selection */}
-        <div className="space-y-2.5 border-t border-slate-100 pt-3">
-          <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">Color-Coding Mode</span>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => setLocalColorBy('category')}
-              className={`py-1.5 border font-bold text-[10px] uppercase rounded-lg transition-all cursor-pointer ${
-                localColorBy === 'category'
-                  ? 'bg-violet-600 text-white border-violet-600'
-                  : 'bg-white text-slate-500 border-slate-205 hover:border-slate-350'
-              }`}
-            >
-              By Category
-            </button>
-            <button
-              type="button"
-              onClick={() => setLocalColorBy('section')}
-              className={`py-1.5 border font-bold text-[10px] uppercase rounded-lg transition-all cursor-pointer ${
-                localColorBy === 'section'
-                  ? 'bg-violet-600 text-white border-violet-600'
-                  : 'bg-white text-slate-500 border-slate-205 hover:border-slate-350'
-              }`}
-            >
-              By Hall Section
-            </button>
-          </div>
-        </div>
 
         {/* Footer Actions */}
         <div className="flex items-center justify-between pt-3.5 border-t border-slate-100">

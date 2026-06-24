@@ -67,9 +67,13 @@ export async function cancelBooking(id: string): Promise<{ message: string }> {
   return res.data;
 }
 
-export async function checkAvailability(startDate: string, endDate: string): Promise<AvailabilityResponse> {
+export async function checkAvailability(
+  startDate: string,
+  endDate: string,
+  excludeBookingId?: string
+): Promise<AvailabilityResponse> {
   const res = await apiClient.get<AvailabilityResponse>('/bookings/check-availability', {
-    params: { start_date: startDate, end_date: endDate },
+    params: { start_date: startDate, end_date: endDate, exclude_booking_id: excludeBookingId },
   });
   return res.data;
 }

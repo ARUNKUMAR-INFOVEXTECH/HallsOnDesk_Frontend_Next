@@ -9,6 +9,7 @@ export interface User {
   different_staff_management?: boolean;
   accessible_halls?: Array<{ id: string; hall_name: string }>;
   status?: 'active' | 'suspended';
+  backupPassword?: string;
 }
 
 export interface Booking {

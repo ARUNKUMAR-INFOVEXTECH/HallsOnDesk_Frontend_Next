@@ -13,6 +13,7 @@ import {
 } from '@tanstack/react-table';
 import {
   Eye,
+  EyeOff,
   Pencil,
   Trash2,
   MoreHorizontal,
@@ -45,6 +46,10 @@ export function StaffTable({ data, onEdit, onDelete, onStatusChange }: StaffTabl
   const [pageSize, setPageSize] = useState(10);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [activeStatusChangeId, setActiveStatusChangeId] = useState<string | null>(null);
+  const [visibleRowPasswords, setVisibleRowPasswords] = useState<Record<string, boolean>>({});
+  const toggleRowPassword = (id: string) => {
+    setVisibleRowPasswords((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const statusRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -254,6 +259,43 @@ export function StaffTable({ data, onEdit, onDelete, onStatusChange }: StaffTabl
                     Mark On Leave
                   </button>
                 </div>
+              )}
+            </div>
+          );
+        },
+      }),
+
+      // Password Backup Column
+      columnHelper.accessor('backupPassword', {
+        header: () => <span className="text-[10px] tracking-wider uppercase">Password Backup</span>,
+        cell: (info) => {
+          const s = info.row.original;
+          const pass = s.backupPassword;
+          return (
+            <div className="flex items-center gap-1.5 min-w-[90px]">
+              {pass ? (
+                <>
+                  <span className="font-mono text-xs text-slate-750 bg-slate-50 border border-slate-205 px-1.5 py-0.5 rounded font-bold">
+                    {visibleRowPasswords[s.id] ? pass : '••••••••'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleRowPassword(s.id);
+                    }}
+                    className="text-slate-400 hover:text-slate-650 p-0.5 cursor-pointer inline-flex items-center"
+                    title={visibleRowPasswords[s.id] ? 'Hide Password' : 'Show Password'}
+                  >
+                    {visibleRowPasswords[s.id] ? (
+                      <EyeOff className="h-3.5 w-3.5" />
+                    ) : (
+                      <Eye className="h-3.5 w-3.5" />
+                    )}
+                  </button>
+                </>
+              ) : (
+                <span className="text-[10px] text-slate-400 font-semibold italic">Self-Updated</span>
               )}
             </div>
           );

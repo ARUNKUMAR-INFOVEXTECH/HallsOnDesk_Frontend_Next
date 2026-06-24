@@ -10,7 +10,6 @@ import {
   CalendarCheck,
   RefreshCw,
   AlertCircle,
-  MoreHorizontal,
   Eye,
   Edit,
   Trash2,
@@ -50,7 +49,6 @@ export default function CustomersPage() {
   const { data: response, isLoading, isError, refetch } = useCustomersQuery();
   const deleteCustomerMutation = useDeleteCustomerMutation();
 
-  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<CustomerWithStats | null>(null);
 
   const handleRefresh = () => {
@@ -255,59 +253,32 @@ export default function CustomersPage() {
     },
     {
       id: 'actions',
-      header: () => <div className="text-right">Actions</div>,
+      header: () => <div className="text-center">Actions</div>,
       cell: ({ row }) => {
         const id = row.original.id;
-        const isMenuOpen = activeMenuId === id;
         return (
-          <div className="relative text-right">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveMenuId(isMenuOpen ? null : id);
-              }}
-              className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-650 transition-colors cursor-pointer"
+          <div className="flex items-center justify-center gap-1.5">
+            <Link
+              href={`/dashboard/customers/${obfuscateId(id)}`}
+              title="View Profile"
+              className="h-7 w-7 inline-flex items-center justify-center text-slate-450 hover:text-slate-700 border border-slate-200 hover:border-slate-350 bg-white rounded-md transition-all shadow-sm"
             >
-              <MoreHorizontal className="h-4.5 w-4.5" />
+              <Eye className="h-3.5 w-3.5" />
+            </Link>
+            <Link
+              href={`/dashboard/customers/${obfuscateId(id)}?edit=true`}
+              title="Edit Profile"
+              className="h-7 w-7 inline-flex items-center justify-center text-slate-450 hover:text-slate-700 border border-slate-200 hover:border-slate-350 bg-white rounded-md transition-all shadow-sm"
+            >
+              <Edit className="h-3.5 w-3.5" />
+            </Link>
+            <button
+              onClick={() => setDeleteTarget(row.original)}
+              title="Delete Customer"
+              className="h-7 w-7 inline-flex items-center justify-center text-rose-500 hover:text-rose-700 border border-rose-100 hover:border-rose-350 bg-rose-50/50 rounded-md transition-all cursor-pointer shadow-sm"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
             </button>
-            
-            {isMenuOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-20 cursor-default"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveMenuId(null);
-                  }}
-                />
-                <div className="absolute right-0 mt-1 w-36 bg-white border border-gray-150 rounded-lg shadow-lg z-30 py-1 text-left animate-fadeIn text-xs font-semibold">
-                  <Link
-                    href={`/dashboard/customers/${obfuscateId(id)}`}
-                    className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 text-gray-700"
-                  >
-                    <Eye className="h-3.5 w-3.5 text-gray-450" />
-                    View Profile
-                  </Link>
-                  <Link
-                    href={`/dashboard/customers/${obfuscateId(id)}`}
-                    className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 text-gray-700"
-                  >
-                    <Edit className="h-3.5 w-3.5 text-gray-450" />
-                    Edit Profile
-                  </Link>
-                  <button
-                    onClick={() => {
-                      setDeleteTarget(row.original);
-                      setActiveMenuId(null);
-                    }}
-                    className="flex items-center gap-2 px-3 py-2 hover:bg-red-50 text-red-650 w-full text-left cursor-pointer border-t border-gray-50"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    Delete CRM
-                  </button>
-                </div>
-              </>
-            )}
           </div>
         );
       },

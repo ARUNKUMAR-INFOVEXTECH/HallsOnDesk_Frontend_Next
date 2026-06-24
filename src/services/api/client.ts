@@ -62,13 +62,13 @@ apiClient.interceptors.response.use(
           }
 
           // Call refresh API endpoint to rotate tokens
-          const refreshRes = await axios.post<{ accessToken: string; refreshToken?: string }>(
+          const refreshRes = await axios.post<{ token: string; refresh_token?: string }>(
             `${API_BASE_URL}/auth/refresh-token`,
             { refresh_token: refreshToken }
           );
 
-          const newAccessToken = refreshRes.data.accessToken;
-          const newRefreshToken = refreshRes.data.refreshToken;
+          const newAccessToken = refreshRes.data.token;
+          const newRefreshToken = refreshRes.data.refresh_token;
 
           // Sync tokens to Zustand store & cookies
           useAuthStore.getState().refreshSession(newAccessToken, newRefreshToken);

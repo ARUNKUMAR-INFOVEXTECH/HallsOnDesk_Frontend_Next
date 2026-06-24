@@ -19,7 +19,6 @@ function CreateBookingContent() {
   const customerId = searchParams.get('customerId') || '';
   const eventType = searchParams.get('eventType') || 'Wedding Reception';
   const eventDate = searchParams.get('eventDate') || '';
-  const hallSection = searchParams.get('hallSection') || 'Main Hall';
   const guestCount = searchParams.get('guestCount') ? Number(searchParams.get('guestCount')) : 100;
   const bookingAmount = searchParams.get('bookingAmount') ? Number(searchParams.get('bookingAmount')) : 0;
   const notes = searchParams.get('notes') || '';
@@ -41,7 +40,6 @@ function CreateBookingContent() {
     customerId,
     eventType: mapEventType(eventType),
     eventDate,
-    hallSection,
     guestCount,
     bookingAmount,
     notes,

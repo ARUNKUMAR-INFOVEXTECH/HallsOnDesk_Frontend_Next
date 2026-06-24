@@ -1,19 +1,15 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { hallProfileSchema } from '@/schemas/settings.schema';
 import { HallProfile, HallSection } from '@/types/settings';
 import {
   useHallProfile,
   useUpdateHallProfile,
-  useUploadLogo,
-  useUploadCoverImage
 } from '@/hooks/useSettings';
 import SettingsCard from '@/components/settings/SettingsCard';
-import ImageUploader from '@/components/settings/ImageUploader';
-import HallSectionManager from '@/components/settings/HallSectionManager';
 import SettingsSaveBar from '@/components/settings/SettingsSaveBar';
 import {
   Building2,
@@ -44,9 +40,6 @@ export default function HallProfilePage() {
   const { data: profile, isLoading: queryLoading, isError } = useHallProfile();
   const updateProfileMutation = useUpdateHallProfile();
   
-  const uploadLogoMutation = useUploadLogo();
-  const uploadCoverMutation = useUploadCoverImage();
-
   const [showAccount, setShowAccount] = useState(false);
   const [gstValidState, setGstValidState] = useState<'none' | 'valid' | 'invalid'>('none');
   const [panValidState, setPanValidState] = useState<'none' | 'valid' | 'invalid'>('none');
@@ -54,8 +47,6 @@ export default function HallProfilePage() {
   const {
     register,
     handleSubmit,
-    control,
-    setValue,
     watch,
     reset,
     formState: { errors, isDirty }
@@ -67,8 +58,6 @@ export default function HallProfilePage() {
   const gstNumber = watch('gstNumber');
   const panNumber = watch('panNumber');
   const upiId = watch('upiId');
-  const logoUrl = watch('logoUrl');
-  const coverImageUrl = watch('coverImageUrl');
   const hallSections = watch('hallSections') || [];
 
   // Reset form when profile hydrates
@@ -242,58 +231,6 @@ export default function HallProfilePage() {
       </div>
 
       <div className="space-y-6 max-w-3xl">
-        {/* Section 1: Branding */}
-        <SettingsCard title="Venue Branding" subtitle="Upload your venue's public cover display and branding logo icon." icon={Building2}>
-          <div className="space-y-4">
-            {/* Cover Image */}
-            <Controller
-              name="coverImageUrl"
-              control={control}
-              render={({ field }) => (
-                <ImageUploader
-                  type="cover"
-                  currentUrl={coverImageUrl}
-                  isUploading={uploadCoverMutation.isUploading}
-                  progress={uploadCoverMutation.progress}
-                  onUpload={async (file) => {
-                    const res = await uploadCoverMutation.mutateAsync({ file });
-                    setValue('coverImageUrl', res.cover_image_url || '', { shouldDirty: true });
-                  }}
-                  onRemove={() => {
-                    setValue('coverImageUrl', '', { shouldDirty: true });
-                  }}
-                />
-              )}
-            />
-
-            {/* Logo Circle overlapping cover bottom edge conceptually, left aligned */}
-            <div className="pl-4 flex items-end gap-5 -mt-10 relative z-10">
-              <Controller
-                name="logoUrl"
-                control={control}
-                render={({ field }) => (
-                  <ImageUploader
-                    type="logo"
-                    currentUrl={logoUrl}
-                    isUploading={uploadLogoMutation.isUploading}
-                    progress={uploadLogoMutation.progress}
-                    onUpload={async (file) => {
-                      const res = await uploadLogoMutation.mutateAsync({ file });
-                      setValue('logoUrl', res.logo_url || '', { shouldDirty: true });
-                    }}
-                    onRemove={() => {
-                      setValue('logoUrl', '', { shouldDirty: true });
-                    }}
-                  />
-                )}
-              />
-              <div className="pb-3">
-                <span className="font-extrabold text-sm text-gray-900 block leading-tight">Branding Identity</span>
-                <p className="text-[10px] text-gray-400 font-semibold mt-1">Logo dimensions: 200 x 200px, max 2MB.</p>
-              </div>
-            </div>
-          </div>
-        </SettingsCard>
 
         {/* Section 2: Basic Info */}
         <SettingsCard title="Basic Information" subtitle="Public specifications and host descriptions." icon={Building2}>
@@ -424,19 +361,7 @@ export default function HallProfilePage() {
           </div>
         </SettingsCard>
 
-        {/* Section 3: Hall Sections */}
-        <SettingsCard title="Hall Sub-sections" subtitle="Configure separate sections or dining halls for independent occupancy scheduling." icon={Building2}>
-          <Controller
-            name="hallSections"
-            control={control}
-            render={({ field }) => (
-              <HallSectionManager
-                sections={hallSections}
-                onChange={(updated) => setValue('hallSections', updated, { shouldDirty: true })}
-              />
-            )}
-          />
-        </SettingsCard>
+
 
         {/* Section 4: Address */}
         <SettingsCard title="Physical Location & Address" subtitle="Ensure location details are accurate to render on printable billing receipts." icon={MapPin}>

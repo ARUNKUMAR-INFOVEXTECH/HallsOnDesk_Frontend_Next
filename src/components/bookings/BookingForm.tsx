@@ -28,14 +28,26 @@ export function BookingForm({
   onCancel,
   excludeBookingId,
 }: BookingFormProps) {
+  const formatToDatetimeLocal = (dateStr?: string, isEnd = false) => {
+    if (!dateStr) return '';
+    if (dateStr.length === 10 && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      return dateStr + (isEnd ? 'T21:00' : 'T09:00');
+    }
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingFormSchema),
     defaultValues: {
       customerId: '',
       eventType: 'Wedding Reception',
-      eventDate: '',
-      eventEndDate: '',
-      hallSection: 'Main Hall',
       guestCount: 100,
       bookingAmount: 0,
       advanceAmount: 0,
@@ -45,6 +57,8 @@ export function BookingForm({
       coordinatorName: '',
       coordinatorPhone: '',
       ...initialValues,
+      eventDate: initialValues?.eventDate ? formatToDatetimeLocal(initialValues.eventDate, false) : '',
+      eventEndDate: initialValues?.eventEndDate ? formatToDatetimeLocal(initialValues.eventEndDate, true) : '',
     },
   });
 
@@ -58,7 +72,11 @@ export function BookingForm({
   // Sync initialValues when editing
   useEffect(() => {
     if (initialValues) {
-      reset(initialValues);
+      reset({
+        ...initialValues,
+        eventDate: initialValues.eventDate ? formatToDatetimeLocal(initialValues.eventDate, false) : '',
+        eventEndDate: initialValues.eventEndDate ? formatToDatetimeLocal(initialValues.eventEndDate, true) : '',
+      });
     }
   }, [initialValues, reset]);
 
@@ -77,7 +95,7 @@ export function BookingForm({
   // Watch form inputs for payment summary and overlap check
   const watchCustomerId = watch('customerId') || '';
   const watchEventDate = watch('eventDate') || '';
-  const watchHallSection = watch('hallSection') || '';
+  const watchEventEndDate = watch('eventEndDate') || '';
   const watchBookingAmount = watch('bookingAmount') || 0;
   const watchDiscountAmount = watch('discountAmount') || 0;
   const watchAdvanceAmount = watch('advanceAmount') || 0;
@@ -87,7 +105,7 @@ export function BookingForm({
       {/* Dynamic Overlap Checker Banner */}
       <AvailabilityChecker
         eventDate={watchEventDate}
-        hallSection={watchHallSection}
+        eventEndDate={watchEventEndDate}
         excludeBookingId={excludeBookingId}
       />
 
@@ -138,44 +156,38 @@ export function BookingForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5 w-full">
                 <label htmlFor="eventDate" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                  Event Start Date
+                  Event Start Date & Time
                 </label>
                 <input
-                  type="date"
+                  type="datetime-local"
                   id="eventDate"
                   disabled={loading}
                   className="w-full h-10 px-3 text-sm bg-white border border-slate-200 rounded-lg hover:border-slate-350 focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none font-semibold text-slate-700 shadow-sm"
                   {...form.register('eventDate')}
                 />
                 {errors.eventDate?.message && (
-                  <p className="text-xs text-red-500 font-semibold mt-1">{errors.eventDate.message}</p>
+                  <p className="text-xs text-red-550 font-semibold mt-1">{errors.eventDate.message}</p>
                 )}
               </div>
 
               <div className="flex flex-col gap-1.5 w-full">
                 <label htmlFor="eventEndDate" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                  Event End Date (Optional)
+                  Event End Date & Time (Optional)
                 </label>
                 <input
-                  type="date"
+                  type="datetime-local"
                   id="eventEndDate"
                   disabled={loading}
                   className="w-full h-10 px-3 text-sm bg-white border border-slate-200 rounded-lg hover:border-slate-350 focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none font-semibold text-slate-700 shadow-sm"
                   {...form.register('eventEndDate')}
                 />
                 {errors.eventEndDate?.message && (
-                  <p className="text-xs text-red-500 font-semibold mt-1">{errors.eventEndDate.message}</p>
+                  <p className="text-xs text-red-555 font-semibold mt-1">{errors.eventEndDate.message}</p>
                 )}
               </div>
             </div>
 
-            {/* Hall Section input */}
-            <InputField
-              name="hallSection"
-              label="Hall Section"
-              placeholder="e.g. Main Hall, Garden Area, Terrace"
-              disabled={loading}
-            />
+
 
             {/* Guest Count input */}
             <div className="flex flex-col gap-1.5 w-full">

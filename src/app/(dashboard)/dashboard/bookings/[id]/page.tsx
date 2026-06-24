@@ -63,7 +63,7 @@ import { Edit, ExternalLink, IndianRupee } from 'lucide-react';
 import { BookingDetailHeader } from '@/components/bookings/BookingDetailHeader';
 import { BookingTimeline } from '@/components/bookings/BookingTimeline';
 import { BookingForm } from '@/components/bookings/BookingForm';
-import { formatCurrency, formatDate } from '@/utils/formatters';
+import { formatCurrency, formatDate, getLocalDateString } from '@/utils/formatters';
 import { BookingFormValues } from '@/schemas/booking.schema';
 
 export default function BookingDetailPageWrapper() {
@@ -101,7 +101,7 @@ function BookingDetailPage() {
   // Modal form states
   const [payAmount, setPayAmount] = useState('');
   const [payMethod, setPayMethod] = useState<'cash' | 'bank_transfer' | 'upi' | 'card' | 'cheque'>('cash');
-  const [payDate, setPayDate] = useState(new Date().toISOString().split('T')[0]);
+  const [payDate, setPayDate] = useState(getLocalDateString());
   const [payNotes, setPayNotes] = useState('');
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
 
@@ -214,7 +214,7 @@ function BookingDetailPage() {
       // Clear states & close modal
       setPayAmount('');
       setPayMethod('cash');
-      setPayDate(new Date().toISOString().split('T')[0]);
+      setPayDate(getLocalDateString());
       setPayNotes('');
       setShowPaymentModal(false);
     } catch (err) {
@@ -343,8 +343,7 @@ function BookingDetailPage() {
 
   // Calculate live financial figures
   const netAmount = Math.max(0, booking.bookingAmount - booking.discountAmount);
-  const totalPaymentsAmount = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
-  const totalPaid = booking.advanceAmount + totalPaymentsAmount;
+  const totalPaid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
   const pendingBalance = Math.max(0, netAmount - totalPaid);
   const paymentProgress = netAmount > 0 ? Math.min(100, Math.round((totalPaid / netAmount) * 100)) : 0;
 
@@ -399,7 +398,6 @@ function BookingDetailPage() {
             eventType: booking.eventType,
             eventDate: booking.eventDate,
             eventEndDate: booking.eventEndDate,
-            hallSection: booking.hallSection,
             guestCount: booking.guestCount,
             bookingAmount: booking.bookingAmount,
             advanceAmount: booking.advanceAmount,
@@ -532,15 +530,7 @@ function BookingDetailPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-primary-lighter text-primary-light border border-primary-light/10 flex items-center justify-center shrink-0">
-                  <Layers className="h-4.5 w-4.5" />
-                </div>
-                <div>
-                  <span className="text-[9px] text-slate-400 block uppercase tracking-wider font-bold leading-none">Venue Hall / Sections</span>
-                  <span className="text-slate-800 font-bold block mt-1.5">{booking.hallSection}</span>
-                </div>
-              </div>
+
 
               <div className="flex items-center gap-3">
                 <div className="h-8 w-8 rounded-lg bg-primary-lighter text-primary-light border border-primary-light/10 flex items-center justify-center shrink-0">
@@ -617,21 +607,11 @@ function BookingDetailPage() {
               </div>
 
               <div className="flex justify-between items-center text-emerald-600 font-semibold">
-                <span>Advance Deposit Paid</span>
-                <span className="font-bold font-mono">{formatCurrency(booking.advanceAmount)}</span>
-              </div>
-
-              <div className="flex justify-between items-center text-emerald-600 font-semibold">
-                <span>Logged Installments</span>
-                <span className="font-bold font-mono">+{formatCurrency(totalPaymentsAmount)}</span>
+                <span>Total Paid Collections</span>
+                <span className="font-bold font-mono">{formatCurrency(totalPaid)}</span>
               </div>
 
               <div className="border-t border-slate-100 pt-3 flex justify-between items-center text-sm font-bold">
-                <span className="text-slate-850">Total Paid Collections</span>
-                <span className="text-emerald-600 font-mono">{formatCurrency(totalPaid)}</span>
-              </div>
-
-              <div className="flex justify-between items-center text-sm font-bold">
                 <span className="text-slate-850">Remaining Balance</span>
                 <span className={`font-mono ${pendingBalance > 0 ? 'text-rose-600' : 'text-slate-500'}`}>
                   {formatCurrency(pendingBalance)}

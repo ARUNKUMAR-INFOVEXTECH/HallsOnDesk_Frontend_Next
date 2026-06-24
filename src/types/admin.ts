@@ -73,6 +73,7 @@ export interface GlobalUser extends User {
   status: 'active' | 'suspended';
   lastLogin?: string;
   hallName?: string;
+  backupPassword?: string;
 }
 
 export interface RevenueMetric {

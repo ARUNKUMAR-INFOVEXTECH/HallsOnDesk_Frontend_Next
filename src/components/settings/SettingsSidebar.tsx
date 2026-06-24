@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Building2, Settings, AlertTriangle, ExternalLink, CreditCard } from 'lucide-react';
+import { Building2, Settings, AlertTriangle, ExternalLink, CreditCard, Lock } from 'lucide-react';
 import { useDashboardQuery } from '@/hooks/useDashboardQueries';
 
 export default function SettingsSidebar() {
@@ -23,6 +23,7 @@ export default function SettingsSidebar() {
   let navItems = [
     { title: 'Hall Profile', href: '/settings/profile', icon: Building2 },
     { title: 'General Settings', href: '/settings/general', icon: Settings },
+    { title: 'Security Settings', href: '/settings/security', icon: Lock },
     { title: 'Subscription & Plan', href: '/settings/subscription', icon: CreditCard },
   ];
 

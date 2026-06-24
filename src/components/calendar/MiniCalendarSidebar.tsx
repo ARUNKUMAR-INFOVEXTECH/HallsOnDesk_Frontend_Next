@@ -242,12 +242,6 @@ export function MiniCalendarSidebar({
                         <Clock className="h-3 w-3 text-slate-400 shrink-0" />
                         <span>{formatDate(event.start)}</span>
                       </div>
-                      {event.hallSection && (
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <MapPin className="h-3 w-3 text-slate-405 shrink-0" />
-                          <span>{event.hallSection}</span>
-                        </div>
-                      )}
                     </div>
                   </button>
                 );

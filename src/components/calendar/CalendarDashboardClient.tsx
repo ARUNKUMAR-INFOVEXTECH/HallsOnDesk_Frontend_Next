@@ -24,7 +24,7 @@ import {
   useBookingsForCalendar,
 } from '@/hooks/useCalendar';
 import { useUpdateBooking, useDeleteBooking } from '@/hooks/useBookings';
-import { formatDateTime } from '@/utils/formatters';
+import { formatDateTime, getLocalDateTimeString, getLocalDateString } from '@/utils/formatters';
 
 import { CalendarEvent, CalendarView, CalendarFilters } from '@/types/calendar';
 import { CalendarEventFormValues } from '@/schemas/calendar.schema';
@@ -43,9 +43,7 @@ export function CalendarDashboardClient() {
   const [filters, setFilters] = useState<CalendarFilters>({
     eventTypes: [],
     status: [],
-    hallSection: 'All Sections',
     search: '',
-    colorBy: 'category',
   });
 
   // 3. Drawer States
@@ -82,12 +80,6 @@ export function CalendarDashboardClient() {
     if (filters.status.length > 0 && !filters.status.includes(b.status)) {
       return false;
     }
-    // Check section filter
-    if (filters.hallSection && filters.hallSection !== 'All Sections') {
-      if (b.hallSection?.toLowerCase().trim() !== filters.hallSection.toLowerCase().trim()) {
-        return false;
-      }
-    }
     return true;
   });
 
@@ -102,19 +94,34 @@ export function CalendarDashboardClient() {
       (e.notes && e.notes.toLowerCase().includes(q)) ||
       (e.customerName && e.customerName.toLowerCase().includes(q)) ||
       (e.customerPhone && e.customerPhone.toLowerCase().includes(q)) ||
-      (e.eventType && e.eventType.toLowerCase().includes(q)) ||
-      (e.hallSection && e.hallSection.toLowerCase().includes(q))
+      (e.eventType && e.eventType.toLowerCase().includes(q))
     );
   });
 
-  // Overlap date calculation helper
+  // Overlap date calculation helper (handles both date-only and timed events correctly)
   const isDatesOverlapping = (aStart?: string, aEnd?: string, bStart?: string, bEnd?: string) => {
     if (!aStart || !bStart) return false;
-    const aS = new Date(aStart.split('T')[0]).getTime();
-    const aE = new Date((aEnd || aStart).split('T')[0]).getTime();
-    const bS = new Date(bStart.split('T')[0]).getTime();
-    const bE = new Date((bEnd || bStart).split('T')[0]).getTime();
-    return aS <= bE && bS <= aE;
+
+    const parseBoundaries = (startStr: string, endStr?: string) => {
+      const s = new Date(startStr);
+      const e = new Date(endStr || startStr);
+      if (startStr.length <= 10 && !startStr.includes('T') && !startStr.includes(' ')) {
+        s.setHours(0, 0, 0, 0);
+      }
+      const actualEndStr = endStr || startStr;
+      if (actualEndStr.length <= 10 && !actualEndStr.includes('T') && !actualEndStr.includes(' ')) {
+        e.setHours(23, 59, 59, 999);
+      }
+      return { startMs: s.getTime(), endMs: e.getTime() };
+    };
+
+    const a = parseBoundaries(aStart, aEnd);
+    const b = parseBoundaries(bStart, bEnd);
+    
+    if (isNaN(a.startMs) || isNaN(b.startMs)) return false;
+    
+    // Strict timing overlap: startA < endB and startB < endA
+    return a.startMs < b.endMs && b.startMs < a.endMs;
   };
 
   // Conflict calculation list
@@ -127,22 +134,17 @@ export function CalendarDashboardClient() {
         const eA = active[i];
         const eB = active[j];
 
-        const secA = (eA.hallSection || 'Main Hall').toLowerCase().trim();
-        const secB = (eB.hallSection || 'Main Hall').toLowerCase().trim();
+        if (isDatesOverlapping(eA.start, eA.end, eB.start, eB.end)) {
+          const dateSpan = eA.start.split('T')[0] === (eA.end || eA.start).split('T')[0]
+            ? eA.start.split('T')[0]
+            : `${eA.start.split('T')[0]} to ${(eA.end || eA.start).split('T')[0]}`;
 
-        if (secA === secB) {
-          if (isDatesOverlapping(eA.start, eA.end, eB.start, eB.end)) {
-            const dateSpan = eA.start.split('T')[0] === (eA.end || eA.start).split('T')[0]
-              ? eA.start.split('T')[0]
-              : `${eA.start.split('T')[0]} to ${(eA.end || eA.start).split('T')[0]}`;
-
-            list.push({
-              eventA: eA,
-              eventB: eB,
-              section: eA.hallSection || 'Main Hall',
-              date: dateSpan,
-            });
-          }
+          list.push({
+            eventA: eA,
+            eventB: eB,
+            section: 'Venue',
+            date: dateSpan,
+          });
         }
       }
     }
@@ -151,19 +153,7 @@ export function CalendarDashboardClient() {
 
   // Map merged events to FullCalendar event format (with optional colorBy hall section)
   const fcEvents = searchedEvents.map((e) => {
-    let color = e.color;
-    if (filters.colorBy === 'section') {
-      const sec = (e.hallSection || 'Main Hall').toLowerCase().trim();
-      if (sec.includes('main')) {
-        color = '#6025BC'; // violet
-      } else if (sec.includes('garden') || sec.includes('lawn')) {
-        color = '#10B981'; // emerald
-      } else if (sec.includes('terrace')) {
-        color = '#EAB308'; // amber/yellow
-      } else {
-        color = '#3B82F6'; // blue
-      }
-    }
+    const color = e.color;
 
     return {
       id: e.id,
@@ -236,7 +226,6 @@ export function CalendarDashboardClient() {
       end,
       allDay,
       type: 'personal',
-      hallSection: filters.hallSection !== 'All Sections' ? filters.hallSection : 'Main Hall',
     });
     setDrawerMode('create');
     setDrawerOpen(true);
@@ -262,16 +251,20 @@ export function CalendarDashboardClient() {
       const existingBooking = syncedBookings.find((b) => b.bookingId === bookingDbId);
 
       if (existingBooking) {
-        // Strip timezone suffix from ISO strings for date inputs
-        const newStartDate = changeInfo.event.startStr.split('T')[0];
-        const newEndDate = (changeInfo.event.endStr || changeInfo.event.startStr).split('T')[0];
+        // Keep date and time depending on allDay setting
+        const newStartDate = changeInfo.event.allDay 
+          ? getLocalDateString(changeInfo.event.start)
+          : getLocalDateTimeString(changeInfo.event.start);
+          
+        const newEndDate = changeInfo.event.allDay
+          ? getLocalDateString(changeInfo.event.end || changeInfo.event.start)
+          : getLocalDateTimeString(changeInfo.event.end || changeInfo.event.start);
 
         const updatedBookingValues = {
           customerId: existingBooking.customerId || '',
           eventType: existingBooking.eventType || 'Wedding Reception',
           eventDate: newStartDate,
           eventEndDate: newEndDate,
-          hallSection: existingBooking.hallSection || 'Main Hall',
           guestCount: existingBooking.guestCount || 100,
           bookingAmount: existingBooking.bookingAmount || 0,
           advanceAmount: existingBooking.advanceAmount || 0,
@@ -308,7 +301,6 @@ export function CalendarDashboardClient() {
             end,
             allDay,
             type: changeInfo.event.extendedProps.type || 'personal',
-            hallSection: changeInfo.event.extendedProps.hallSection || 'Main Hall',
             notes: changeInfo.event.extendedProps.notes || '',
             status: changeInfo.event.extendedProps.status || 'confirmed',
           },
@@ -407,7 +399,7 @@ export function CalendarDashboardClient() {
     const blob = new Blob([fileContent], { type: 'text/calendar;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
-    link.setAttribute('download', `calendar_export_${new Date().toISOString().split('T')[0]}.ics`);
+    link.setAttribute('download', `calendar_export_${getLocalDateString()}.ics`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -437,7 +429,6 @@ export function CalendarDashboardClient() {
           eventType: existingBooking.eventType || 'Wedding Reception',
           eventDate: data.start.split('T')[0],
           eventEndDate: (data.end || data.start).split('T')[0],
-          hallSection: data.hallSection || 'Main Hall',
           guestCount: data.guestCount || existingBooking.guestCount || 100,
           bookingAmount: existingBooking.bookingAmount || 0,
           advanceAmount: existingBooking.advanceAmount || 0,
@@ -511,7 +502,6 @@ export function CalendarDashboardClient() {
         end: selectedEvent.end ? selectedEvent.end.substring(0, 16) : selectedEvent.start.substring(0, 16),
         allDay: selectedEvent.allDay,
         type: selectedEvent.type,
-        hallSection: selectedEvent.hallSection || 'Main Hall',
         guestCount: selectedEvent.guestCount,
         bookingId: selectedEvent.bookingId || '',
         notes: selectedEvent.notes || '',
@@ -549,11 +539,10 @@ export function CalendarDashboardClient() {
           onFiltersChange={setFilters}
           onAddEvent={() => {
             setCreateDefaultValues({
-              start: new Date().toISOString().substring(0, 16),
-              end: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString().substring(0, 16),
+              start: getLocalDateTimeString(),
+              end: getLocalDateTimeString(new Date(Date.now() + 2 * 60 * 60 * 1000)),
               allDay: false,
               type: 'personal',
-              hallSection: filters.hallSection !== 'All Sections' ? filters.hallSection : 'Main Hall',
             });
             setDrawerMode('create');
             setDrawerOpen(true);
@@ -573,7 +562,7 @@ export function CalendarDashboardClient() {
                   {conflicts.length} Booking Conflict{conflicts.length > 1 ? 's' : ''} Detected
                 </h4>
                 <p className="text-xs font-semibold text-amber-600 mt-1">
-                  Some bookings share the exact same venue hall section on overlapping dates. Click to review details.
+                  Some bookings exist on overlapping dates. Click to review details.
                 </p>
               </div>
             </div>
@@ -701,7 +690,7 @@ export function CalendarDashboardClient() {
               {/* Body Content */}
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 <p className="text-xs font-semibold text-slate-500 font-sans">
-                  The following events share the exact same venue hall section on overlapping dates/times. Please resolve these schedule collisions:
+                  The following events exist on overlapping dates/times. Please resolve these schedule collisions:
                 </p>
 
                 <div className="space-y-4">
@@ -714,7 +703,7 @@ export function CalendarDashboardClient() {
                       <div className="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between text-slate-700 font-bold">
                         <span className="flex items-center gap-1.5">
                           <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
-                          Section: {c.section}
+                          Venue Conflict
                         </span>
                         <span className="text-slate-500">Date: {c.date}</span>
                       </div>

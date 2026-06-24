@@ -22,7 +22,9 @@ import {
   ShieldAlert,
   Loader2,
   AlertTriangle,
-  BadgeAlert
+  BadgeAlert,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import Link from 'next/link';
 import { deobfuscateId } from '@/utils/obfuscate';
@@ -37,6 +39,10 @@ export default function AdminHallDetailPage() {
   const { data: hallActivity = [], isLoading: activityLoading } = useAdminHallActivity(id);
   const { suspendHall, activateHall } = useAdminHalls();
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'billing' | 'activity'>('overview');
+  const [visiblePasswords, setVisiblePasswords] = useState<Record<string, boolean>>({});
+  const togglePasswordVisibility = (userId: string) => {
+    setVisiblePasswords((prev) => ({ ...prev, [userId]: !prev[userId] }));
+  };
 
   if (isLoading) {
     return (
@@ -273,7 +279,33 @@ export default function AdminHallDetailPage() {
                           <span className="text-[10px] text-gray-500 font-semibold">{user.email}</span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-4">
+                        {user.backupPassword ? (
+                          <div className="text-right shrink-0">
+                            <span className="text-[9px] font-bold text-gray-400 uppercase block leading-none">Password Backup</span>
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <span className="font-mono text-[11px] text-gray-700 bg-gray-150 border border-gray-200 px-1.5 py-0.5 rounded font-bold">
+                                {visiblePasswords[user.id] ? user.backupPassword : '••••••••'}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => togglePasswordVisibility(user.id)}
+                                className="text-gray-400 hover:text-gray-650 p-0.5 cursor-pointer inline-flex items-center"
+                              >
+                                {visiblePasswords[user.id] ? (
+                                  <EyeOff className="h-3.5 w-3.5" />
+                                ) : (
+                                  <Eye className="h-3.5 w-3.5" />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-right shrink-0">
+                            <span className="text-[9px] font-bold text-gray-400 uppercase block leading-none">Password</span>
+                            <span className="text-[10px] text-gray-450 font-bold block mt-1">Self-Updated / No Backup</span>
+                          </div>
+                        )}
                         <span className="px-2 py-0.5 text-[9px] font-bold bg-violet-50 text-violet-700 border border-violet-150 rounded-full capitalize">
                           {user.role}
                         </span>

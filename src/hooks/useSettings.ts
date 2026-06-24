@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import * as settingsService from '@/services/api/modules/settings.service';
 import * as subscriptionPaymentService from '@/services/api/modules/subscription-payment.service';
+import { changePasswordRequest } from '@/services/api/auth.service';
 import { HallProfile, HallSettings } from '@/types/settings';
 import { useState } from 'react';
 
@@ -176,5 +177,17 @@ export function useSubscriptionPaymentsHistory() {
     queryKey: ['subscription-payments-history'],
     queryFn: subscriptionPaymentService.getSubscriptionPaymentsHistory,
     staleTime: CACHE_TIME,
+  });
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: changePasswordRequest,
+    onSuccess: (res) => {
+      toast.success(res.message || 'Password changed successfully');
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Failed to change password');
+    },
   });
 }

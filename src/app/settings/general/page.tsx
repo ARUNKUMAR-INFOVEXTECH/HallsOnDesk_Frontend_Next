@@ -19,18 +19,12 @@ import SettingsCard from '@/components/settings/SettingsCard';
 import SettingsToggleRow from '@/components/settings/SettingsToggleRow';
 import NumberingPreview from '@/components/settings/NumberingPreview';
 import GstCalculatorPreview from '@/components/settings/GstCalculatorPreview';
-import WorkingDaySelector from '@/components/settings/WorkingDaySelector';
-import NotificationMatrix from '@/components/settings/NotificationMatrix';
-import DangerZoneCard from '@/components/settings/DangerZoneCard';
 import SettingsSaveBar from '@/components/settings/SettingsSaveBar';
 import {
   Settings,
   Hash,
   Clock,
   Percent,
-  Calendar,
-  Bell,
-  AlertTriangle,
   ChevronDown,
   ChevronUp,
   Globe,
@@ -218,11 +212,8 @@ export default function GeneralSettingsPage() {
     0: true,  // Numbering
     1: true,  // Locale
     2: true,  // Tax
-    3: false, // Booking
-    4: false, // Notifications
-    5: false, // Danger Zone
-    6: false, // Multi-Hall
-    7: false, // Invoice Templates
+    3: false, // Invoice Templates
+    4: false, // Multi-Hall
   });
 
   const user = useAuthStore((state) => state.user);
@@ -381,17 +372,9 @@ export default function GeneralSettingsPage() {
         if (errors.taxEnabled || errors.gstRate || errors.gstApplicableOn || errors.invoiceFooterNote || errors.termsAndConditions) {
           if (!next[2]) { next[2] = true; updated = true; }
         }
-        // Section 3 Booking policy errors
-        if (errors.bookingSettings) {
-          if (!next[3]) { next[3] = true; updated = true; }
-        }
-        // Section 4 Notifications matrix errors
-        if (errors.notifications) {
-          if (!next[4]) { next[4] = true; updated = true; }
-        }
-        // Section 7 Invoice template errors
+        // Section 3 Invoice template errors
         if (errors.invoiceTemplate) {
-          if (!next[7]) { next[7] = true; updated = true; }
+          if (!next[3]) { next[3] = true; updated = true; }
         }
 
         return updated ? next : prev;
@@ -907,9 +890,9 @@ export default function GeneralSettingsPage() {
 
         {/* Section 8: Invoice & Receipt Custom Templates */}
         <AccordionSection
-          index={7}
-          isOpen={openSections[7] ?? false}
-          onToggle={() => toggleSection(7)}
+          index={3}
+          isOpen={openSections[3] ?? false}
+          onToggle={() => toggleSection(3)}
           title="Invoice & Receipt Custom Templates"
           description="Select the layout design pattern for printable billing invoices and receipt notes."
           icon={FileText}
@@ -1007,203 +990,11 @@ export default function GeneralSettingsPage() {
           </div>
         </AccordionSection>
 
-        {/* Section 4: Booking Policy & Work Hours */}
-        <AccordionSection
-          index={3}
-          isOpen={openSections[3]}
-          onToggle={() => toggleSection(3)}
-          title="Booking configurations & Policies"
-          description="Setup prepayment limits, double-booking blocks, and working operational calendars."
-          icon={Calendar}
-          hasError={!!errors.bookingSettings}
-        >
-          {/* Require Advance */}
-          <Controller
-            name="bookingSettings.requireAdvancePayment"
-            control={control}
-            render={({ field }) => (
-              <SettingsToggleRow
-                title="Require Upfront Advance Deposit"
-                description="Require a partial deposit payment to lock in the reservation status."
-                checked={field.value}
-                onChange={field.onChange}
-              />
-            )}
-          />
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-gray-700">
-            {/* Minimum Advance Deposit */}
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Minimum Deposit Percentage (%)</label>
-              <input
-                type="number"
-                disabled={!watchedValues.bookingSettings?.requireAdvancePayment}
-                {...register('bookingSettings.minimumAdvancePercent')}
-                className="px-3 py-2 w-full border border-gray-200 rounded-lg text-xs font-semibold focus:ring-1 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-              {errors.bookingSettings?.minimumAdvancePercent && (
-                <p className="text-[10px] text-red-500 font-semibold">{errors.bookingSettings.minimumAdvancePercent.message}</p>
-              )}
-            </div>
-
-            {/* Cancellation Grace Window */}
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Cancellation Grace Period (Hours)</label>
-              <input
-                type="number"
-                {...register('bookingSettings.bookingCancellationHours')}
-                className="px-3 py-2 w-full border border-gray-200 rounded-lg text-xs font-semibold focus:ring-1 focus:ring-violet-500"
-              />
-              {errors.bookingSettings?.bookingCancellationHours && (
-                <p className="text-[10px] text-red-500 font-semibold">{errors.bookingSettings.bookingCancellationHours.message}</p>
-              )}
-            </div>
-
-            {/* Default Booking Duration */}
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Default Reservation Duration (Hours)</label>
-              <input
-                type="number"
-                {...register('bookingSettings.defaultBookingDurationHours')}
-                className="px-3 py-2 w-full border border-gray-200 rounded-lg text-xs font-semibold focus:ring-1 focus:ring-violet-500"
-              />
-              {errors.bookingSettings?.defaultBookingDurationHours && (
-                <p className="text-[10px] text-red-500 font-semibold">{errors.bookingSettings.defaultBookingDurationHours.message}</p>
-              )}
-            </div>
-
-            {/* Working Time Start / End */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Opening Time</label>
-                <input
-                  type="time"
-                  {...register('bookingSettings.workingHoursStart')}
-                  className="px-3 py-2 w-full border border-gray-200 rounded-lg text-xs font-semibold focus:ring-1 focus:ring-violet-500 cursor-pointer"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Closing Time</label>
-                <input
-                  type="time"
-                  {...register('bookingSettings.workingHoursEnd')}
-                  className="px-3 py-2 w-full border border-gray-200 rounded-lg text-xs font-semibold focus:ring-1 focus:ring-violet-500 cursor-pointer"
-                />
-              </div>
-            </div>
-
-            {/* Allow Double Booking */}
-            <div className="sm:col-span-2 pt-2">
-              <Controller
-                name="bookingSettings.allowDoubleBooking"
-                control={control}
-                render={({ field }) => (
-                  <SettingsToggleRow
-                    title="Allow Double Overlap Bookings"
-                    description="Permit scheduling overlapping slots on the same venue hall section."
-                    checked={field.value}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
-            </div>
-
-            {/* Working Days */}
-            <div className="sm:col-span-2 pt-2">
-              <Controller
-                name="bookingSettings.workingDays"
-                control={control}
-                render={({ field }) => (
-                  <WorkingDaySelector
-                    selectedDays={field.value || []}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
-            </div>
-          </div>
-        </AccordionSection>
-
-        {/* Section 5: Notification Preferences */}
-        <AccordionSection
-          index={4}
-          isOpen={openSections[4]}
-          onToggle={() => toggleSection(4)}
-          title="Notification Matrix Preferences"
-          description="Map SMS, email alerts, and WhatsApp schedules triggers for client activities."
-          icon={Bell}
-          hasError={!!errors.notifications}
-        >
-          <Controller
-            name="notifications"
-            control={control}
-            render={({ field }) => (
-              <NotificationMatrix
-                values={field.value || {
-                  emailEnabled: true,
-                  smsEnabled: true,
-                  whatsappEnabled: false,
-                  newBookingAlert: true,
-                  paymentReceivedAlert: true,
-                  enquiryAlert: true,
-                  followupReminder: true,
-                  bookingReminderDaysBefore: 2,
-                  dailySummaryEnabled: true,
-                  dailySummaryTime: '08:00',
-                }}
-                onChange={(updated) => field.onChange({ ...field.value, ...updated })}
-                emailContact={profile?.email}
-                phoneContact={profile?.phone}
-              />
-            )}
-          />
-
-          {watchedValues.notifications?.dailySummaryEnabled && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50/50 p-4 border border-gray-150 rounded-xl mt-4">
-              <div className="space-y-1.5 text-xs font-semibold text-gray-700">
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Daily Agenda Send Time</label>
-                <input
-                  type="time"
-                  {...register('notifications.dailySummaryTime')}
-                  className="px-3 py-2 w-full border border-gray-200 rounded-lg text-xs font-semibold focus:ring-1 focus:ring-violet-500 cursor-pointer"
-                />
-              </div>
-
-              <div className="space-y-1.5 text-xs font-semibold text-gray-700">
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Pre-booking Reminder Alert (Days Before)</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={30}
-                  {...register('notifications.bookingReminderDaysBefore')}
-                  className="px-3 py-2 w-full border border-gray-200 rounded-lg text-xs font-semibold focus:ring-1 focus:ring-violet-500"
-                />
-                {errors.notifications?.bookingReminderDaysBefore && (
-                  <p className="text-[10px] text-red-500 font-semibold">{errors.notifications.bookingReminderDaysBefore.message}</p>
-                )}
-              </div>
-            </div>
-          )}
-        </AccordionSection>
-
-        {/* Section 6: Danger Zone */}
-        <AccordionSection
-          index={5}
-          isOpen={openSections[5]}
-          onToggle={() => toggleSection(5)}
-          title="Danger Control Center"
-          description="Revert parameters to default clean configurations or manage data erasures."
-          icon={AlertTriangle}
-        >
-          <DangerZoneCard onReset={handleResetToDefaults} />
-        </AccordionSection>
-
-        {/* Section 7: Multi-Hall Management */}
         {user?.role === 'owner' && (
           <AccordionSection
-            index={6}
-            isOpen={openSections[6] ?? false}
-            onToggle={() => toggleSection(6)}
+            index={4}
+            isOpen={openSections[4] ?? false}
+            onToggle={() => toggleSection(4)}
             title="Multi-Hall Workspace Settings"
             description="Manage multiple wedding halls, configure shared vs separate staff, and link secondary venues."
             icon={Globe}

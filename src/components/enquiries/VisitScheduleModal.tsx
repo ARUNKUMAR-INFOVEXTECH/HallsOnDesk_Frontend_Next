@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { getLocalDateTimeString } from '@/utils/formatters';
 
 interface VisitScheduleModalProps {
   isOpen: boolean;
@@ -17,7 +18,7 @@ export function VisitScheduleModal({ isOpen, onClose, onConfirm }: VisitSchedule
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(11, 0, 0, 0);
-    return tomorrow.toISOString().substring(0, 16);
+    return getLocalDateTimeString(tomorrow);
   };
 
   const [scheduledAt, setScheduledAt] = useState(getTomorrowDateTimeString());

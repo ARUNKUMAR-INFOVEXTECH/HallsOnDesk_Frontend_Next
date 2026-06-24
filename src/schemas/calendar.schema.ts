@@ -7,7 +7,6 @@ export const calendarEventSchema = z
     end: z.string().min(1, 'End date/time is required'),
     allDay: z.boolean().default(false),
     type: z.enum(['booking', 'blocked', 'maintenance', 'personal', 'holiday']),
-    hallSection: z.string().optional().default('Main Hall'),
     guestCount: z
       .number({ invalid_type_error: 'Guest count must be a number' })
       .min(1, 'Guest count must be at least 1')

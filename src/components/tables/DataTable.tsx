@@ -22,6 +22,7 @@ import {
   SlidersHorizontal,
   Search,
 } from 'lucide-react';
+import { getLocalDateString } from '@/utils/formatters';
 
 interface DataTableProps<TData> {
   columns: ColumnDef<TData, any>[];
@@ -109,7 +110,7 @@ export function DataTable<TData>({
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `${exportFileName}_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `${exportFileName}_${getLocalDateString()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

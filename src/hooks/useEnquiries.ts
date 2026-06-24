@@ -155,7 +155,7 @@ export const mapFrontendEnquiryToBackend = (e: any) => {
     budget_min: e.budgetMin || null,
     budget_max: e.budgetMax || null,
     budget: e.budgetMax || null, // duplicate for compatibility
-    hall_section: e.hallSection || 'Main Hall',
+    hall_section: 'Main Hall',
     source: e.source,
     stage: e.stage,
     status: e.stage === 'booked' ? 'booked' : e.stage === 'lost' ? 'lost' : e.stage, // status fallback

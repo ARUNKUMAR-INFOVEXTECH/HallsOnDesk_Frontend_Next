@@ -28,7 +28,6 @@ export const enquiryFormSchema = z
       (val) => (val === '' || val === undefined ? undefined : Number(val)),
       z.number().min(0, 'Budget cannot be negative').optional()
     ),
-    hallSection: z.string().optional().default('Main Hall'),
     source: z.enum(
       ['walk_in', 'phone', 'whatsapp', 'instagram', 'facebook', 'google', 'referral', 'justdial', 'other'],
       { required_error: 'Source is required' }
@@ -126,7 +125,10 @@ export const followupFormSchema = z
 
 export const convertFormSchema = z.object({
   eventDate: z.string().min(1, 'Event date is required'),
-  hallSection: z.string().min(1, 'Hall section is required'),
+  guestCount: z.preprocess(
+    (val) => (val === '' || val === undefined ? undefined : Number(val)),
+    z.number().min(1, 'Guest count must be at least 1')
+  ),
   bookingAmount: z.preprocess(
     (val) => (val === '' || val === undefined ? undefined : Number(val)),
     z.number().min(1, 'Booking amount must be at least ₹1')

@@ -23,6 +23,7 @@ import { StaffEditDrawer } from '@/components/staff/StaffEditDrawer';
 import { StaffDeleteModal } from '@/components/staff/StaffDeleteModal';
 import { StaffMember, StaffStatus } from '@/types/staff';
 import { calculateTenure } from '@/utils/tenure';
+import { getLocalDateString } from '@/utils/formatters';
 
 export default function StaffPage() {
   const router = useRouter();
@@ -188,7 +189,7 @@ export default function StaffPage() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    const dateStr = new Date().toISOString().substring(0, 10);
+    const dateStr = getLocalDateString();
     link.setAttribute('download', `infovexhalls-staff-${dateStr}.csv`);
     document.body.appendChild(link);
     link.click();
@@ -314,11 +315,6 @@ export default function StaffPage() {
               <option value="owner">Owner</option>
               <option value="manager">Manager</option>
               <option value="staff">Staff</option>
-              <option value="receptionist">Receptionist</option>
-              <option value="accountant">Accountant</option>
-              <option value="security">Security</option>
-              <option value="cleaner">Cleaner</option>
-              <option value="other">Other</option>
             </select>
 
             {/* Status filter */}

@@ -33,9 +33,11 @@ interface OverviewTabProps {
   customer: any;
   bookings: Booking[];
   totalRevenue: number;
+  totalPaid: number;
+  outstandingBalance: number;
 }
 
-export function OverviewTab({ customer, bookings, totalRevenue }: OverviewTabProps) {
+export function OverviewTab({ customer, bookings, totalRevenue, totalPaid, outstandingBalance }: OverviewTabProps) {
   const upcomingEvents = bookings.filter((b) => new Date(b.start_date) > new Date());
   
   return (
@@ -97,27 +99,54 @@ export function OverviewTab({ customer, bookings, totalRevenue }: OverviewTabPro
       </div>
 
       {/* Summary Metrics */}
-      <div className="space-y-6 lg:col-span-1">
+      <div className="space-y-4 lg:col-span-1">
         {/* Revenue Card */}
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm relative overflow-hidden flex flex-col justify-between h-fit">
-          <div className="absolute top-0 right-0 p-4 opacity-10">
-            <TrendingUp className="h-24 w-24 text-primary-light" />
+        <div className="bg-white border border-slate-200 rounded-xl p-4.5 shadow-sm relative overflow-hidden flex flex-col justify-between">
+          <div className="absolute top-0 right-0 p-4 opacity-5">
+            <TrendingUp className="h-16 w-16 text-primary-light" />
           </div>
           <div>
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
               Total Revenue Booked
             </span>
-            <h3 className="text-2xl font-extrabold text-primary tracking-tight leading-none font-mono">
+            <h3 className="text-xl font-extrabold text-primary tracking-tight leading-none font-mono">
               {formatCurrency(totalRevenue)}
             </h3>
           </div>
-          <p className="text-xs text-slate-500 mt-4 leading-relaxed font-medium">
-            Sum of all event rental totals booked by this customer.
-          </p>
+        </div>
+
+        {/* Paid Card */}
+        <div className="bg-white border border-slate-200 rounded-xl p-4.5 shadow-sm relative overflow-hidden flex flex-col justify-between">
+          <div className="absolute top-0 right-0 p-4 opacity-5">
+            <DollarSign className="h-16 w-16 text-emerald-500" />
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+              Total Paid Received
+            </span>
+            <h3 className="text-xl font-extrabold text-emerald-600 tracking-tight leading-none font-mono">
+              {formatCurrency(totalPaid)}
+            </h3>
+          </div>
+        </div>
+
+        {/* Outstanding Card */}
+        <div className="bg-white border border-slate-200 rounded-xl p-4.5 shadow-sm relative overflow-hidden flex flex-col justify-between">
+          <div className="absolute top-0 right-0 p-4 opacity-5">
+            <CreditCard className="h-16 w-16 text-rose-500" />
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+              Outstanding Balance
+            </span>
+            <h3 className="text-xl font-extrabold text-rose-600 tracking-tight leading-none font-mono">
+              {formatCurrency(outstandingBalance)}
+            </h3>
+          </div>
         </div>
 
         {/* Next event card */}
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4">
+        <div className="bg-white border border-slate-200 rounded-xl p-4.5 shadow-sm space-y-3">
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
             Upcoming Bookings
           </span>
@@ -246,7 +275,8 @@ interface PaymentsTabProps {
 }
 
 export function PaymentsTab({ payments }: PaymentsTabProps) {
-  const totalPaid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+  const validPayments = payments.filter((p) => p && (Number(p.amount) > 0 || p.payment_date || (p as any).paymentDate));
+  const totalPaid = validPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden space-y-4">
@@ -263,7 +293,7 @@ export function PaymentsTab({ payments }: PaymentsTabProps) {
       </div>
       
       <div className="overflow-x-auto text-xs text-slate-600">
-        {payments.length > 0 ? (
+        {validPayments.length > 0 ? (
           <table className="min-w-full text-left">
             <thead className="bg-slate-50 border-b border-slate-200 text-[10px] uppercase font-bold text-slate-400">
               <tr>
@@ -275,7 +305,7 @@ export function PaymentsTab({ payments }: PaymentsTabProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white font-medium">
-              {payments.map((p) => (
+              {validPayments.map((p) => (
                 <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
                   <td className="px-6 py-3.5 text-slate-500 font-mono">{formatDate(p.payment_date || (p as any).paymentDate)}</td>
                   <td className="px-6 py-3.5 text-slate-800 font-bold font-mono">{formatCurrency(p.amount)}</td>

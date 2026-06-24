@@ -34,11 +34,26 @@ export function ConvertToBookingForm({ enquiry }: ConvertToBookingFormProps) {
     || halls[0];
   const activeHallName = activeHall?.hall_name || 'Venue';
 
+  const formatToDatetimeLocal = (dateStr?: string, isEnd = false) => {
+    if (!dateStr) return '';
+    if (dateStr.length === 10 && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      return dateStr + (isEnd ? 'T21:00' : 'T09:00');
+    }
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const form = useForm<ConvertFormValues>({
     resolver: zodResolver(convertFormSchema),
     defaultValues: {
-      eventDate: enquiry.eventDate || '',
-      hallSection: enquiry.hallSection || 'Main Hall',
+      eventDate: enquiry.eventDate ? formatToDatetimeLocal(enquiry.eventDate, false) : '',
+      guestCount: enquiry.guestCount || 100,
       bookingAmount: enquiry.budgetMax || 0,
       advanceAmount: 0,
       notes: enquiry.notes || '',
@@ -58,12 +73,10 @@ export function ConvertToBookingForm({ enquiry }: ConvertToBookingFormProps) {
       
       const customerId = res.data.id;
       
-      // Build query parameters
       const queryParams = new URLSearchParams({
         customerId: customerId,
         eventType: enquiry.eventType || 'other',
         eventDate: enquiry.eventDate || '',
-        hallSection: enquiry.hallSection || 'Main Hall',
         guestCount: String(enquiry.guestCount || ''),
         bookingAmount: String(enquiry.budgetMax || ''),
         notes: enquiry.notes || '',
@@ -250,17 +263,18 @@ export function ConvertToBookingForm({ enquiry }: ConvertToBookingFormProps) {
           <div className="md:col-span-2">
             <InputField
               name="eventDate"
-              label="Confirmed Event Date"
-              type="date"
+              label="Confirmed Event Date & Time"
+              type="datetime-local"
               required
             />
           </div>
 
           <div className="md:col-span-2">
             <InputField
-              name="hallSection"
-              label="Confirmed Hall Section"
-              placeholder="e.g. Main Hall"
+              name="guestCount"
+              label="Expected Guest Count"
+              type="number"
+              placeholder="e.g. 100"
               required
             />
           </div>

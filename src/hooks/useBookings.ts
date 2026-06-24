@@ -38,7 +38,7 @@ export const mapBackendToFrontend = (b: BackendBooking): FrontendBooking => {
   // Access extra properties safely from backend columns if they exist, or mock them
   const anyB = b as any;
   const hallName = anyB.hall_name || 'Raj Mahal Palace';
-  const hallSection = anyB.hall_section || b.event_name?.split(' - ')[0] || 'Main Hall';
+  const hallSection = anyB.hall_section || 'Main Hall';
   const guestCount = anyB.guest_count || 150;
   const discountAmount = anyB.discount_amount || 0;
   const bookingAmount = (b.total_amount || 0) + discountAmount;
@@ -75,7 +75,7 @@ export const mapFrontendToBackend = (data: BookingFormValues) => {
   return {
     customer_id: data.customerId,
     event_type: data.eventType,
-    event_name: `${data.hallSection} - ${data.eventType}`,
+    event_name: data.eventType,
     start_date: data.eventDate,
     end_date: data.eventEndDate || data.eventDate,
     // total_amount inside database corresponds to net billing amount
@@ -84,7 +84,7 @@ export const mapFrontendToBackend = (data: BookingFormValues) => {
     status: data.status,
     notes: data.notes || '',
     // Include custom fields as properties the database saves/accepts
-    hall_section: data.hallSection,
+    hall_section: 'Main Hall',
     guest_count: data.guestCount,
     discount_amount: data.discountAmount || 0,
     coordinator_name: data.coordinatorName || null,
@@ -128,8 +128,7 @@ export function useBookings(params: FilterParams = {}) {
             b.customerName.toLowerCase().includes(query) ||
             b.customerPhone.toLowerCase().includes(query) ||
             b.customerEmail.toLowerCase().includes(query) ||
-            b.eventType.toLowerCase().includes(query) ||
-            b.hallSection.toLowerCase().includes(query)
+            b.eventType.toLowerCase().includes(query)
           );
         });
       }
@@ -206,5 +205,14 @@ export function useDeleteBooking() {
       const errMsg = err.response?.data?.message || 'Failed to delete booking.';
       toast.error(errMsg);
     },
+  });
+}
+
+export function useCheckAvailability(startDate: string, endDate: string, excludeBookingId?: string) {
+  return useQuery({
+    queryKey: ['bookings', 'availability', startDate, endDate, excludeBookingId],
+    queryFn: () => checkAvailability(startDate, endDate, excludeBookingId),
+    enabled: !!startDate && !!endDate && !isNaN(Date.parse(startDate)) && !isNaN(Date.parse(endDate)) && new Date(startDate) <= new Date(endDate),
+    staleTime: 5000,
   });
 }

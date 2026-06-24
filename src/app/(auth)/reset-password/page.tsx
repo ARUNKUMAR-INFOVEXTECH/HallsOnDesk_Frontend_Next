@@ -35,11 +35,30 @@ type ResetFormValues = z.infer<typeof resetSchema>;
 export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+  const [token, setToken] = useState<string | null>(null);
 
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+
+  React.useEffect(() => {
+    // 1. Try to get token from search params
+    const queryToken = searchParams?.get('token');
+    if (queryToken) {
+      setToken(queryToken);
+      return;
+    }
+
+    // 2. Try to get access_token from hash fragment
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hash = window.location.hash.substring(1); // remove '#'
+      const params = new URLSearchParams(hash);
+      const accessToken = params.get('access_token');
+      if (accessToken) {
+        setToken(accessToken);
+      }
+    }
+  }, [searchParams]);
 
   const form = useForm<ResetFormValues>({
     resolver: zodResolver(resetSchema),

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import { getLocalDateString } from '@/utils/formatters';
 import {
   Columns,
   LayoutList,
@@ -88,18 +89,18 @@ export default function EnquiriesDashboardPage() {
     if (dateRangeType === 'this_month') {
       const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
       const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-      fromEventDate = firstDay.toISOString().substring(0, 10);
-      toEventDate = lastDay.toISOString().substring(0, 10);
+      fromEventDate = getLocalDateString(firstDay);
+      toEventDate = getLocalDateString(lastDay);
     } else if (dateRangeType === 'next_month') {
       const firstDay = new Date(today.getFullYear(), today.getMonth() + 1, 1);
       const lastDay = new Date(today.getFullYear(), today.getMonth() + 2, 0);
-      fromEventDate = firstDay.toISOString().substring(0, 10);
-      toEventDate = lastDay.toISOString().substring(0, 10);
+      fromEventDate = getLocalDateString(firstDay);
+      toEventDate = getLocalDateString(lastDay);
     } else if (dateRangeType === 'next_90_days') {
-      fromEventDate = today.toISOString().substring(0, 10);
+      fromEventDate = getLocalDateString(today);
       const next90 = new Date();
       next90.setDate(today.getDate() + 90);
-      toEventDate = next90.toISOString().substring(0, 10);
+      toEventDate = getLocalDateString(next90);
     } else if (dateRangeType === 'custom') {
       if (customStartDate) fromEventDate = customStartDate;
       if (customEndDate) toEventDate = customEndDate;
@@ -263,7 +264,7 @@ export default function EnquiriesDashboardPage() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    const dateStr = new Date().toISOString().substring(0, 10);
+    const dateStr = getLocalDateString();
     link.setAttribute('download', `infovexhalls-selected-enquiries-${dateStr}.csv`);
     document.body.appendChild(link);
     link.click();
@@ -386,7 +387,7 @@ export default function EnquiriesDashboardPage() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    const dateStr = new Date().toISOString().substring(0, 10);
+    const dateStr = getLocalDateString();
     link.setAttribute('download', `infovexhalls-enquiries-${dateStr}.csv`);
     document.body.appendChild(link);
     link.click();

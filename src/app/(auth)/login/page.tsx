@@ -190,6 +190,12 @@ export default function LoginPage() {
             <AuthButton loading={isSubmitting} loadingText="Verifying account credentials...">
               Sign In
             </AuthButton>
+
+            {/* Quick credentials note */}
+            <div className="p-3 bg-slate-50 border border-slate-200/50 rounded-lg text-left select-none text-[10px] text-slate-500 leading-relaxed font-semibold">
+              <span className="font-bold text-slate-700 block mb-0.5">Forgot password?</span>
+              Owners: contact administrator. Staff / Managers: contact your Marriage Hall Owner to retrieve your credentials.
+            </div>
           </FormProvider>
 
           {/* SaaS restriction note */}

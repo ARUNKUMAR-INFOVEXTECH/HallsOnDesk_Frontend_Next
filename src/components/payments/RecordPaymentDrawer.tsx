@@ -12,6 +12,7 @@ import { useCreatePayment } from '@/hooks/usePayments';
 import { CalendarEventDrawer } from '../calendar/CalendarEventDrawer';
 import { Search, ChevronDown, Check, Loader2, Calendar, AlertTriangle, Hash, HelpCircle } from 'lucide-react';
 import { formatCurrency } from '@/utils/currency';
+import { getLocalDateString } from '@/utils/formatters';
 import { PaymentMethod } from '@/types/payment';
 
 interface RecordPaymentDrawerProps {
@@ -54,7 +55,7 @@ export function RecordPaymentDrawer({
       amount: 0,
       paymentMethod: 'cash',
       referenceNumber: '',
-      paymentDate: new Date().toISOString().substring(0, 10),
+      paymentDate: getLocalDateString(),
       notes: '',
       status: 'completed',
       pendingAmount: undefined,
@@ -94,7 +95,7 @@ export function RecordPaymentDrawer({
         amount: 0,
         paymentMethod: 'cash',
         referenceNumber: '',
-        paymentDate: new Date().toISOString().substring(0, 10),
+        paymentDate: getLocalDateString(),
         notes: '',
         status: 'completed',
         pendingAmount: undefined,

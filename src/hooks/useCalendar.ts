@@ -47,12 +47,13 @@ export const getEventColor = (type: CalendarEventType, status?: EventStatus): st
 
 // Adapter: Map database booking to calendar event object
 export const mapBookingToCalendarEvent = (booking: any): CalendarEvent => {
+  const hasTime = booking.eventDate && (booking.eventDate.includes('T') || booking.eventDate.includes(' ') || booking.eventDate.includes(':'));
   return {
     id: `booking-${booking.id}`,
     title: `${booking.customerName} - ${booking.eventType}`,
     start: booking.eventDate,
     end: booking.eventEndDate || booking.eventDate,
-    allDay: true,
+    allDay: !hasTime,
     type: 'booking',
     bookingId: booking.id,
     eventType: booking.eventType,
@@ -79,9 +80,9 @@ export const mapBookingToCalendarEvent = (booking: any): CalendarEvent => {
 // 1. Fetch Calendar Events list
 export function useCalendarEvents(
   dateRange: { start?: string; end?: string } = {},
-  filters: { eventTypes?: CalendarEventType[]; status?: EventStatus[]; hallSection?: string } = {}
+  filters: { eventTypes?: CalendarEventType[]; status?: EventStatus[] } = {}
 ) {
-  const { eventTypes = [], status = [], hallSection = 'All Sections' } = filters;
+  const { eventTypes = [], status = [] } = filters;
 
   return useQuery<CalendarEvent[], Error>({
     queryKey: ['calendar-events', dateRange, filters],
@@ -118,12 +119,6 @@ export function useCalendarEvents(
 
       if (status.length > 0) {
         events = events.filter((e) => status.includes(e.status));
-      }
-
-      if (hallSection && hallSection !== 'All Sections') {
-        events = events.filter(
-          (e) => e.hallSection?.toLowerCase().trim() === hallSection.toLowerCase().trim()
-        );
       }
 
       return events;
@@ -174,7 +169,7 @@ export function useCreateCalendarEvent() {
         all_day: payload.allDay ?? false,
         type: payload.type || 'personal',
         booking_id: payload.bookingId || null,
-        hall_section: payload.hallSection || 'Main Hall',
+        hall_section: 'Main Hall',
         notes: payload.notes || '',
         status: payload.status || 'confirmed',
         guest_count: payload.guestCount || null,
@@ -205,7 +200,7 @@ export function useUpdateCalendarEvent() {
         all_day: data.allDay ?? false,
         type: data.type || 'personal',
         booking_id: data.bookingId || null,
-        hall_section: data.hallSection || 'Main Hall',
+        hall_section: 'Main Hall',
         notes: data.notes || '',
         status: data.status || 'confirmed',
         guest_count: data.guestCount || null,

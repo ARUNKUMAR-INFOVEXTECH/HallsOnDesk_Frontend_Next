@@ -69,14 +69,8 @@ export function StaffEditDrawer({
   if (!isOpen || !member) return null;
 
   const roles = [
-    { value: 'owner', label: 'Owner' },
     { value: 'manager', label: 'Manager' },
-    { value: 'staff', label: 'Staff' },
-    { value: 'receptionist', label: 'Receptionist' },
-    { value: 'accountant', label: 'Accountant' },
-    { value: 'security', label: 'Security' },
-    { value: 'cleaner', label: 'Cleaner' },
-    { value: 'other', label: 'Other' },
+    { value: 'staff', label: 'Staff Operations' },
   ] as const;
 
   const departments = [

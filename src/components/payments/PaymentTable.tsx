@@ -156,9 +156,12 @@ export function PaymentTable({
         cell: ({ row }) => {
           const rawDate = row.original.paymentDate;
           const formatted = formatDate(rawDate);
+          
+          // Use createdAt timestamp for exact timing of work done, fallback to paymentDate
+          const rawTimestamp = row.original.createdAt || row.original.paymentDate;
           let formattedTime = '12:00 PM';
           try {
-            const date = new Date(rawDate);
+            const date = new Date(rawTimestamp);
             formattedTime = date.toLocaleTimeString('en-IN', {
               hour: '2-digit',
               minute: '2-digit',

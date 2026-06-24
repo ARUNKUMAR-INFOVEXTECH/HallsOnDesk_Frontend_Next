@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Phone, Mail, Calendar, Shield, MoreVertical, Pencil, Trash2, RefreshCw } from 'lucide-react';
+import { Phone, Mail, Calendar, Shield, MoreVertical, Pencil, Trash2, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { StaffMember, StaffRole, StaffStatus } from '@/types/staff';
 import { RoleBadge } from './RoleBadge';
 import { StaffStatusBadge } from './StaffStatusBadge';
@@ -19,6 +19,7 @@ interface StaffCardProps {
 export function StaffCard({ member, onEdit, onDelete, onStatusChange }: StaffCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [statusOpen, setStatusOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
 
@@ -157,6 +158,32 @@ export function StaffCard({ member, onEdit, onDelete, onStatusChange }: StaffCar
         <div className="flex items-center gap-2 flex-wrap">
           <DepartmentBadge department={member.department} />
         </div>
+        
+        {/* Password backup row */}
+        <div className="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-lg p-2 text-[11px] font-semibold text-slate-550 select-none">
+          <span className="text-[10px] font-bold text-slate-400 uppercase">Password Backup</span>
+          {member.backupPassword ? (
+            <div className="flex items-center gap-1.5">
+              <span className="font-mono text-slate-700 bg-white border border-slate-200 px-1.5 py-0.5 rounded font-bold">
+                {showPassword ? member.backupPassword : '••••••••'}
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-slate-400 hover:text-slate-655 p-0.5 cursor-pointer inline-flex items-center"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-3.5 w-3.5" />
+                ) : (
+                  <Eye className="h-3.5 w-3.5" />
+                )}
+              </button>
+            </div>
+          ) : (
+            <span className="text-[10px] text-slate-400 font-bold italic">Self-Updated</span>
+          )}
+        </div>
+
         <div className="flex items-center gap-2 text-slate-400 text-[11px] font-semibold">
           <Calendar className="h-3.5 w-3.5 shrink-0" />
           <span>

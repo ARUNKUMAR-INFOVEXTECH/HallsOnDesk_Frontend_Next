@@ -10,7 +10,7 @@ import { PaymentTable } from '@/components/payments/PaymentTable';
 import { RecordPaymentDrawer } from '@/components/payments/RecordPaymentDrawer';
 import { ReceiptModal } from '@/components/payments/ReceiptModal';
 import { Payment } from '@/types/payment';
-import { formatDate } from '@/utils/formatters';
+import { formatDate, getLocalDateString } from '@/utils/formatters';
 import { toast } from 'sonner';
 
 export default function PaymentsListPage() {
@@ -95,7 +95,7 @@ export default function PaymentsListPage() {
     const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + csvRows.join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
-    const dateStr = new Date().toISOString().split('T')[0];
+    const dateStr = getLocalDateString();
     link.setAttribute('href', encodedUri);
     link.setAttribute('download', `infovexhalls-payments-${dateStr}.csv`);
     document.body.appendChild(link);

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useQuery, useQueries, useQueryClient } from '@tanstack/react-query';
 import {
@@ -57,16 +57,23 @@ import { formatCurrency, formatDate, formatDateTime } from '@/utils/formatters';
 import { Enquiry, Booking, Payment, Invoice } from '@/types';
 
 // Tab Definitions
-type TabId = 'overview' | 'bookings' | 'payments' | 'invoices' | 'enquiries' | 'documents' | 'timeline';
+type TabId = 'overview' | 'bookings' | 'payments' | 'invoices' | 'enquiries' | 'timeline';
 
 export default function CustomerDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const id = deobfuscateId(params.id as string);
 
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  React.useEffect(() => {
+    if (searchParams?.get('edit') === 'true') {
+      setShowEditModal(true);
+    }
+  }, [searchParams]);
 
   // Queries
   const {
@@ -160,7 +167,8 @@ export default function CustomerDetailPage() {
     .filter(Boolean) as Payment[];
 
   const fallbackPayments = bookings.flatMap((b) => b.payments || []);
-  const paymentsList = compiledPayments.length > 0 ? compiledPayments : fallbackPayments;
+  const paymentsList = (compiledPayments.length > 0 ? compiledPayments : fallbackPayments)
+    .filter((p) => p && (Number(p.amount) > 0 || p.payment_date || (p as any).paymentDate));
 
   const invoicesList: Invoice[] = invoiceQueries
     .map((q) => q.data)
@@ -168,6 +176,9 @@ export default function CustomerDetailPage() {
 
   // Calculate total revenue booked
   const totalRevenue = bookings.reduce((sum, b) => sum + (b.total_amount || 0), 0);
+
+  const totalPaid = paymentsList.reduce((sum, p) => sum + (p.amount || 0), 0);
+  const outstandingBalance = Math.max(0, totalRevenue - totalPaid);
 
   // Perform updates
   const handleEditSubmit = async (data: CustomerFormValues) => {
@@ -218,7 +229,6 @@ export default function CustomerDetailPage() {
     { id: 'payments', label: 'Payments', icon: DollarSign },
     { id: 'invoices', label: 'Invoices', icon: FileText },
     { id: 'enquiries', label: 'Enquiries', icon: Inbox },
-    { id: 'documents', label: 'Documents', icon: File },
     { id: 'timeline', label: 'Timeline', icon: History },
   ];
 
@@ -272,14 +282,22 @@ export default function CustomerDetailPage() {
             </div>
 
             {/* Quick Metrics */}
-            <div className="grid grid-cols-2 gap-4 py-1.5 text-center font-bold">
-              <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+            <div className="grid grid-cols-2 gap-3.5 py-1.5 text-center font-bold">
+              <div className="bg-slate-50 rounded-lg p-2.5 border border-slate-100 flex flex-col justify-between">
                 <span className="text-[9px] text-slate-400 uppercase tracking-wider block font-bold">Bookings</span>
-                <span className="text-base text-slate-800 font-mono block mt-1">{bookings.length}</span>
+                <span className="text-sm text-slate-800 font-mono block mt-1">{bookings.length}</span>
               </div>
-              <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+              <div className="bg-slate-50 rounded-lg p-2.5 border border-slate-100 flex flex-col justify-between">
                 <span className="text-[9px] text-slate-400 uppercase tracking-wider block font-bold">Total Booked</span>
-                <span className="text-base text-primary-light font-mono block mt-1">{formatCurrency(totalRevenue)}</span>
+                <span className="text-sm text-primary-light font-mono block mt-1 leading-none">{formatCurrency(totalRevenue)}</span>
+              </div>
+              <div className="bg-emerald-50/50 rounded-lg p-2.5 border border-emerald-100/50 flex flex-col justify-between">
+                <span className="text-[9px] text-emerald-600 uppercase tracking-wider block font-bold">Total Paid</span>
+                <span className="text-sm text-emerald-600 font-mono block mt-1 leading-none">{formatCurrency(totalPaid)}</span>
+              </div>
+              <div className="bg-rose-50/50 rounded-lg p-2.5 border border-rose-100/50 flex flex-col justify-between">
+                <span className="text-[9px] text-rose-500 uppercase tracking-wider block font-bold">Balance Due</span>
+                <span className="text-sm text-rose-600 font-mono block mt-1 leading-none">{formatCurrency(outstandingBalance)}</span>
               </div>
             </div>
 
@@ -372,7 +390,13 @@ export default function CustomerDetailPage() {
           {/* Render Tab Contents */}
           <div className="space-y-4">
             {activeTab === 'overview' && (
-              <OverviewTab customer={customer} bookings={bookings} totalRevenue={totalRevenue} />
+              <OverviewTab 
+                customer={customer} 
+                bookings={bookings} 
+                totalRevenue={totalRevenue} 
+                totalPaid={totalPaid}
+                outstandingBalance={outstandingBalance}
+              />
             )}
 
             {activeTab === 'bookings' && <BookingsTab bookings={bookings} />}
@@ -383,7 +407,7 @@ export default function CustomerDetailPage() {
 
             {activeTab === 'enquiries' && <EnquiriesTab enquiries={enquiries} />}
 
-            {activeTab === 'documents' && <DocumentsTab />}
+
 
             {activeTab === 'timeline' && <DynamicActivityTimeline customerId={id} />}
           </div>
@@ -538,101 +562,6 @@ function EnquiriesTab({ enquiries }: EnquiriesTabProps) {
         ) : (
           <div className="p-12 text-center text-slate-400">
             No historical inquiries logged.
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ----------------------------------------------------
-// Auxiliary Tab Components for Documents List
-// ----------------------------------------------------
-function DocumentsTab() {
-  const [docs, setDocs] = useState([
-    { id: 'doc-1', name: 'Rental Agreement Signoff.pdf', size: '1.2 MB', date: 'May 12, 2026', type: 'Agreement' },
-    { id: 'doc-2', name: 'Government ID Proof.jpg', size: '450 KB', date: 'May 10, 2026', type: 'ID Card' },
-  ]);
-
-  const handleUpload = () => {
-    toast.success('Simulation: File upload triggered.');
-  };
-
-  return (
-    <div className="border border-slate-200 bg-white rounded-xl shadow-sm p-6 space-y-6">
-      <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-        <div>
-          <h3 className="font-semibold text-slate-800 text-sm">
-            Customer Documents
-          </h3>
-          <p className="text-xs text-slate-400 font-medium mt-0.5">
-            Store scanned IDs, signed venue rental agreements, and invoice vouchers.
-          </p>
-        </div>
-      </div>
-
-      <div 
-        onClick={handleUpload}
-        className="border-2 border-dashed border-slate-200 hover:border-primary-light rounded-xl p-6 text-center cursor-pointer transition-all hover:bg-slate-50/50 flex flex-col items-center justify-center gap-2"
-      >
-        <div className="h-10 w-10 rounded-full bg-primary-lighter text-primary-light flex items-center justify-center">
-          <Upload className="h-5 w-5" />
-        </div>
-        <div className="space-y-1">
-          <p className="text-xs font-semibold text-slate-700">Click to upload or drag & drop documents</p>
-          <p className="text-[10px] text-slate-450 font-medium">PDF, PNG, JPG, or DOC up to 10MB</p>
-        </div>
-      </div>
-
-      <div className="space-y-3 pt-2">
-        <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Uploaded Documents</h4>
-        {docs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {docs.map((doc) => (
-              <div
-                key={doc.id}
-                className="flex justify-between items-center p-3 border border-slate-150 rounded-xl hover:bg-slate-50 transition-colors text-xs font-semibold"
-              >
-                <div className="flex items-center gap-3 overflow-hidden">
-                  <div className="h-9 w-9 rounded-lg bg-primary-lighter text-primary-light border border-primary-light/10 flex items-center justify-center font-bold text-[10px] shrink-0">
-                    {doc.name.endsWith('.pdf') ? 'PDF' : 'IMG'}
-                  </div>
-                  <div className="overflow-hidden">
-                    <span className="text-slate-800 font-bold block truncate max-w-[160px]">
-                      {doc.name}
-                    </span>
-                    <span className="text-[9px] text-slate-400 font-mono mt-0.5 block leading-none font-medium">
-                      {doc.type} • {doc.size}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toast.success(`Downloading ${doc.name}...`);
-                    }}
-                    className="h-7 w-7 inline-flex items-center justify-center text-slate-450 hover:text-slate-700 border border-slate-200 hover:border-slate-350 bg-white rounded-md transition-all cursor-pointer shadow-sm"
-                  >
-                    <Download className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDocs(docs.filter((d) => d.id !== doc.id));
-                      toast.success(`${doc.name} removed successfully.`);
-                    }}
-                    className="h-7 w-7 inline-flex items-center justify-center text-red-500 hover:text-red-700 border border-red-100 hover:border-red-200 bg-white rounded-md transition-all cursor-pointer shadow-sm"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="p-8 text-center text-slate-400 border border-slate-150 rounded-xl bg-slate-50/50">
-            No documents uploaded yet.
           </div>
         )}
       </div>

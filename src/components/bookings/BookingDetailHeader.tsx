@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Calendar, Trash2, Edit3, ChevronLeft, Phone, Mail, User } from 'lucide-react';
 import { Booking } from '@/types/booking';
 import { BookingStatusBadge, BookingPaymentStatusBadge } from './BookingStatusBadge';
-import { formatDate } from '@/utils/formatters';
+import { formatDate, formatEventSlot } from '@/utils/formatters';
 
 interface BookingDetailHeaderProps {
   booking: Booking;
@@ -70,10 +70,7 @@ export function BookingDetailHeader({
           <div className="flex items-center gap-2 text-xs text-slate-600 font-semibold pt-1">
             <Calendar className="h-4 w-4 text-primary-light shrink-0" />
             <span>
-              {formatDate(booking.eventDate)}
-              {booking.eventEndDate && booking.eventEndDate !== booking.eventDate && (
-                <> to {formatDate(booking.eventEndDate)}</>
-              )}
+              {formatEventSlot(booking.eventDate, booking.eventEndDate)}
             </span>
           </div>
         </div>

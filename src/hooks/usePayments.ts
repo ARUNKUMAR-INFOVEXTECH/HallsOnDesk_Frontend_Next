@@ -132,7 +132,8 @@ export function usePaymentsByBooking(bookingId: string) {
     queryKey: ['payments', 'booking', bookingId],
     queryFn: async () => {
       const res = await getPaymentsByBooking(bookingId);
-      return (res || []).map(mapBackendPaymentToFrontend);
+      const paymentsArray = Array.isArray(res) ? res : (res as any)?.payments || [];
+      return paymentsArray.map(mapBackendPaymentToFrontend);
     },
     enabled: !!bookingId,
     staleTime: 30 * 1000,

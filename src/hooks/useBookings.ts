@@ -20,6 +20,14 @@ import { BookingFormValues } from '@/schemas/booking.schema';
 // ----------------------------------------------------
 
 export const mapBackendToFrontend = (b: BackendBooking): FrontendBooking => {
+  const anyB = b as any;
+  const taxEnabled = anyB.tax_enabled || false;
+  const taxPercentage = anyB.tax_percentage || 0;
+  const taxAmount = anyB.tax_amount || 0;
+  const subtotal = anyB.subtotal !== null && anyB.subtotal !== undefined
+    ? anyB.subtotal
+    : (b.total_amount || 0) + (anyB.discount_amount || 0) - taxAmount;
+
   // Sum up payment records to calculate paid vs pending
   const totalPaid = b.paid_amount || b.payments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
   const pending = Math.max(0, (b.total_amount || 0) - totalPaid);
@@ -36,12 +44,11 @@ export const mapBackendToFrontend = (b: BackendBooking): FrontendBooking => {
   const customerEmail = cust?.email || '';
 
   // Access extra properties safely from backend columns if they exist, or mock them
-  const anyB = b as any;
   const hallName = anyB.hall_name || 'Raj Mahal Palace';
   const hallSection = anyB.hall_section || 'Main Hall';
   const guestCount = anyB.guest_count || 150;
   const discountAmount = anyB.discount_amount || 0;
-  const bookingAmount = (b.total_amount || 0) + discountAmount;
+  const bookingAmount = subtotal;
   const advanceAmount = b.advance_amount || 0;
 
   return {
@@ -68,25 +75,39 @@ export const mapBackendToFrontend = (b: BackendBooking): FrontendBooking => {
     coordinatorPhone: anyB.coordinator_phone || '',
     createdAt: anyB.created_at || new Date().toISOString(),
     updatedAt: anyB.updated_at || new Date().toISOString(),
+    taxEnabled,
+    taxPercentage,
+    taxAmount,
+    subtotal,
   };
 };
 
 export const mapFrontendToBackend = (data: BookingFormValues) => {
+  const sub = data.bookingAmount || 0;
+  const disc = data.discountAmount || 0;
+  const taxEnabled = !!data.taxEnabled;
+  const taxRate = data.taxPercentage || 0;
+  const taxable = sub - disc;
+  const taxAmount = taxEnabled ? Math.round((taxable * taxRate) / 100 * 100) / 100 : 0;
+  const total = taxable + taxAmount;
+
   return {
     customer_id: data.customerId,
     event_type: data.eventType,
     event_name: data.eventType,
     start_date: data.eventDate,
     end_date: data.eventEndDate || data.eventDate,
-    // total_amount inside database corresponds to net billing amount
-    total_amount: data.bookingAmount - (data.discountAmount || 0),
+    subtotal: sub,
+    tax_enabled: taxEnabled,
+    tax_percentage: taxRate,
+    tax_amount: taxAmount,
+    discount_amount: disc,
+    total_amount: total,
     advance_amount: data.advanceAmount || 0,
     status: data.status,
     notes: data.notes || '',
-    // Include custom fields as properties the database saves/accepts
     hall_section: 'Main Hall',
     guest_count: data.guestCount,
-    discount_amount: data.discountAmount || 0,
     coordinator_name: data.coordinatorName || null,
     coordinator_phone: data.coordinatorPhone || null,
   };

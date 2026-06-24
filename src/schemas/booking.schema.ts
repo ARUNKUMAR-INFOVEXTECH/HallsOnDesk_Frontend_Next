@@ -32,6 +32,10 @@ export const bookingFormSchema = z
       .refine((val) => !val || /^[6-9]\d{9}$/.test(val), {
         message: 'Invalid Indian phone number (10 digits, starts with 6-9)',
       }),
+    taxEnabled: z.boolean().optional(),
+    taxPercentage: z.number().optional(),
+    taxAmount: z.number().optional(),
+    subtotal: z.number().optional(),
   })
   .refine(
     (data) => {

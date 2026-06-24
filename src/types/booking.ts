@@ -25,4 +25,8 @@ export interface Booking {
   coordinatorPhone?: string;
   createdAt: string;
   updatedAt: string;
+  taxEnabled?: boolean;
+  taxPercentage?: number;
+  taxAmount?: number;
+  subtotal?: number;
 }

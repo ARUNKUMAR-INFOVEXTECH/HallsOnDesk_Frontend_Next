@@ -5,14 +5,20 @@ interface BookingPaymentSummaryProps {
   bookingAmount: number;
   discountAmount: number;
   advanceAmount: number;
+  taxEnabled?: boolean;
+  taxPercentage?: number;
 }
 
 export function BookingPaymentSummary({
   bookingAmount,
   discountAmount,
   advanceAmount,
+  taxEnabled = false,
+  taxPercentage = 0,
 }: BookingPaymentSummaryProps) {
-  const netAmount = Math.max(0, bookingAmount - discountAmount);
+  const taxableAmount = Math.max(0, bookingAmount - discountAmount);
+  const taxAmount = taxEnabled ? Math.round((taxableAmount * taxPercentage) / 100 * 100) / 100 : 0;
+  const netAmount = taxableAmount + taxAmount;
   const pendingAmount = Math.max(0, netAmount - advanceAmount);
 
   return (
@@ -35,6 +41,15 @@ export function BookingPaymentSummary({
             - {formatCurrency(discountAmount)}
           </span>
         </div>
+
+        {taxEnabled && taxPercentage > 0 && (
+          <div className="flex justify-between items-center text-slate-500 font-medium">
+            <span>GST ({taxPercentage}%)</span>
+            <span className="font-mono font-bold text-slate-700">
+              + {formatCurrency(taxAmount)}
+            </span>
+          </div>
+        )}
 
         <div className="border-t border-slate-200 pt-3 flex justify-between items-center text-sm">
           <span className="text-slate-800 font-bold">Net Amount</span>

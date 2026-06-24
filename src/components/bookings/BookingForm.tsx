@@ -9,6 +9,7 @@ import { bookingFormSchema, BookingFormValues } from '@/schemas/booking.schema';
 import { CustomerCombobox } from './CustomerCombobox';
 import { AvailabilityChecker } from './AvailabilityChecker';
 import { BookingPaymentSummary } from './BookingPaymentSummary';
+import { useHallSettings } from '@/hooks/useSettings';
 import { Calendar, Users, Percent, HelpCircle } from 'lucide-react';
 
 interface BookingFormProps {
@@ -28,6 +29,8 @@ export function BookingForm({
   onCancel,
   excludeBookingId,
 }: BookingFormProps) {
+  const { data: settings } = useHallSettings();
+
   const formatToDatetimeLocal = (dateStr?: string, isEnd = false) => {
     if (!dateStr) return '';
     if (dateStr.length === 10 && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
@@ -56,6 +59,8 @@ export function BookingForm({
       notes: '',
       coordinatorName: '',
       coordinatorPhone: '',
+      taxEnabled: false,
+      taxPercentage: 0,
       ...initialValues,
       eventDate: initialValues?.eventDate ? formatToDatetimeLocal(initialValues.eventDate, false) : '',
       eventEndDate: initialValues?.eventEndDate ? formatToDatetimeLocal(initialValues.eventEndDate, true) : '',
@@ -73,12 +78,22 @@ export function BookingForm({
   useEffect(() => {
     if (initialValues) {
       reset({
+        taxEnabled: false,
+        taxPercentage: 0,
         ...initialValues,
         eventDate: initialValues.eventDate ? formatToDatetimeLocal(initialValues.eventDate, false) : '',
         eventEndDate: initialValues.eventEndDate ? formatToDatetimeLocal(initialValues.eventEndDate, true) : '',
       });
     }
   }, [initialValues, reset]);
+
+  // Autofill settings defaults for new bookings
+  useEffect(() => {
+    if (settings && !initialValues) {
+      setValue('taxEnabled', settings.taxEnabled || false);
+      setValue('taxPercentage', settings.gstRate || 0);
+    }
+  }, [settings, initialValues, setValue]);
 
   // Unsaved Changes warning before window unload
   useEffect(() => {
@@ -99,6 +114,8 @@ export function BookingForm({
   const watchBookingAmount = watch('bookingAmount') || 0;
   const watchDiscountAmount = watch('discountAmount') || 0;
   const watchAdvanceAmount = watch('advanceAmount') || 0;
+  const watchTaxEnabled = watch('taxEnabled') || false;
+  const watchTaxPercentage = watch('taxPercentage') || 0;
 
   return (
     <FormProvider form={form} onSubmit={onSubmit} className="space-y-8">
@@ -332,10 +349,45 @@ export function BookingForm({
                   value={form.watch('discountAmount') || ''}
                 />
               </div>
-              {errors.discountAmount?.message && (
-                <p className="text-xs text-red-500 font-semibold mt-1">{errors.discountAmount.message}</p>
-              )}
             </div>
+
+            {/* GST Enabled Toggle */}
+            <div className="flex items-center justify-between p-3 border border-slate-100 rounded-lg bg-slate-50/50 my-1">
+              <div>
+                <span className="font-bold text-xs text-slate-700 block">Apply GST to this booking</span>
+                <span className="text-[10px] text-slate-400 font-semibold">Toggles tax calculations dynamically</span>
+              </div>
+              <input
+                type="checkbox"
+                disabled={loading}
+                className="h-4 w-4 text-primary border-slate-200 rounded focus:ring-primary cursor-pointer"
+                {...form.register('taxEnabled')}
+              />
+            </div>
+
+            {/* GST Rate Input */}
+            {watchTaxEnabled && (
+              <div className="flex flex-col gap-1.5 w-full">
+                <label htmlFor="taxPercentage" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  GST Rate (%)
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400 text-sm">%</span>
+                  <input
+                    type="number"
+                    id="taxPercentage"
+                    disabled={loading}
+                    placeholder="e.g. 18"
+                    className="w-full h-10 px-3 pr-7 text-sm bg-white border border-slate-200 rounded-lg hover:border-slate-350 focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none font-semibold text-slate-700 shadow-sm"
+                    onChange={(e) => setValue('taxPercentage', Number(e.target.value), { shouldDirty: true, shouldValidate: true })}
+                    value={form.watch('taxPercentage') ?? ''}
+                  />
+                </div>
+                {errors.taxPercentage?.message && (
+                  <p className="text-xs text-red-500 font-semibold mt-1">{errors.taxPercentage.message}</p>
+                )}
+              </div>
+            )}
 
             {/* Advance Paid */}
             <div className="flex flex-col gap-1.5 w-full">
@@ -365,6 +417,8 @@ export function BookingForm({
             bookingAmount={Number(watchBookingAmount)}
             discountAmount={Number(watchDiscountAmount)}
             advanceAmount={Number(watchAdvanceAmount)}
+            taxEnabled={watchTaxEnabled}
+            taxPercentage={Number(watchTaxPercentage)}
           />
 
           {/* Buttons panel */}

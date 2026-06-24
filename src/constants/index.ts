@@ -122,6 +122,12 @@ export const ADMIN_NAV_ITEMS: NavigationItem[] = [
     roles: ['super_admin'],
   },
   {
+    title: 'Billing Approvals',
+    href: '/admin/billing',
+    icon: 'Receipt',
+    roles: ['super_admin'],
+  },
+  {
     title: 'User Management',
     href: '/admin/users',
     icon: 'Users',

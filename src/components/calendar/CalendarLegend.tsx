@@ -2,7 +2,7 @@ import React from 'react';
 
 export function CalendarLegend() {
   const legendItems = [
-    { label: 'Booking (Confirmed)', color: 'bg-[#7C3AED]' },
+    { label: 'Booking (Confirmed)', color: 'bg-[#159DFC]' },
     { label: 'Booking (Pending)', color: 'bg-[#F59E0B]' },
     { label: 'Maintenance', color: 'bg-[#F97316]' },
     { label: 'Blocked Out', color: 'bg-[#6B7280]' },

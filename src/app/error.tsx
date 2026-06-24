@@ -35,7 +35,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
           Error 500
         </span>
         
-        <h1 className="text-2xl font-black text-[#0A2540] tracking-tight leading-none mb-3">
+        <h1 className="text-2xl font-black text-[#0F172A] tracking-tight leading-none mb-3">
           Server Exception
         </h1>
         

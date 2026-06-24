@@ -17,7 +17,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
 
   return (
     <html lang="en">
-      <body className="bg-[#F8FAFC] text-[#0A2540] font-sans min-h-screen flex items-center justify-center p-4 m-0 overflow-hidden">
+      <body className="bg-[#F8FAFC] text-[#0F172A] font-sans min-h-screen flex items-center justify-center p-4 m-0 overflow-hidden">
         {/* Background Decorative Radial Glows */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[450px] bg-[radial-gradient(ellipse_at_top,rgba(239,68,68,0.04),transparent_50%)] pointer-events-none select-none" />
 
@@ -33,7 +33,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
             Critical Error
           </span>
           
-          <h1 className="text-2xl font-black text-[#0A2540] tracking-tight leading-none mb-3">
+          <h1 className="text-2xl font-black text-[#0F172A] tracking-tight leading-none mb-3">
             System Failure
           </h1>
           
@@ -44,7 +44,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
           {/* Action Button */}
           <button
             onClick={() => reset()}
-            className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold bg-[#0A2540] hover:bg-[#081D33] text-white cursor-pointer w-full shadow-sm hover:scale-[1.01] active:scale-[0.99] transition-all"
+            className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold bg-[#0F172A] hover:bg-[#1E293B] text-white cursor-pointer w-full shadow-sm hover:scale-[1.01] active:scale-[0.99] transition-all"
           >
             <RefreshCw className="h-4 w-4 shrink-0" />
             <span>Try Resetting App Shell</span>

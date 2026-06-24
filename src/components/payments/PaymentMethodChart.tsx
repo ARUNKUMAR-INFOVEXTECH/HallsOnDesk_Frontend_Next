@@ -11,7 +11,7 @@ export function PaymentMethodChart() {
   const { data: methodStats = [], isLoading, isError } = usePaymentMethodStats();
 
   const methodColors: Record<PaymentMethod, string> = {
-    cash: '#7C3AED',
+    cash: '#159DFC',
     upi: '#3B82F6',
     bank_transfer: '#10B981',
     cheque: '#F59E0B',

@@ -189,7 +189,7 @@ export default function InvoicesListPage() {
           </div>
           <div className="space-y-1">
             <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider block">Total Billed</span>
-            <span className="text-base font-extrabold text-[#0A2540] font-mono block leading-none">{formatCurrency(summary.total_invoiced)}</span>
+            <span className="text-base font-extrabold text-[#0F172A] font-mono block leading-none">{formatCurrency(summary.total_invoiced)}</span>
           </div>
         </div>
 
@@ -217,12 +217,12 @@ export default function InvoicesListPage() {
 
         {/* Card 4: Invoice Count */}
         <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:border-slate-250 transition-colors flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center text-[#EE9B00] shrink-0">
+          <div className="h-10 w-10 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center text-[#159DFC] shrink-0">
             <Inbox className="h-5 w-5" />
           </div>
           <div className="space-y-1">
             <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider block">Total Invoices</span>
-            <span className="text-base font-extrabold text-[#0A2540] font-mono block leading-none">{summary.count} files</span>
+            <span className="text-base font-extrabold text-[#0F172A] font-mono block leading-none">{summary.count} files</span>
           </div>
         </div>
       </div>

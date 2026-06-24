@@ -8,6 +8,7 @@ import {
   GlobalUser,
   AdminAnalyticsData
 } from '@/types/admin';
+import { SubscriptionPayment } from '@/types/settings';
 
 export interface AdminStats {
   total: number;
@@ -255,5 +256,23 @@ export async function getHallStats(id: string): Promise<HallStats> {
 
 export async function getHallActivity(id: string): Promise<HallActivityItem[]> {
   const res = await apiClient.get<HallActivityItem[]>(`/admin/halls/${id}/activity`);
+  return res.data;
+}
+
+export async function getPendingSubscriptionPayments(): Promise<SubscriptionPayment[]> {
+  const res = await apiClient.get<SubscriptionPayment[]>('/admin/billing/pending');
+  return res.data;
+}
+
+export async function verifySubscriptionPayment(
+  id: string,
+  data: { action: 'approve' | 'reject'; rejection_reason?: string }
+): Promise<{ message: string }> {
+  const res = await apiClient.post<{ message: string }>(`/admin/billing/${id}/verify`, data);
+  return res.data;
+}
+
+export async function sendTestEmail(email: string): Promise<{ success: boolean; message: string }> {
+  const res = await apiClient.post<{ success: boolean; message: string }>('/admin/billing/test-email', { email });
   return res.data;
 }

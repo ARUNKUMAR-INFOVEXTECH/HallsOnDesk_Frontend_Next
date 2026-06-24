@@ -49,11 +49,11 @@ export default function ContactPage() {
       <div className="py-16 bg-white border-b border-slate-200/80 text-center relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[300px] w-[300px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
         <div className="max-w-3xl mx-auto px-6 relative z-10 space-y-4">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#EE9B00]/10 border border-[#EE9B00]/25 rounded-full text-[10px] font-bold text-[#D48A00] uppercase tracking-widest backdrop-blur-sm shadow-sm">
-            <Sparkles className="h-3.5 w-3.5 text-[#EE9B00]" />
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#159DFC]/10 border border-[#159DFC]/25 rounded-full text-[10px] font-bold text-[#002499] uppercase tracking-widest backdrop-blur-sm shadow-sm">
+            <Sparkles className="h-3.5 w-3.5 text-[#159DFC]" />
             Connect With Us
           </div>
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-[#0A2540] tracking-tight">
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-[#0F172A] tracking-tight">
             Contact Infovex Technologies
           </h1>
           <p className="text-xs sm:text-sm text-slate-550 max-w-xl mx-auto leading-relaxed font-semibold">
@@ -68,13 +68,13 @@ export default function ContactPage() {
           {/* Left Side: Contact Information Cards */}
           <div className="lg:col-span-5 space-y-6">
             <div className="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-md space-y-6">
-              <h2 className="text-lg font-extrabold text-[#0A2540] border-b border-slate-100 pb-4">
+              <h2 className="text-lg font-extrabold text-[#0F172A] border-b border-slate-100 pb-4">
                 Corporate Office
               </h2>
               
               <div className="space-y-5">
                 <div className="flex items-start gap-4">
-                  <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 text-[#EE9B00] shadow-sm">
+                  <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 text-[#159DFC] shadow-sm">
                     <Globe className="h-5 w-5" />
                   </div>
                   <div>
@@ -83,7 +83,7 @@ export default function ContactPage() {
                       href="https://infovextech.com" 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="text-xs font-bold text-slate-700 hover:text-[#EE9B00] block mt-1.5 transition-colors"
+                      className="text-xs font-bold text-slate-700 hover:text-[#159DFC] block mt-1.5 transition-colors"
                     >
                       infovextech.com
                     </a>
@@ -91,14 +91,14 @@ export default function ContactPage() {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 text-[#EE9B00] shadow-sm">
+                  <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 text-[#159DFC] shadow-sm">
                     <Mail className="h-5 w-5" />
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest block leading-none">Email Address</span>
                     <a 
                       href="mailto:info@infovex.in" 
-                      className="text-xs font-bold text-slate-700 hover:text-[#EE9B00] block mt-1.5 transition-colors"
+                      className="text-xs font-bold text-slate-700 hover:text-[#159DFC] block mt-1.5 transition-colors"
                     >
                       info@infovex.in
                     </a>
@@ -106,14 +106,14 @@ export default function ContactPage() {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 text-[#EE9B00] shadow-sm">
+                  <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 text-[#159DFC] shadow-sm">
                     <Phone className="h-5 w-5" />
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest block leading-none">Contact Number</span>
                     <a 
                       href="tel:+919876543210" 
-                      className="text-xs font-bold text-slate-700 hover:text-[#EE9B00] block mt-1.5 transition-colors"
+                      className="text-xs font-bold text-slate-700 hover:text-[#159DFC] block mt-1.5 transition-colors"
                     >
                       +91 98765 43210
                     </a>
@@ -121,7 +121,7 @@ export default function ContactPage() {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 text-[#EE9B00] shadow-sm">
+                  <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 text-[#159DFC] shadow-sm">
                     <MapPin className="h-5 w-5" />
                   </div>
                   <div>
@@ -133,7 +133,7 @@ export default function ContactPage() {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 text-[#EE9B00] shadow-sm">
+                  <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 text-[#159DFC] shadow-sm">
                     <Clock className="h-5 w-5" />
                   </div>
                   <div>
@@ -146,8 +146,8 @@ export default function ContactPage() {
               </div>
             </div>
 
-            <div className="bg-[#EE9B00]/5 border border-[#EE9B00]/25 rounded-3xl p-6.5">
-              <span className="text-[10px] font-extrabold text-[#D48A00] uppercase tracking-widest block mb-2">
+            <div className="bg-[#159DFC]/5 border border-[#159DFC]/25 rounded-3xl p-6.5">
+              <span className="text-[10px] font-extrabold text-[#002499] uppercase tracking-widest block mb-2">
                 Onboarding SLA
               </span>
               <p className="text-xs text-slate-650 leading-relaxed font-semibold">
@@ -160,7 +160,7 @@ export default function ContactPage() {
           <div className="lg:col-span-7">
             <form onSubmit={handleSubmit} className="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-lg space-y-6">
               <div className="border-b border-slate-100 pb-4">
-                <h2 className="text-lg font-extrabold text-[#0A2540]">
+                <h2 className="text-lg font-extrabold text-[#0F172A]">
                   Send Message
                 </h2>
                 <p className="text-xs text-slate-450 mt-1 font-semibold">
@@ -179,7 +179,7 @@ export default function ContactPage() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-800 focus:outline-none focus:border-[#EE9B00]/70 font-semibold"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-800 focus:outline-none focus:border-[#159DFC]/70 font-semibold"
                     placeholder="Enter name"
                     required
                   />
@@ -195,7 +195,7 @@ export default function ContactPage() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-800 focus:outline-none focus:border-[#EE9B00]/70 font-semibold"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-800 focus:outline-none focus:border-[#159DFC]/70 font-semibold"
                     placeholder="Enter contact number"
                     required
                   />
@@ -211,7 +211,7 @@ export default function ContactPage() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-800 focus:outline-none focus:border-[#EE9B00]/70 font-semibold"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-800 focus:outline-none focus:border-[#159DFC]/70 font-semibold"
                     placeholder="Enter email (optional)"
                   />
                 </div>
@@ -226,7 +226,7 @@ export default function ContactPage() {
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
-                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-800 focus:outline-none focus:border-[#EE9B00]/70 font-semibold"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-800 focus:outline-none focus:border-[#159DFC]/70 font-semibold"
                     placeholder="Enter city name"
                   />
                 </div>
@@ -242,7 +242,7 @@ export default function ContactPage() {
                   name="hallName"
                   value={formData.hallName}
                   onChange={handleChange}
-                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-800 focus:outline-none focus:border-[#EE9B00]/70 font-semibold"
+                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-800 focus:outline-none focus:border-[#159DFC]/70 font-semibold"
                   placeholder="Enter hall name (optional)"
                 />
               </div>
@@ -257,7 +257,7 @@ export default function ContactPage() {
                   value={formData.message}
                   onChange={handleChange}
                   rows={4}
-                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-800 focus:outline-none focus:border-[#EE9B00]/70 font-semibold resize-none"
+                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-800 focus:outline-none focus:border-[#159DFC]/70 font-semibold resize-none"
                   placeholder="How can we help you digitize your venue operations?"
                   required
                 />
@@ -266,7 +266,7 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3.5 px-6 rounded-xl text-xs font-extrabold text-white bg-[#0A2540] hover:bg-[#081D33] disabled:opacity-50 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md hover:scale-[1.01]"
+                className="w-full py-3.5 px-6 rounded-xl text-xs font-extrabold text-white bg-[#0F172A] hover:bg-[#1E293B] disabled:opacity-50 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md hover:scale-[1.01]"
               >
                 {isSubmitting ? (
                   <span>Sending Message...</span>

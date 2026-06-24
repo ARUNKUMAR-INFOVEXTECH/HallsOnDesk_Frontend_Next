@@ -102,6 +102,7 @@ export interface SubscriptionPackage {
   billing_cycle: 'monthly' | 'yearly' | string;
   max_users: number;
   max_bookings: number;
+  setup_fee?: number;
   features: PackageFeatures;
   createdAt?: string;
 }
@@ -116,4 +117,28 @@ export interface HallSubscription {
   payment_status: 'pending' | 'paid' | string;
   created_at: string;
   packages?: SubscriptionPackage;
+}
+
+export interface SubscriptionPayment {
+  id: string;
+  hall_id: string;
+  package_id: string;
+  amount: number;
+  payment_method: 'upi' | 'bank_transfer';
+  transaction_ref_no: string;
+  status: 'pending' | 'approved' | 'rejected';
+  notes?: string;
+  rejection_reason?: string;
+  created_at: string;
+  verified_at?: string;
+  verified_by?: string;
+  marriage_halls?: {
+    hall_name: string;
+    owner_name: string;
+  };
+  packages?: {
+    name: string;
+    price: number;
+    billing_cycle: string;
+  };
 }

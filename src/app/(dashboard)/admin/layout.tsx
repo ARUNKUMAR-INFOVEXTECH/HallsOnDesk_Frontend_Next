@@ -23,7 +23,7 @@ export default function AdminRouteLayout({ children }: { children: React.ReactNo
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-[#FAFAFA]">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-9 w-9 animate-spin text-[#7C3AED]" />
+          <Loader2 className="h-9 w-9 animate-spin text-[#159DFC]" />
           <p className="text-sm font-medium text-gray-500">Securing admin environment...</p>
         </div>
       </div>

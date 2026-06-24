@@ -23,7 +23,7 @@ export default function LandingLayout({
 
   return (
     <LandingContext.Provider value={{ openDemoModal, closeDemoModal }}>
-      <div className="min-h-screen bg-white text-slate-800 antialiased flex flex-col justify-between selection:bg-[#EE9B00] selection:text-[#0A2540]">
+      <div className="min-h-screen bg-white text-slate-800 antialiased flex flex-col justify-between selection:bg-[#159DFC] selection:text-[#0F172A]">
         {/* Sticky App Header */}
         <Navbar onBookDemoClick={openDemoModal} />
 

@@ -155,7 +155,7 @@ export function CalendarDashboardClient() {
     if (filters.colorBy === 'section') {
       const sec = (e.hallSection || 'Main Hall').toLowerCase().trim();
       if (sec.includes('main')) {
-        color = '#8B5CF6'; // violet
+        color = '#6025BC'; // violet
       } else if (sec.includes('garden') || sec.includes('lawn')) {
         color = '#10B981'; // emerald
       } else if (sec.includes('terrace')) {

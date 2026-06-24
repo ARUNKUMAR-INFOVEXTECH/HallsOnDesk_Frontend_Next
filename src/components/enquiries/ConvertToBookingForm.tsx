@@ -132,7 +132,7 @@ export function ConvertToBookingForm({ enquiry }: ConvertToBookingFormProps) {
             style={{
               left: `${Math.random() * 100}%`,
               top: `-${Math.random() * 20}px`,
-              backgroundColor: ['#7C3AED', '#10B981', '#3B82F6', '#F59E0B', '#EF4444'][i % 5],
+              backgroundColor: ['#159DFC', '#10B981', '#3B82F6', '#F59E0B', '#EF4444'][i % 5],
               animationDelay: `${Math.random() * 2}s`,
               animationDuration: `${2 + Math.random() * 2}s`
             }}

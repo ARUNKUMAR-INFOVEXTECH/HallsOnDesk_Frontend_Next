@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useAdminSettings } from '@/hooks/useAdmin';
+import { useAdminSettings, useAdminSendTestEmail } from '@/hooks/useAdmin';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -15,6 +15,7 @@ import {
   Loader2,
   AlertCircle
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const settingsFormSchema = z.object({
   companyName: z.string().min(3, 'Company name is required'),
@@ -36,6 +37,20 @@ type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 
 export default function AdminSettingsPage() {
   const { settings, isLoading, updateSettings, isUpdating } = useAdminSettings();
+  const [testEmailAddress, setTestEmailAddress] = useState('');
+  const sendTestEmailMutation = useAdminSendTestEmail();
+
+  const handleSendTestEmail = async () => {
+    if (!testEmailAddress) {
+      toast.error('Please enter a recipient email address');
+      return;
+    }
+    try {
+      await sendTestEmailMutation.mutateAsync(testEmailAddress);
+    } catch {
+      // Handled
+    }
+  };
 
   const {
     register,
@@ -269,6 +284,48 @@ export default function AdminSettingsPage() {
           </button>
         </div>
       </form>
+
+      {/* SMTP / Mail Connection Test */}
+      <div className="bg-white border border-gray-150 rounded-xl p-5 shadow-sm space-y-4 mt-6">
+        <div className="flex items-center gap-2 border-b border-gray-50 pb-3">
+          <Mail className="h-4.5 w-4.5 text-violet-650" />
+          <span className="font-bold text-gray-900 text-sm">SMTP Mail Server Connectivity Test</span>
+        </div>
+
+        <div className="text-xs font-semibold text-slate-700 space-y-4">
+          <p className="text-[11px] text-slate-450 leading-relaxed font-semibold">
+            Send a mock verification email utilizing the Resend Edge Function integration to confirm the outgoing notification mailer is correctly authorized.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-end gap-3 max-w-lg">
+            <div className="space-y-1.5 flex-1">
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Recipient Email Address</label>
+              <input
+                type="email"
+                placeholder="e.g. admin@infovex.com"
+                value={testEmailAddress}
+                onChange={(e) => setTestEmailAddress(e.target.value)}
+                className="px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 text-slate-800"
+              />
+            </div>
+            <button
+              type="button"
+              disabled={sendTestEmailMutation.isPending}
+              onClick={handleSendTestEmail}
+              className="h-9 px-4 bg-slate-900 hover:bg-slate-850 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50 shrink-0"
+            >
+              {sendTestEmailMutation.isPending ? (
+                <>
+                  <Loader2 className="animate-spin h-3.5 w-3.5" />
+                  <span>Dispatching...</span>
+                </>
+              ) : (
+                <span>Dispatch Test Mail</span>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

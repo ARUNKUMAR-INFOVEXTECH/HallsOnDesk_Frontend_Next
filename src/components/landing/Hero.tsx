@@ -28,7 +28,7 @@ export default function Hero({ onBookDemoClick }: HeroProps) {
 
       {/* Beautiful Multi-Colored Radial Backdrop Glows */}
       <div className="absolute top-1/4 left-1/4 -translate-x-1/2 h-[350px] w-[350px] bg-blue-400/5 rounded-full blur-[110px] pointer-events-none -z-10 animate-pulse" />
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 h-[450px] w-[650px] bg-[#EE9B00]/4 rounded-full blur-[130px] pointer-events-none -z-10" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 h-[450px] w-[650px] bg-[#159DFC]/4 rounded-full blur-[130px] pointer-events-none -z-10" />
 
       <div className="max-w-6xl mx-auto px-6 space-y-8 relative z-10 flex flex-col items-center">
         
@@ -37,9 +37,9 @@ export default function Hero({ onBookDemoClick }: HeroProps) {
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="inline-flex items-center gap-1.5 px-4.5 py-1.5 bg-[#EE9B00]/10 border border-[#EE9B00]/25 rounded-full text-[10px] font-extrabold text-[#D48A00] uppercase tracking-widest shadow-md backdrop-blur-sm"
+          className="inline-flex items-center gap-1.5 px-4.5 py-1.5 bg-[#159DFC]/10 border border-[#159DFC]/25 rounded-full text-[10px] font-extrabold text-[#002499] uppercase tracking-widest shadow-md backdrop-blur-sm"
         >
-          <Sparkles className="h-3.5 w-3.5 text-[#EE9B00]" />
+          <Sparkles className="h-3.5 w-3.5 text-[#159DFC]" />
           India's First Dedicated Marriage Hall CRM
         </motion.div>
 
@@ -48,9 +48,9 @@ export default function Hero({ onBookDemoClick }: HeroProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
-          className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-[#0A2540] tracking-tight leading-[1.08] max-w-4xl font-display"
+          className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-[#0F172A] tracking-tight leading-[1.08] max-w-4xl font-display"
         >
-          India's First Dedicated Marriage Hall <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-[#EE9B00]">CRM & ERP</span>
+          India's First Dedicated Marriage Hall <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-[#159DFC]">CRM & ERP</span>
         </motion.h1>
 
         {/* Subheadline */}
@@ -73,7 +73,7 @@ export default function Hero({ onBookDemoClick }: HeroProps) {
           {showDashboard ? (
             <Link
               href="/dashboard"
-              className="w-full sm:w-auto bg-[#EE9B00] hover:bg-[#D48A00] text-[#0A2540] h-12 px-8 rounded-xl text-xs font-extrabold transition-all duration-200 cursor-pointer shadow-lg hover:shadow-[#EE9B00]/20 hover:scale-[1.03] flex items-center justify-center gap-2 shadow-[#EE9B00]/15"
+              className="w-full sm:w-auto bg-[#159DFC] hover:bg-[#002499] text-[#0F172A] h-12 px-8 rounded-xl text-xs font-extrabold transition-all duration-200 cursor-pointer shadow-lg hover:shadow-[#159DFC]/20 hover:scale-[1.03] flex items-center justify-center gap-2 shadow-[#159DFC]/15"
             >
               Go to Dashboard
               <ArrowRight className="h-4.5 w-4.5 font-bold" />
@@ -82,7 +82,7 @@ export default function Hero({ onBookDemoClick }: HeroProps) {
             <>
               <button
                 onClick={onBookDemoClick}
-                className="w-full sm:w-auto bg-[#EE9B00] hover:bg-[#D48A00] text-[#0A2540] h-12 px-8 rounded-xl text-xs font-extrabold transition-all duration-200 cursor-pointer shadow-lg hover:shadow-[#EE9B00]/20 hover:scale-[1.03] flex items-center justify-center gap-2 shadow-[#EE9B00]/15"
+                className="w-full sm:w-auto bg-[#159DFC] hover:bg-[#002499] text-[#0F172A] h-12 px-8 rounded-xl text-xs font-extrabold transition-all duration-200 cursor-pointer shadow-lg hover:shadow-[#159DFC]/20 hover:scale-[1.03] flex items-center justify-center gap-2 shadow-[#159DFC]/15"
               >
                 Book Free Demo & Claim Slot
                 <ArrowRight className="h-4.5 w-4.5 font-bold" />
@@ -106,15 +106,15 @@ export default function Hero({ onBookDemoClick }: HeroProps) {
           className="pt-4 flex flex-wrap justify-center items-center gap-x-8 gap-y-4 text-[9px] text-slate-400 font-extrabold uppercase tracking-widest"
         >
           <div className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 bg-[#EE9B00] rounded-full animate-ping" />
+            <span className="h-1.5 w-1.5 bg-[#159DFC] rounded-full animate-ping" />
             Loved by 14+ Tamil Nadu Venues
           </div>
           <div className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 bg-[#EE9B00] rounded-full" />
+            <span className="h-1.5 w-1.5 bg-[#159DFC] rounded-full" />
             No Credit Card Required
           </div>
           <div className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 bg-[#EE9B00] rounded-full" />
+            <span className="h-1.5 w-1.5 bg-[#159DFC] rounded-full" />
             ₹0 Onboarding Setup to Demo
           </div>
         </motion.div>
@@ -127,11 +127,11 @@ export default function Hero({ onBookDemoClick }: HeroProps) {
           className="w-full pt-12 relative max-w-5xl mx-auto"
         >
           {/* Glowing border element */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-[#EE9B00]/5 to-purple-500/5 blur-3xl pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-[#159DFC]/5 to-purple-500/5 blur-3xl pointer-events-none" />
           
           <div className="relative border border-slate-200 rounded-2xl bg-white shadow-2xl p-2.5 overflow-visible group">
             {/* Ambient inner glows */}
-            <div className="absolute -top-10 -right-10 w-72 h-72 bg-[#EE9B00]/3 rounded-full blur-[80px] pointer-events-none" />
+            <div className="absolute -top-10 -right-10 w-72 h-72 bg-[#159DFC]/3 rounded-full blur-[80px] pointer-events-none" />
             <div className="absolute -bottom-10 -left-10 w-72 h-72 bg-blue-400/3 rounded-full blur-[80px] pointer-events-none" />
             
             {/* Interactive Badge 1: WhatsApp notification bubble */}
@@ -145,7 +145,7 @@ export default function Hero({ onBookDemoClick }: HeroProps) {
               </div>
               <div>
                 <span className="block text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">WhatsApp</span>
-                <span className="block text-[10px] text-[#0A2540] font-bold mt-0.5">Booking Alert Sent!</span>
+                <span className="block text-[10px] text-[#0F172A] font-bold mt-0.5">Booking Alert Sent!</span>
               </div>
             </motion.div>
 
@@ -160,7 +160,7 @@ export default function Hero({ onBookDemoClick }: HeroProps) {
               </div>
               <div>
                 <span className="block text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">Cloud Security</span>
-                <span className="block text-[10px] text-[#0A2540] font-bold mt-0.5">SSL Secured Sync</span>
+                <span className="block text-[10px] text-[#0F172A] font-bold mt-0.5">SSL Secured Sync</span>
               </div>
             </motion.div>
 

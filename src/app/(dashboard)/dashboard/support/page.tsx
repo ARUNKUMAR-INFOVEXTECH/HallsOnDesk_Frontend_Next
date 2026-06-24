@@ -184,8 +184,8 @@ export default function OwnerSupportPage() {
       {/* Header bar */}
       <div className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between shrink-0 shadow-sm">
         <div className="flex items-center gap-2.5">
-          <div className="h-8.5 w-8.5 rounded-lg bg-[#EE9B00]/10 flex items-center justify-center border border-[#EE9B00]/25">
-            <LifeBuoy className="h-4.5 w-4.5 text-[#EE9B00]" />
+          <div className="h-8.5 w-8.5 rounded-lg bg-[#159DFC]/10 flex items-center justify-center border border-[#159DFC]/25">
+            <LifeBuoy className="h-4.5 w-4.5 text-[#159DFC]" />
           </div>
           <div>
             <h1 className="font-bold text-gray-900 text-sm">Help & Support Center</h1>
@@ -195,7 +195,7 @@ export default function OwnerSupportPage() {
         
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-1.5 bg-[#EE9B00] hover:bg-[#D48A00] text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+          className="flex items-center gap-1.5 btn-primary-grad text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           Create Support Ticket
@@ -234,7 +234,7 @@ export default function OwnerSupportPage() {
                     key={t.id}
                     onClick={() => setSelectedTicket(t)}
                     className={`p-4 cursor-pointer transition-colors relative hover:bg-gray-50/50 ${
-                      isSelected ? 'bg-[#EE9B00]/5 hover:bg-[#EE9B00]/5 border-l-2 border-[#EE9B00]' : ''
+                      isSelected ? 'bg-[#159DFC]/5 hover:bg-[#159DFC]/5 border-l-2 border-[#159DFC]' : ''
                     }`}
                   >
                     <div className="flex justify-between items-start gap-2 mb-1">
@@ -321,7 +321,7 @@ export default function OwnerSupportPage() {
                           className={`rounded-2xl px-4 py-3 text-xs leading-relaxed shadow-sm font-medium border ${
                             isAdmin
                               ? 'bg-white text-gray-750 border-gray-100 rounded-tl-none'
-                              : 'bg-[#EE9B00] text-white border-[#EE9B00] rounded-tr-none'
+                              : 'bg-[#159DFC] text-white border-[#159DFC] rounded-tr-none'
                           }`}
                         >
                           <p className="whitespace-pre-line font-medium leading-relaxed">{msg.message}</p>
@@ -329,7 +329,7 @@ export default function OwnerSupportPage() {
                       </div>
 
                       {!isAdmin && (
-                        <div className="h-8.5 w-8.5 rounded-full bg-[#EE9B00]/15 border border-[#EE9B00]/30 text-[#EE9B00] flex items-center justify-center shrink-0 font-bold text-xs uppercase shadow-sm">
+                        <div className="h-8.5 w-8.5 rounded-full bg-[#159DFC]/15 border border-[#159DFC]/30 text-[#159DFC] flex items-center justify-center shrink-0 font-bold text-xs uppercase shadow-sm">
                           {user?.name?.charAt(0).toUpperCase() || 'U'}
                         </div>
                       )}
@@ -360,7 +360,7 @@ export default function OwnerSupportPage() {
                 <button
                   type="submit"
                   disabled={!replyText.trim() || isSending}
-                  className="bg-[#EE9B00] hover:bg-[#D48A00] text-white p-3 rounded-xl shadow-sm transition-all cursor-pointer flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="btn-primary-grad text-white p-3 rounded-xl shadow-sm transition-all cursor-pointer flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {isSending ? (
                     <Loader2 className="h-4.5 w-4.5 animate-spin" />
@@ -372,7 +372,7 @@ export default function OwnerSupportPage() {
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-gray-400 gap-3.5">
-              <LifeBuoy className="h-12 w-12 text-[#EE9B00]/40 animate-pulse" />
+              <LifeBuoy className="h-12 w-12 text-[#159DFC]/40 animate-pulse" />
               <div>
                 <h3 className="font-bold text-gray-800 text-sm mb-1">Select a ticket or create a new one</h3>
                 <p className="text-xs text-gray-400 font-medium">Our customer support agents will help resolve issues as soon as possible.</p>
@@ -388,7 +388,7 @@ export default function OwnerSupportPage() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-fadeIn border border-gray-100 flex flex-col">
             <div className="px-6 py-4.5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
               <div className="flex items-center gap-2.5">
-                <LifeBuoy className="h-5 w-5 text-[#EE9B00]" />
+                <LifeBuoy className="h-5 w-5 text-[#159DFC]" />
                 <h2 className="font-bold text-gray-900 text-sm">Create Support Ticket</h2>
               </div>
               <button 
@@ -495,7 +495,7 @@ export default function OwnerSupportPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex items-center gap-1.5 bg-[#EE9B00] hover:bg-[#D48A00] text-white px-4.5 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                  className="flex items-center gap-1.5 btn-primary-grad text-white px-4.5 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <>

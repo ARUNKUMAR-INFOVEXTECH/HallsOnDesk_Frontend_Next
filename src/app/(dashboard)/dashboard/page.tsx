@@ -191,7 +191,7 @@ export default function DashboardPage() {
         </p>
         <button
           onClick={handleRefresh}
-          className="bg-[#EE9B00] hover:bg-[#D48A00] text-white h-9 px-4 rounded-lg text-sm font-semibold transition-colors duration-200 cursor-pointer shadow-sm inline-flex items-center gap-1.5"
+          className="btn-primary-grad text-white h-9 px-4 rounded-lg text-sm font-semibold transition-colors duration-200 cursor-pointer shadow-sm inline-flex items-center gap-1.5"
         >
           <RefreshCw className="h-4 w-4" />
           Retry Connection
@@ -377,7 +377,7 @@ export default function DashboardPage() {
               <span>
                 Reminder: Your {activeSubscription.plan} plan expires in {activeSubscription.days_until_expiry} days.
               </span>
-              <Link href="/settings/subscription" className="px-3 py-1 bg-[#EE9B00] hover:bg-[#D48A00] text-white rounded-lg text-xs font-medium shadow-sm transition-colors">
+              <Link href="/settings/subscription" className="px-3 py-1 btn-primary-grad text-white rounded-lg text-xs font-medium shadow-sm transition-colors">
                 Renew
               </Link>
             </div>
@@ -453,7 +453,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-lg">
-            <div className="h-8 w-8 rounded-lg bg-[#EE9B00]/10 text-[#EE9B00] flex items-center justify-center shrink-0 border border-[#EE9B00]/20">
+            <div className="h-8 w-8 rounded-lg bg-[#159DFC]/10 text-[#159DFC] flex items-center justify-center shrink-0 border border-[#159DFC]/20">
               <DollarSign className="h-4 w-4" />
             </div>
             <div>
@@ -530,7 +530,7 @@ export default function DashboardPage() {
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden hover:border-slate-300 transition-all duration-200">
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-slate-800">Upcoming Marriage Schedules</h3>
-              <Link href="/dashboard/calendar" className="text-xs font-bold text-[#EE9B00] hover:text-[#D48A00] inline-flex items-center gap-1 transition-colors">
+              <Link href="/dashboard/calendar" className="text-xs font-bold text-[#159DFC] hover:text-[#002499] inline-flex items-center gap-1 transition-colors">
                 View Calendar
               </Link>
             </div>
@@ -559,7 +559,7 @@ export default function DashboardPage() {
                         <td className="px-6 py-3 text-slate-500 font-bold">{event.bookings?.customers?.customer_name || '-'}</td>
                         <td className="px-6 py-3 text-slate-500 font-mono font-bold">{event.bookings?.customers?.phone || '-'}</td>
                         <td className="px-6 py-3 text-right">
-                          <Link href={`/dashboard/bookings?id=${event.id}`} className="text-[#EE9B00] hover:text-[#D48A00] font-bold transition-colors">
+                          <Link href={`/dashboard/bookings?id=${event.id}`} className="text-[#159DFC] hover:text-[#002499] font-bold transition-colors">
                             View
                           </Link>
                         </td>
@@ -575,7 +575,7 @@ export default function DashboardPage() {
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden hover:border-slate-300 transition-all duration-200">
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-slate-800">Recent Bookings</h3>
-              <Link href="/dashboard/bookings" className="text-xs font-bold text-[#EE9B00] hover:text-[#D48A00] inline-flex items-center gap-1 transition-colors">
+              <Link href="/dashboard/bookings" className="text-xs font-bold text-[#159DFC] hover:text-[#002499] inline-flex items-center gap-1 transition-colors">
                 View All
               </Link>
             </div>
@@ -649,9 +649,9 @@ export default function DashboardPage() {
                     <Link
                       key={i}
                       href={action.href}
-                      className="flex flex-col items-center justify-center p-4 border border-slate-100 hover:border-[#EE9B00] rounded-xl text-center bg-slate-50 hover:bg-[#EE9B00]/5 transition-all duration-150 cursor-pointer"
+                      className="flex flex-col items-center justify-center p-4 border border-slate-100 hover:border-[#159DFC] rounded-xl text-center bg-slate-50 hover:bg-[#159DFC]/5 transition-all duration-150 cursor-pointer"
                     >
-                      <Icon className="h-5 w-5 mb-2 shrink-0 text-[#EE9B00]" />
+                      <Icon className="h-5 w-5 mb-2 shrink-0 text-[#159DFC]" />
                       <span className="text-[10px] font-bold text-slate-600 leading-tight block">{action.label}</span>
                     </Link>
                   );
@@ -664,7 +664,7 @@ export default function DashboardPage() {
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:border-slate-300 transition-all duration-200">
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-4 flex justify-between items-center">
               <span>Today's Follow-ups</span>
-              <span className="h-2 w-2 rounded-full bg-[#EE9B00] animate-pulse" />
+              <span className="h-2 w-2 rounded-full bg-[#159DFC] animate-pulse" />
             </h4>
             
             <div className="space-y-3">
@@ -687,7 +687,7 @@ export default function DashboardPage() {
                     </div>
                     <a
                       href={`tel:${f.phone}`}
-                      className="p-1.5 rounded-lg bg-[#EE9B00]/10 hover:bg-[#EE9B00]/20 text-[#EE9B00] shrink-0 border border-[#EE9B00]/25 shadow-sm transition-all"
+                      className="p-1.5 rounded-lg bg-[#159DFC]/10 hover:bg-[#159DFC]/20 text-[#159DFC] shrink-0 border border-[#159DFC]/25 shadow-sm transition-all"
                     >
                       <PhoneCall className="h-3.5 w-3.5" />
                     </a>
@@ -705,7 +705,7 @@ export default function DashboardPage() {
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:border-slate-300 transition-all duration-200 animate-fadeIn">
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                <ClipboardList className="h-4 w-4 text-[#EE9B00]" />
+                <ClipboardList className="h-4 w-4 text-[#159DFC]" />
                 Daily Checklist
               </span>
               <span className="text-[9px] text-slate-450 font-mono font-bold bg-slate-50 border border-slate-150 px-2 py-0.5 rounded-full">
@@ -719,11 +719,11 @@ export default function DashboardPage() {
                 value={newTaskText}
                 onChange={(e) => setNewTaskText(e.target.value)}
                 placeholder="Add daily operations task..."
-                className="flex-1 h-8 px-3 text-xs bg-slate-50 border border-slate-200 rounded-lg outline-none hover:border-slate-300 focus:bg-white focus:ring-1 focus:ring-[#EE9B00] transition-all font-semibold text-slate-705"
+                className="flex-1 h-8 px-3 text-xs bg-slate-50 border border-slate-200 rounded-lg outline-none hover:border-slate-300 focus:bg-white focus:ring-1 focus:ring-[#159DFC] transition-all font-semibold text-slate-705"
               />
               <button
                 type="submit"
-                className="h-8 w-8 rounded-lg bg-[#EE9B00] hover:bg-[#D48A00] text-white flex items-center justify-center shadow-sm shrink-0 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                className="h-8 w-8 rounded-lg btn-primary-grad text-white flex items-center justify-center shadow-sm shrink-0 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
               >
                 <Plus className="h-4 w-4" />
               </button>
@@ -770,7 +770,7 @@ export default function DashboardPage() {
           {/* Recent Operations Log (Recent Activity) */}
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:border-slate-300 transition-all duration-200">
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-5 flex items-center gap-1.5">
-              <Activity className="h-4.5 w-4.5 text-[#EE9B00]" />
+              <Activity className="h-4.5 w-4.5 text-[#159DFC]" />
               Recent Operations Log
             </h4>
             
@@ -785,7 +785,7 @@ export default function DashboardPage() {
                   return (
                     <div key={act.id} className="relative flex gap-2.5 items-start text-xs font-semibold">
                       {/* Timeline connector dot */}
-                      <div className="absolute -left-[16.5px] h-2 w-2 rounded-full bg-[#EE9B00] border-2 border-white mt-1 shrink-0" />
+                      <div className="absolute -left-[16.5px] h-2 w-2 rounded-full bg-[#159DFC] border-2 border-white mt-1 shrink-0" />
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-baseline gap-2">

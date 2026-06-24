@@ -56,21 +56,21 @@ export default function Sidebar() {
 
       {/* Sidebar Panel */}
       <aside
-        className={`fixed inset-y-0 left-0 w-64 border-r border-[#1E2E44] bg-[#0A192F] z-40 transition-transform duration-250 ease-in-out lg:translate-x-0 lg:static lg:h-full h-full flex flex-col ${
+        className={`fixed inset-y-0 left-0 w-64 border-r border-blue-900/50 bg-[#062089] z-40 transition-transform duration-250 ease-in-out lg:translate-x-0 lg:static lg:h-full h-full flex flex-col ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Header: Logo Branding */}
-        <div className="px-5 py-5 border-b border-[#1E2E44] flex flex-col gap-4">
+        <div className="px-5 py-5 border-b border-blue-900/50 flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <Link href="/dashboard" className="flex items-center">
-              <img src="/logo.png" alt="Infovex Halls Logo" className="h-8 w-auto object-contain" />
+            <Link href="/dashboard" className="flex items-center bg-white px-3 py-1.5 rounded-lg shadow-sm border border-white/20 hover:bg-slate-50 transition-all duration-150 shrink-0">
+              <img src="/logo.png" alt="Infovex Halls Logo" className="h-6.5 w-auto object-contain" />
             </Link>
             
             {/* Close Sidebar button on mobile */}
             <button
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-1 rounded-md text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+              className="lg:hidden p-1 rounded-md text-blue-200 hover:text-white hover:bg-white/10 transition-colors"
             >
               <X className="h-4 w-4" />
             </button>
@@ -85,7 +85,7 @@ export default function Sidebar() {
           {/* Main User Navigation Links */}
           {allowedNavItems.length > 0 && (
             <div className="space-y-1.5">
-              <div className="px-3 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+              <div className="px-3 py-1 text-[10px] font-bold text-blue-200/50 uppercase tracking-wider mb-2">
                 Venue Workspace
               </div>
               {allowedNavItems.map((item) => {
@@ -97,11 +97,11 @@ export default function Sidebar() {
                     onClick={() => setSidebarOpen(false)}
                     className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm transition-all duration-150 ${
                       isActive
-                        ? 'bg-[#EE9B00]/10 text-[#EE9B00] border-l-2 border-[#EE9B00] font-semibold shadow-sm shadow-[#EE9B00]/5'
-                        : 'text-slate-400 hover:bg-[#1E2E44]/50 hover:text-slate-200'
+                        ? 'bg-gradient-to-r from-[#159DFC] to-[#6025BC] text-white font-semibold shadow-md'
+                        : 'text-blue-100/70 hover:bg-white/10 hover:text-white'
                     }`}
                   >
-                    <SidebarIcon name={item.icon} className={`h-4.5 w-4.5 shrink-0 ${isActive ? 'text-[#EE9B00]' : 'text-slate-400'}`} />
+                    <SidebarIcon name={item.icon} className={`h-4.5 w-4.5 shrink-0 ${isActive ? 'text-white' : 'text-blue-200/70'}`} />
                     <span>{item.title}</span>
                   </Link>
                 );
@@ -112,7 +112,7 @@ export default function Sidebar() {
           {/* Superadmin Console Link */}
           {allowedAdminItems.length > 0 && (
             <div className="space-y-1.5 mt-6">
-              <div className="px-3 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+              <div className="px-3 py-1 text-[10px] font-bold text-blue-200/50 uppercase tracking-wider mb-2">
                 System Admin Panel
               </div>
               {allowedAdminItems.map((item) => {
@@ -124,11 +124,11 @@ export default function Sidebar() {
                     onClick={() => setSidebarOpen(false)}
                     className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm transition-all duration-150 ${
                       isActive
-                        ? 'bg-[#EE9B00]/10 text-[#EE9B00] border-l-2 border-[#EE9B00] font-semibold'
-                        : 'text-slate-400 hover:bg-[#1E2E44]/50 hover:text-slate-200'
+                        ? 'bg-gradient-to-r from-[#159DFC] to-[#6025BC] text-white font-semibold shadow-md'
+                        : 'text-blue-100/70 hover:bg-white/10 hover:text-white'
                     }`}
                   >
-                    <SidebarIcon name={item.icon} className={`h-4.5 w-4.5 shrink-0 ${isActive ? 'text-[#EE9B00]' : 'text-slate-400'}`} />
+                    <SidebarIcon name={item.icon} className={`h-4.5 w-4.5 shrink-0 ${isActive ? 'text-white' : 'text-blue-200/70'}`} />
                     <span>{item.title}</span>
                   </Link>
                 );
@@ -138,16 +138,16 @@ export default function Sidebar() {
         </nav>
 
         {/* Footer: User profile info & logout */}
-        <div className="p-4 border-t border-[#1E2E44] bg-[#071426]/40 flex items-center justify-between gap-2">
+        <div className="p-4 border-t border-blue-900/50 bg-blue-950/40 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="h-8.5 w-8.5 rounded-full bg-[#EE9B00]/15 text-[#EE9B00] flex items-center justify-center font-bold text-xs shrink-0 shadow-sm border border-[#EE9B00]/25">
+            <div className="h-8.5 w-8.5 rounded-full bg-white/10 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm border border-white/20">
               {user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
             </div>
             <div className="overflow-hidden">
-              <div className="font-bold text-xs text-slate-200 truncate leading-snug">
+              <div className="font-bold text-xs text-white truncate leading-snug">
                 {user?.name || user?.email || 'User'}
               </div>
-              <div className="text-[10px] text-slate-400 truncate capitalize mt-0.5 font-medium">
+              <div className="text-[10px] text-blue-200/70 truncate capitalize mt-0.5 font-medium">
                 {role?.replace('_', ' ') || 'Member'}
               </div>
             </div>
@@ -156,7 +156,7 @@ export default function Sidebar() {
           <button
             onClick={logout}
             title="Sign Out"
-            className="p-1.5 rounded-lg text-slate-450 hover:text-red-400 hover:bg-[#1E2E44]/50 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-blue-200/80 hover:text-red-400 hover:bg-white/10 transition-colors cursor-pointer"
           >
             <LogOut className="h-4 w-4" />
           </button>

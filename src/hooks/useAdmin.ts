@@ -438,3 +438,43 @@ export function useAdminHallActivity(id: string) {
     enabled: !!id,
   });
 }
+
+// 11. SaaS Subscription Billing Approvals
+export function useAdminPendingPayments() {
+  return useQuery({
+    queryKey: ['admin', 'pending-payments'],
+    queryFn: adminService.getPendingSubscriptionPayments,
+  });
+}
+
+export function useAdminVerifyPayment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: { action: 'approve' | 'reject'; rejection_reason?: string } }) =>
+      adminService.verifySubscriptionPayment(id, data),
+    onSuccess: (res) => {
+      toast.success(res.message || 'Payment verified successfully');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'pending-payments'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'halls'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'analytics'] });
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Failed to verify payment');
+    },
+  });
+}
+
+// 12. SMTP Outgoing Mail Connection Test
+export function useAdminSendTestEmail() {
+  return useMutation({
+    mutationFn: adminService.sendTestEmail,
+    onSuccess: (res) => {
+      toast.success(res.message || 'Test email dispatched successfully');
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Failed to dispatch test email');
+    },
+  });
+}

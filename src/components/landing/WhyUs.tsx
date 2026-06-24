@@ -39,12 +39,12 @@ export default function WhyUs() {
           
           {/* Left: Text & Trust Branding */}
           <div className="lg:col-span-5 space-y-6 text-center lg:text-left">
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 rounded-full text-[10px] font-bold text-[#D48A00] uppercase tracking-widest shadow-sm backdrop-blur-sm">
-              <ShieldCheck className="h-4 w-4 text-[#EE9B00]" />
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 rounded-full text-[10px] font-bold text-[#002499] uppercase tracking-widest shadow-sm backdrop-blur-sm">
+              <ShieldCheck className="h-4 w-4 text-[#159DFC]" />
               Tailored For You
             </div>
             
-            <h2 className="text-3xl font-extrabold text-[#0A2540] tracking-tight leading-tight font-display">
+            <h2 className="text-3xl font-extrabold text-[#0F172A] tracking-tight leading-tight font-display">
               Built Specifically For Indian Marriage Halls
             </h2>
             
@@ -53,7 +53,7 @@ export default function WhyUs() {
             </p>
 
             <div className="pt-6 border-t border-slate-200/80 flex items-center justify-center lg:justify-start gap-4">
-              <div className="h-10 w-10 rounded-xl bg-slate-200 text-[#0A2540] flex items-center justify-center font-extrabold text-sm shrink-0 shadow-inner border border-slate-300">
+              <div className="h-10 w-10 rounded-xl bg-slate-200 text-[#0F172A] flex items-center justify-center font-extrabold text-sm shrink-0 shadow-inner border border-slate-300">
                 IH
               </div>
               <div className="text-left">
@@ -70,12 +70,12 @@ export default function WhyUs() {
               return (
                 <div
                   key={idx}
-                  className="border border-slate-200/80 bg-white hover:bg-[#F8FAFC]/30 rounded-2xl p-6.5 hover:shadow-md hover:border-[#EE9B00]/25 transition-all duration-300 group backdrop-blur-sm"
+                  className="border border-slate-200/80 bg-white hover:bg-[#F8FAFC]/30 rounded-2xl p-6.5 hover:shadow-md hover:border-[#159DFC]/25 transition-all duration-300 group backdrop-blur-sm"
                 >
-                  <div className="h-9 w-9 rounded-xl bg-[#F8FAFC] text-[#EE9B00] flex items-center justify-center mb-5 shrink-0 border border-slate-200 shadow-sm group-hover:bg-[#EE9B00] group-hover:text-[#0A2540] group-hover:border-[#EE9B00]/25 transition-colors duration-300">
+                  <div className="h-9 w-9 rounded-xl bg-[#F8FAFC] text-[#159DFC] flex items-center justify-center mb-5 shrink-0 border border-slate-200 shadow-sm group-hover:bg-[#159DFC] group-hover:text-[#0F172A] group-hover:border-[#159DFC]/25 transition-colors duration-300">
                     <Icon className="h-4.5 w-4.5" />
                   </div>
-                  <h3 className="font-extrabold text-[#0A2540] text-sm mb-2 leading-snug">{reason.title}</h3>
+                  <h3 className="font-extrabold text-[#0F172A] text-sm mb-2 leading-snug">{reason.title}</h3>
                   <p className="text-xs text-slate-500 font-semibold leading-relaxed">{reason.desc}</p>
                 </div>
               );

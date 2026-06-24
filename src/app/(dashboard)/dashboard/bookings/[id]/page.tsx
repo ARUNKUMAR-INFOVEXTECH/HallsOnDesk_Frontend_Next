@@ -657,7 +657,7 @@ function BookingDetailPage() {
             <div className="pt-2">
               <button
                 onClick={() => setShowPaymentModal(true)}
-                className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-[#EE9B00] hover:bg-[#D48A00] text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
+                className="w-full flex items-center justify-center gap-1.5 py-2.5 btn-primary-grad text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
               >
                 <Plus className="h-4 w-4 shrink-0" />
                 Record Client Payment
@@ -676,7 +676,7 @@ function BookingDetailPage() {
 
             {isInvoiceLoading ? (
               <div className="flex items-center justify-center p-6 text-slate-450 gap-2 font-medium">
-                <Loader2 className="h-4.5 w-4.5 animate-spin text-[#EE9B00]" />
+                <Loader2 className="h-4.5 w-4.5 animate-spin text-[#159DFC]" />
                 Checking billing records...
               </div>
             ) : invoice ? (
@@ -1045,7 +1045,7 @@ function BookingDetailPage() {
               {/* Modal Header */}
               <div className="flex justify-between items-center border-b border-slate-100 pb-3">
                 <h3 className="font-bold text-slate-805 text-xs uppercase tracking-wider flex items-center gap-1.5">
-                  <CreditCard className="h-4.5 w-4.5 text-[#EE9B00]" />
+                  <CreditCard className="h-4.5 w-4.5 text-[#159DFC]" />
                   Record Installment Payment
                 </h3>
                 <button

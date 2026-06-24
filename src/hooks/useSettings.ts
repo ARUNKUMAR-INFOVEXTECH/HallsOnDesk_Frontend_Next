@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import * as settingsService from '@/services/api/modules/settings.service';
+import * as subscriptionPaymentService from '@/services/api/modules/subscription-payment.service';
 import { HallProfile, HallSettings } from '@/types/settings';
 import { useState } from 'react';
 
@@ -151,5 +152,29 @@ export function useRequestSubscriptionChange() {
     onError: (err: any) => {
       toast.error(err.response?.data?.message || 'Failed to submit subscription request');
     },
+  });
+}
+
+export function useSubmitSubscriptionPayment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: subscriptionPaymentService.submitSubscriptionPayment,
+    onSuccess: (res) => {
+      toast.success(res.message || 'Payment details submitted successfully. Verification pending.');
+      queryClient.invalidateQueries({ queryKey: ['subscription-payments-history'] });
+      queryClient.invalidateQueries({ queryKey: ['active-subscription'] });
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Failed to submit payment details');
+    },
+  });
+}
+
+export function useSubscriptionPaymentsHistory() {
+  return useQuery({
+    queryKey: ['subscription-payments-history'],
+    queryFn: subscriptionPaymentService.getSubscriptionPaymentsHistory,
+    staleTime: CACHE_TIME,
   });
 }

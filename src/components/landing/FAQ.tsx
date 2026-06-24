@@ -47,10 +47,10 @@ export default function FAQ() {
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-20 space-y-4">
-          <span className="text-[10px] font-bold text-[#D48A00] uppercase tracking-widest block">
+          <span className="text-[10px] font-bold text-[#002499] uppercase tracking-widest block">
             Common Inquiries
           </span>
-          <h2 className="text-3xl font-extrabold text-[#0A2540] tracking-tight">
+          <h2 className="text-3xl font-extrabold text-[#0F172A] tracking-tight">
             Frequently Asked Questions
           </h2>
           <p className="text-sm text-slate-550 font-semibold leading-relaxed">
@@ -67,7 +67,7 @@ export default function FAQ() {
                 key={index}
                 className={`border rounded-2xl transition-all duration-300 overflow-hidden backdrop-blur-sm ${
                   isOpen 
-                    ? 'border-[#EE9B00]/50 bg-[#EE9B00]/5 shadow-sm' 
+                    ? 'border-[#159DFC]/50 bg-[#159DFC]/5 shadow-sm' 
                     : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-[#F8FAFC]/50'
                 }`}
               >
@@ -75,13 +75,13 @@ export default function FAQ() {
                   onClick={() => setOpenIndex(isOpen ? null : index)}
                   className="w-full flex items-center justify-between text-left px-6 py-5 focus:outline-none cursor-pointer"
                 >
-                  <span className="font-extrabold text-sm text-[#0A2540] flex items-center gap-3.5 pr-4">
-                    <HelpCircle className={`h-5 w-5 shrink-0 transition-colors duration-300 ${isOpen ? 'text-[#EE9B00]' : 'text-slate-400'}`} />
+                  <span className="font-extrabold text-sm text-[#0F172A] flex items-center gap-3.5 pr-4">
+                    <HelpCircle className={`h-5 w-5 shrink-0 transition-colors duration-300 ${isOpen ? 'text-[#159DFC]' : 'text-slate-400'}`} />
                     {faq.question}
                   </span>
                   <ChevronDown
                     className={`h-4.5 w-4.5 text-slate-500 shrink-0 transition-transform duration-300 ${
-                      isOpen ? 'rotate-180 text-[#EE9B00]' : ''
+                      isOpen ? 'rotate-180 text-[#159DFC]' : ''
                     }`}
                   />
                 </button>

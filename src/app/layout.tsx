@@ -10,9 +10,12 @@ export const metadata: Metadata = {
   title: "Infovex Halls - India's First Marriage Hall CRM & ERP",
   description: "India's first dedicated marriage hall and convention center CRM. Manage bookings, payments, WhatsApp alerts, and visual calendars in one dashboard.",
   icons: {
-    icon: '/favicon.png?v=3',
-    shortcut: '/favicon.png?v=3',
-    apple: '/favicon.png?v=3',
+    icon: [
+      { url: '/favicon.png?v=4', type: 'image/png' },
+      { url: '/favicon.ico?v=4', type: 'image/x-icon' }
+    ],
+    shortcut: '/favicon.ico?v=4',
+    apple: '/favicon.png?v=4',
   },
 };
 

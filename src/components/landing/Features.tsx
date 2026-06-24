@@ -31,16 +31,16 @@ export default function Features() {
     <section className="py-28 bg-white border-b border-slate-200/80 relative overflow-hidden" id="features">
       {/* Background spot glows */}
       <div className="absolute top-1/4 right-0 h-[400px] w-[400px] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 left-0 h-[400px] w-[400px] bg-[#EE9B00]/4 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/4 left-0 h-[400px] w-[400px] bg-[#159DFC]/4 rounded-full blur-[120px] pointer-events-none" />
       
       <div className="max-w-7xl mx-auto px-6">
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-20 space-y-4">
-          <span className="text-[10px] font-extrabold text-[#EE9B00] uppercase tracking-widest block">
+          <span className="text-[10px] font-extrabold text-[#159DFC] uppercase tracking-widest block">
             Features & Capabilities
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight">
             Everything Your Hall Needs In One Dashboard
           </h2>
           <p className="text-sm text-slate-550 font-semibold leading-relaxed">
@@ -54,10 +54,10 @@ export default function Features() {
           {/* Card 1: Booking Management */}
           <motion.div
             custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={cardVariants}
-            className="border border-slate-800/60 bg-[#0A2540] hover:bg-[#0E2F52] hover:border-[#EE9B00]/45 rounded-3xl p-7 transition-all duration-300 flex flex-col justify-between cursor-default group col-span-1 shadow-lg"
+            className="border border-slate-800/60 bg-[#0F172A] hover:bg-[#062089] hover:border-[#159DFC]/45 rounded-3xl p-7 transition-all duration-300 flex flex-col justify-between cursor-default group col-span-1 shadow-lg"
           >
             <div>
-              <div className="h-10 w-10 rounded-xl bg-white/5 text-[#EE9B00] flex items-center justify-center mb-5 border border-white/10 shadow-sm transition-colors duration-300 group-hover:bg-[#EE9B00] group-hover:text-[#0A2540] group-hover:border-[#EE9B00]/25">
+              <div className="h-10 w-10 rounded-xl bg-white/5 text-[#159DFC] flex items-center justify-center mb-5 border border-white/10 shadow-sm transition-colors duration-300 group-hover:bg-[#159DFC] group-hover:text-[#0F172A] group-hover:border-[#159DFC]/25">
                 <CalendarDays className="h-5 w-5" />
               </div>
               <h3 className="font-extrabold text-white text-sm tracking-tight mb-2">Booking Management</h3>
@@ -83,10 +83,10 @@ export default function Features() {
           {/* Card 2: Interactive Event Calendar */}
           <motion.div
             custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={cardVariants}
-            className="border border-slate-800/60 bg-[#0A2540] hover:bg-[#0E2F52] hover:border-[#EE9B00]/45 rounded-3xl p-7 transition-all duration-300 flex flex-col justify-between cursor-default group col-span-1 lg:col-span-2 shadow-lg"
+            className="border border-slate-800/60 bg-[#0F172A] hover:bg-[#062089] hover:border-[#159DFC]/45 rounded-3xl p-7 transition-all duration-300 flex flex-col justify-between cursor-default group col-span-1 lg:col-span-2 shadow-lg"
           >
             <div>
-              <div className="h-10 w-10 rounded-xl bg-white/5 text-[#EE9B00] flex items-center justify-center mb-5 border border-white/10 shadow-sm transition-colors duration-300 group-hover:bg-[#EE9B00] group-hover:text-[#0A2540] group-hover:border-[#EE9B00]/25">
+              <div className="h-10 w-10 rounded-xl bg-white/5 text-[#159DFC] flex items-center justify-center mb-5 border border-white/10 shadow-sm transition-colors duration-300 group-hover:bg-[#159DFC] group-hover:text-[#0F172A] group-hover:border-[#159DFC]/25">
                 <Calendar className="h-5 w-5" />
               </div>
               <h3 className="font-extrabold text-white text-sm tracking-tight mb-2">Interactive Event Calendar</h3>
@@ -99,13 +99,13 @@ export default function Features() {
             <div className="bg-white border border-slate-200/80 rounded-2xl p-4 text-[10px] text-slate-500 shadow-sm">
               <div className="flex justify-between items-center mb-3">
                 <span className="font-extrabold text-slate-800">Availability Timeline</span>
-                <span className="text-[9px] font-bold text-[#EE9B00]">June 2026</span>
+                <span className="text-[9px] font-bold text-[#159DFC]">June 2026</span>
               </div>
               <div className="grid grid-cols-7 gap-1 text-center font-bold">
                 {['10', '11', '12', '13', '14', '15', '16'].map((day, i) => (
                   <div key={day} className={`p-1.5 rounded-xl border ${
                     i === 2 
-                      ? 'bg-[#EE9B00]/10 border-[#EE9B00]/25 text-[#EE9B00] font-extrabold'
+                      ? 'bg-[#159DFC]/10 border-[#159DFC]/25 text-[#159DFC] font-extrabold'
                       : i === 4
                       ? 'bg-blue-500/10 border-blue-500/25 text-blue-600 font-extrabold'
                       : 'border-slate-200 bg-white text-slate-400'
@@ -121,10 +121,10 @@ export default function Features() {
           {/* Card 3: Payment Tracking */}
           <motion.div
             custom={2} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={cardVariants}
-            className="border border-slate-800/60 bg-[#0A2540] hover:bg-[#0E2F52] hover:border-[#EE9B00]/45 rounded-3xl p-7 transition-all duration-300 flex flex-col justify-between cursor-default group col-span-1 shadow-lg"
+            className="border border-slate-800/60 bg-[#0F172A] hover:bg-[#062089] hover:border-[#159DFC]/45 rounded-3xl p-7 transition-all duration-300 flex flex-col justify-between cursor-default group col-span-1 shadow-lg"
           >
             <div>
-              <div className="h-10 w-10 rounded-xl bg-white/5 text-[#EE9B00] flex items-center justify-center mb-5 border border-white/10 shadow-sm transition-colors duration-300 group-hover:bg-[#EE9B00] group-hover:text-[#0A2540] group-hover:border-[#EE9B00]/25">
+              <div className="h-10 w-10 rounded-xl bg-white/5 text-[#159DFC] flex items-center justify-center mb-5 border border-white/10 shadow-sm transition-colors duration-300 group-hover:bg-[#159DFC] group-hover:text-[#0F172A] group-hover:border-[#159DFC]/25">
                 <CreditCard className="h-5 w-5" />
               </div>
               <h3 className="font-extrabold text-white text-sm tracking-tight mb-2">Payment Tracking</h3>
@@ -144,7 +144,7 @@ export default function Features() {
                 <span className="font-semibold text-slate-400">Advance Paid</span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-1">
-                <div className="bg-[#EE9B00] h-full rounded-full w-[45%]" />
+                <div className="bg-[#159DFC] h-full rounded-full w-[45%]" />
               </div>
             </div>
           </motion.div>
@@ -152,10 +152,10 @@ export default function Features() {
           {/* Card 4: WhatsApp Integration */}
           <motion.div
             custom={3} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={cardVariants}
-            className="border border-slate-800/60 bg-[#0A2540] hover:bg-[#0E2F52] hover:border-[#EE9B00]/45 rounded-3xl p-7 transition-all duration-300 flex flex-col justify-between cursor-default group col-span-1 lg:col-span-2 shadow-lg"
+            className="border border-slate-800/60 bg-[#0F172A] hover:bg-[#062089] hover:border-[#159DFC]/45 rounded-3xl p-7 transition-all duration-300 flex flex-col justify-between cursor-default group col-span-1 lg:col-span-2 shadow-lg"
           >
             <div>
-              <div className="h-10 w-10 rounded-xl bg-white/5 text-[#EE9B00] flex items-center justify-center mb-5 border border-white/10 shadow-sm transition-colors duration-300 group-hover:bg-[#EE9B00] group-hover:text-[#0A2540] group-hover:border-[#EE9B00]/25">
+              <div className="h-10 w-10 rounded-xl bg-white/5 text-[#159DFC] flex items-center justify-center mb-5 border border-white/10 shadow-sm transition-colors duration-300 group-hover:bg-[#159DFC] group-hover:text-[#0F172A] group-hover:border-[#159DFC]/25">
                 <MessageCircle className="h-5 w-5" />
               </div>
               <h3 className="font-extrabold text-white text-sm tracking-tight mb-2">WhatsApp Integration</h3>
@@ -182,10 +182,10 @@ export default function Features() {
           {/* Card 5: Website Integration */}
           <motion.div
             custom={4} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={cardVariants}
-            className="border border-slate-800/60 bg-[#0A2540] hover:bg-[#0E2F52] hover:border-[#EE9B00]/45 rounded-3xl p-7 transition-all duration-300 flex flex-col justify-between cursor-default group col-span-1 shadow-lg"
+            className="border border-slate-800/60 bg-[#0F172A] hover:bg-[#062089] hover:border-[#159DFC]/45 rounded-3xl p-7 transition-all duration-300 flex flex-col justify-between cursor-default group col-span-1 shadow-lg"
           >
             <div>
-              <div className="h-10 w-10 rounded-xl bg-white/5 text-[#EE9B00] flex items-center justify-center mb-5 border border-white/10 shadow-sm transition-colors duration-300 group-hover:bg-[#EE9B00] group-hover:text-[#0A2540] group-hover:border-[#EE9B00]/25">
+              <div className="h-10 w-10 rounded-xl bg-white/5 text-[#159DFC] flex items-center justify-center mb-5 border border-white/10 shadow-sm transition-colors duration-300 group-hover:bg-[#159DFC] group-hover:text-[#0F172A] group-hover:border-[#159DFC]/25">
                 <Globe className="h-5 w-5" />
               </div>
               <h3 className="font-extrabold text-white text-sm tracking-tight mb-2">Website Integration</h3>
@@ -203,7 +203,7 @@ export default function Features() {
               </div>
               <div className="p-3 text-[9px] text-slate-500 space-y-1.5">
                 <span className="font-bold text-slate-700 block border-b border-slate-200 pb-1">www.rajmahalpalace.com</span>
-                <span className="text-[8px] font-extrabold text-[#EE9B00] uppercase tracking-wider block">Interactive Availability Log</span>
+                <span className="text-[8px] font-extrabold text-[#159DFC] uppercase tracking-wider block">Interactive Availability Log</span>
               </div>
             </div>
           </motion.div>
@@ -211,10 +211,10 @@ export default function Features() {
           {/* Card 6: Customer Directory */}
           <motion.div
             custom={5} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={cardVariants}
-            className="border border-slate-800/60 bg-[#0A2540] hover:bg-[#0E2F52] hover:border-[#EE9B00]/45 rounded-3xl p-7 transition-all duration-300 flex flex-col justify-between cursor-default group col-span-1 shadow-lg"
+            className="border border-slate-800/60 bg-[#0F172A] hover:bg-[#062089] hover:border-[#159DFC]/45 rounded-3xl p-7 transition-all duration-300 flex flex-col justify-between cursor-default group col-span-1 shadow-lg"
           >
             <div>
-              <div className="h-10 w-10 rounded-xl bg-white/5 text-[#EE9B00] flex items-center justify-center mb-5 border border-white/10 shadow-sm transition-colors duration-300 group-hover:bg-[#EE9B00] group-hover:text-[#0A2540] group-hover:border-[#EE9B00]/25">
+              <div className="h-10 w-10 rounded-xl bg-white/5 text-[#159DFC] flex items-center justify-center mb-5 border border-white/10 shadow-sm transition-colors duration-300 group-hover:bg-[#159DFC] group-hover:text-[#0F172A] group-hover:border-[#159DFC]/25">
                 <Users className="h-5 w-5" />
               </div>
               <h3 className="font-extrabold text-white text-sm tracking-tight mb-2">Customer Directory</h3>
@@ -227,10 +227,10 @@ export default function Features() {
             <div className="bg-white border border-slate-200/80 rounded-2xl p-4.5 text-[9px] text-slate-500 space-y-2 shadow-sm">
               <div className="flex items-center justify-between pb-1.5 border-b border-slate-200">
                 <span className="font-extrabold uppercase tracking-wider text-slate-400">Clients</span>
-                <span className="text-[#EE9B00] font-bold">140 Total</span>
+                <span className="text-[#159DFC] font-bold">140 Total</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-5 w-5 rounded-full bg-slate-200 flex items-center justify-center font-bold text-[8px] text-[#0A2540]">A</div>
+                <div className="h-5 w-5 rounded-full bg-slate-200 flex items-center justify-center font-bold text-[8px] text-[#0F172A]">A</div>
                 <div className="font-semibold leading-tight">
                   <span className="block text-slate-800 font-extrabold">Anand Kumar</span>
                   <span className="block text-[8px] text-slate-450 font-semibold">+91 91234 56789</span>
@@ -242,10 +242,10 @@ export default function Features() {
           {/* Card 7: Staff Management */}
           <motion.div
             custom={6} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={cardVariants}
-            className="border border-slate-800/60 bg-[#0A2540] hover:bg-[#0E2F52] hover:border-[#EE9B00]/45 rounded-3xl p-7 transition-all duration-300 flex flex-col justify-between cursor-default group col-span-1 shadow-lg"
+            className="border border-slate-800/60 bg-[#0F172A] hover:bg-[#062089] hover:border-[#159DFC]/45 rounded-3xl p-7 transition-all duration-300 flex flex-col justify-between cursor-default group col-span-1 shadow-lg"
           >
             <div>
-              <div className="h-10 w-10 rounded-xl bg-white/5 text-[#EE9B00] flex items-center justify-center mb-5 border border-white/10 shadow-sm transition-colors duration-300 group-hover:bg-[#EE9B00] group-hover:text-[#0A2540] group-hover:border-[#EE9B00]/25">
+              <div className="h-10 w-10 rounded-xl bg-white/5 text-[#159DFC] flex items-center justify-center mb-5 border border-white/10 shadow-sm transition-colors duration-300 group-hover:bg-[#159DFC] group-hover:text-[#0F172A] group-hover:border-[#159DFC]/25">
                 <UserCheck className="h-5 w-5" />
               </div>
               <h3 className="font-extrabold text-white text-sm tracking-tight mb-2">Staff Management</h3>
@@ -274,10 +274,10 @@ export default function Features() {
           {/* Card 8: Reports & Insights */}
           <motion.div
             custom={7} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={cardVariants}
-            className="border border-slate-800/60 bg-[#0A2540] hover:bg-[#0E2F52] hover:border-[#EE9B00]/45 rounded-3xl p-7 transition-all duration-300 flex flex-col justify-between cursor-default group col-span-1 shadow-lg"
+            className="border border-slate-800/60 bg-[#0F172A] hover:bg-[#062089] hover:border-[#159DFC]/45 rounded-3xl p-7 transition-all duration-300 flex flex-col justify-between cursor-default group col-span-1 shadow-lg"
           >
             <div>
-              <div className="h-10 w-10 rounded-xl bg-white/5 text-[#EE9B00] flex items-center justify-center mb-5 border border-white/10 shadow-sm transition-colors duration-300 group-hover:bg-[#EE9B00] group-hover:text-[#0A2540] group-hover:border-[#EE9B00]/25">
+              <div className="h-10 w-10 rounded-xl bg-white/5 text-[#159DFC] flex items-center justify-center mb-5 border border-white/10 shadow-sm transition-colors duration-300 group-hover:bg-[#159DFC] group-hover:text-[#0F172A] group-hover:border-[#159DFC]/25">
                 <TrendingUp className="h-5 w-5" />
               </div>
               <h3 className="font-extrabold text-white text-sm tracking-tight mb-2">Reports & Insights</h3>
@@ -297,7 +297,7 @@ export default function Features() {
                 <div className="bg-slate-200 h-3.5 w-3 rounded-sm" />
                 <div className="bg-slate-300 h-5 w-3 rounded-sm" />
                 <div className="bg-slate-200 h-4 w-3 rounded-sm" />
-                <div className="bg-[#EE9B00] h-7 w-3 rounded-sm animate-pulse" />
+                <div className="bg-[#159DFC] h-7 w-3 rounded-sm animate-pulse" />
               </div>
             </div>
           </motion.div>

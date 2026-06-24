@@ -79,10 +79,10 @@ export default function Problems() {
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-24 space-y-4">
-          <span className="text-[10px] font-extrabold text-[#EE9B00] bg-[#FFF9E6] border border-[#EE9B00]/20 rounded-full px-3.5 py-1 inline-block uppercase tracking-widest">
+          <span className="text-[10px] font-extrabold text-[#159DFC] bg-[#E0F2FE] border border-[#159DFC]/20 rounded-full px-3.5 py-1 inline-block uppercase tracking-widest">
             The Venue Operator Dilemma
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight leading-tight">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight leading-tight">
             Still Managing Your Venue With Notebooks And WhatsApp?
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 font-semibold leading-relaxed max-w-2xl mx-auto">
@@ -113,7 +113,7 @@ export default function Problems() {
               <div className="grid grid-cols-1 lg:grid-cols-11 items-center gap-4 lg:gap-6">
                 
                 {/* 1. Manual Chaos Card (Left Side) */}
-                <div className="lg:col-span-5 bg-[#FFFDF9] border border-red-150/50 rounded-2xl p-5 md:p-6 shadow-sm relative overflow-hidden flex items-start gap-4">
+                <div className="lg:col-span-5 bg-[#F8FAFC] border border-red-150/50 rounded-2xl p-5 md:p-6 shadow-sm relative overflow-hidden flex items-start gap-4">
                   {/* Left warning vertical line */}
                   <div className="absolute top-0 bottom-0 left-0 w-[3px] bg-red-400/30" />
                   
@@ -135,21 +135,21 @@ export default function Problems() {
                 <div className="lg:col-span-1 flex lg:flex-col items-center justify-center py-2 lg:py-0 select-none pointer-events-none">
                   {/* Dotted connector */}
                   <div className="hidden lg:block h-1 w-8 border-t-2 border-dotted border-slate-300" />
-                  <div className="h-6 w-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shadow-sm my-1 group-hover:bg-[#EE9B00]/10 group-hover:text-[#EE9B00] group-hover:border-[#EE9B00]/25 transition-all duration-300">
+                  <div className="h-6 w-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shadow-sm my-1 group-hover:bg-[#159DFC]/10 group-hover:text-[#159DFC] group-hover:border-[#159DFC]/25 transition-all duration-300">
                     <ArrowRight className="h-3.5 w-3.5 rotate-90 lg:rotate-0" />
                   </div>
                   <div className="hidden lg:block h-1 w-8 border-t-2 border-dotted border-slate-300" />
                 </div>
 
                 {/* 3. Infovex Halls Solution Card (Right Side) */}
-                <div className="lg:col-span-5 bg-white border border-slate-200/80 hover:border-[#EE9B00]/40 rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-custom-md transition-all duration-300 flex items-start gap-4 group-hover:scale-[1.01]">
-                  <div className="h-9 w-9 rounded-xl bg-[#FFF9E6] border border-[#EE9B00]/15 flex items-center justify-center shrink-0 shadow-inner">
+                <div className="lg:col-span-5 bg-white border border-slate-200/80 hover:border-[#159DFC]/40 rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-custom-md transition-all duration-300 flex items-start gap-4 group-hover:scale-[1.01]">
+                  <div className="h-9 w-9 rounded-xl bg-[#E0F2FE] border border-[#159DFC]/15 flex items-center justify-center shrink-0 shadow-inner">
                     {row.system.icon}
                   </div>
                   
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-extrabold text-[#0A2540] text-sm leading-none block">
+                      <span className="font-extrabold text-[#0F172A] text-sm leading-none block">
                         {row.system.title}
                       </span>
                       <span className="inline-flex px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-[8px] font-black uppercase tracking-wider">

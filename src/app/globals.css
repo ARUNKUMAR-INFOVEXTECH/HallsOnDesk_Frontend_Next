@@ -2,11 +2,15 @@
 @import "../styles/calendar.css";
 
 @theme {
-  /* Design Tokens (HallsOnDesk Premium Navy & Gold/Amber Theme) */
-  --color-primary: #0A2540;
-  --color-primary-hover: #081D33;
-  --color-primary-light: #EE9B00;
-  --color-primary-lighter: #FFF9E6;
+  /* Design Tokens (Infovex Halls Enterprise Brand Identity) */
+  --color-primary: #062089;
+  --color-primary-hover: #002499;
+  --color-primary-light: #159DFC;
+  --color-primary-lighter: #E0F2FE;
+  
+  --color-brand-cyan: #0FD5FF;
+  --color-brand-purple: #6025BC;
+  --color-brand-magenta: #CD24FD;
   
   --color-surface-base: #F8FAFC;
   --color-surface-card: #FFFFFF;
@@ -22,11 +26,11 @@
 
   --shadow-custom-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-custom-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --shadow-premium: 0 10px 15px -3px rgba(10, 37, 64, 0.04), 0 4px 6px -4px rgba(10, 37, 64, 0.02);
+  --shadow-premium: 0 10px 15px -3px rgba(6, 32, 137, 0.04), 0 4px 6px -4px rgba(6, 32, 137, 0.02);
 
   --radius-card: 16px;
-  --radius-btn: 10px;
-  --radius-input: 8px;
+  --radius-btn: 12px;
+  --radius-input: 10px;
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -35,7 +39,7 @@
 /* Base Styles */
 :root {
   --background: #F8FAFC;
-  --foreground: #0A2540;
+  --foreground: #0F172A;
 }
 
 body {
@@ -61,7 +65,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .glass-panel-dark {
-  background: rgba(10, 37, 64, 0.95);
+  background: rgba(6, 32, 137, 0.95);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -72,11 +76,55 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--color-primary);
   color: #ffffff;
   font-weight: 500;
+  border-radius: var(--radius-btn);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-primary:hover {
   background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-primary-grad {
+  background: linear-gradient(135deg, #062089 0%, #159DFC 100%);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: var(--radius-btn);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary-grad:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(6, 32, 137, 0.15);
+}
+
+.btn-premium-grad {
+  background: linear-gradient(135deg, #6025BC 0%, #CD24FD 100%);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: var(--radius-btn);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-premium-grad:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(96, 37, 188, 0.15);
+}
+
+.btn-secondary-outline {
+  background-color: #ffffff;
+  color: #062089;
+  border: 1.5px solid #159DFC;
+  font-weight: 600;
+  border-radius: var(--radius-btn);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-secondary-outline:hover {
+  background-color: #F8FAFC;
+  border-color: #062089;
   transform: translateY(-1px);
 }
 

@@ -151,8 +151,8 @@ export default function AdminAnalyticsPage() {
                 <YAxis stroke="#94a3b8" fontSize={10} fontWeight={600} tickLine={false} axisLine={false} dx={-5} />
                 <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '8px', border: '1px solid #e5e7eb' }} />
                 <Legend verticalAlign="top" height={36} iconSize={8} iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 600 }} />
-                <Line type="monotone" dataKey="active" stroke="#7C3AED" strokeWidth={2.5} name="Active Venues" dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                <Line type="monotone" dataKey="trials" stroke="#EE9B00" strokeWidth={2} strokeDasharray="3 3" name="Trial Accounts" dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="active" stroke="#159DFC" strokeWidth={2.5} name="Active Venues" dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                <Line type="monotone" dataKey="trials" stroke="#159DFC" strokeWidth={2} strokeDasharray="3 3" name="Trial Accounts" dot={{ r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>

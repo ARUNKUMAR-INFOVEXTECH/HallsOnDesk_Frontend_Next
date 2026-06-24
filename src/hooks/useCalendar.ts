@@ -19,7 +19,7 @@ export const getEventColor = (type: CalendarEventType, status?: EventStatus): st
   if (type === 'booking') {
     switch (status) {
       case 'confirmed':
-        return '#7C3AED'; // violet-600
+        return '#159DFC'; // violet-600
       case 'pending':
         return '#F59E0B'; // amber-500
       case 'cancelled':
@@ -27,7 +27,7 @@ export const getEventColor = (type: CalendarEventType, status?: EventStatus): st
       case 'completed':
         return '#10B981'; // green-500
       default:
-        return '#7C3AED';
+        return '#159DFC';
     }
   }
 
@@ -41,7 +41,7 @@ export const getEventColor = (type: CalendarEventType, status?: EventStatus): st
     case 'holiday':
       return '#10B981'; // emerald-500 (standard success green)
     default:
-      return '#7C3AED';
+      return '#159DFC';
   }
 };
 

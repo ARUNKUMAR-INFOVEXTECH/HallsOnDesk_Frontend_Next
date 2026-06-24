@@ -92,8 +92,8 @@ export function RevenueChart() {
           <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#0A2540" stopOpacity={0.15}/>
-                <stop offset="95%" stopColor="#0A2540" stopOpacity={0.0}/>
+                <stop offset="5%" stopColor="#159DFC" stopOpacity={0.15}/>
+                <stop offset="95%" stopColor="#159DFC" stopOpacity={0.0}/>
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -136,8 +136,8 @@ export function RevenueChart() {
               iconType="circle"
               wrapperStyle={{ fontSize: '10px', fontWeight: 600, paddingBottom: '10px' }}
             />
-            <Area type="monotone" dataKey="revenue" fill="url(#colorRevenue)" stroke="#0A2540" strokeWidth={2} name="revenue" />
-            <Line type="monotone" dataKey="target" stroke="#EE9B00" strokeWidth={2} strokeDasharray="5 5" name="target" />
+            <Area type="monotone" dataKey="revenue" fill="url(#colorRevenue)" stroke="#159DFC" strokeWidth={2} name="revenue" />
+            <Line type="monotone" dataKey="target" stroke="#6025BC" strokeWidth={2} strokeDasharray="5 5" name="target" />
           </ComposedChart>
         </ResponsiveContainer>
       )}
@@ -178,9 +178,9 @@ export function PaymentStatusChart({
   const cancelledVal = dashboardData?.summary?.cancelled_bookings ?? cancelled;
 
   const chartData = [
-    { name: 'Confirmed', value: confirmedVal || 28, color: '#0A2540' }, // Navy Primary
-    { name: 'Pending', value: pendingVal > 0 ? pendingVal : 8, color: '#EE9B00' }, // Gold Accent
-    { name: 'Cancelled', value: cancelledVal || 2, color: '#EF4444' }, // Danger Red
+    { name: 'Confirmed', value: confirmedVal || 28, color: '#062089' }, 
+    { name: 'Pending', value: pendingVal > 0 ? pendingVal : 8, color: '#6025BC' }, 
+    { name: 'Cancelled', value: cancelledVal || 2, color: '#EF4444' }, 
   ];
 
   const fillRate = totalVal > 0 ? (((confirmedVal) / totalVal) * 100).toFixed(0) : '0';
@@ -229,11 +229,11 @@ export function PaymentStatusChart({
         {/* Custom Legend */}
         <div className="flex gap-4 text-[10px] font-bold text-slate-500 mt-2">
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#0A2540]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#062089]" />
             <span>Confirmed</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#EE9B00]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#6025BC]" />
             <span>Pending</span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -308,8 +308,8 @@ export function BookingTrendsChart() {
               iconType="circle"
               wrapperStyle={{ fontSize: '10px', fontWeight: 600, color: '#475569' }}
             />
-            <Bar dataKey="confirmed" fill="#0A2540" radius={[3, 3, 0, 0]} name="Confirmed" />
-            <Bar dataKey="completed" fill="#EE9B00" radius={[3, 3, 0, 0]} name="Completed" />
+            <Bar dataKey="confirmed" fill="#062089" radius={[3, 3, 0, 0]} name="Confirmed" />
+            <Bar dataKey="completed" fill="#6025BC" radius={[3, 3, 0, 0]} name="Completed" />
             <Bar dataKey="cancelled" fill="#EF4444" radius={[3, 3, 0, 0]} name="Cancelled" />
           </BarChart>
         </ResponsiveContainer>
@@ -327,14 +327,14 @@ interface EnquiryFunnelProps {
 
 export function EnquiryFunnelChart({ data }: EnquiryFunnelProps) {
   const defaultFunnel = [
-    { stage: 'Enquiries', count: 0, fill: '#0A2540' },
-    { stage: 'Interested', count: 0, fill: '#1E3D59' },
-    { stage: 'Visit Scheduled', count: 0, fill: '#2D5F8A' },
-    { stage: 'Visited', count: 0, fill: '#4385C2' },
-    { stage: 'Booked', count: 0, fill: '#EE9B00' },
+    { stage: 'Enquiries', count: 0, fill: '#062089' },
+    { stage: 'Interested', count: 0, fill: '#002499' },
+    { stage: 'Visit Scheduled', count: 0, fill: '#159DFC' },
+    { stage: 'Visited', count: 0, fill: '#6025BC' },
+    { stage: 'Booked', count: 0, fill: '#CD24FD' },
   ];
 
-  const COLORS = ['#0A2540', '#1E3D59', '#2D5F8A', '#4385C2', '#EE9B00'];
+  const COLORS = ['#062089', '#002499', '#159DFC', '#6025BC', '#CD24FD'];
 
   const chartData = data && data.length > 0
     ? data.map((item, idx) => ({
@@ -409,7 +409,7 @@ interface EventCategoryProps {
 }
 
 export function EventCategoryChart({ data }: EventCategoryProps) {
-  const COLORS = ['#0A2540', '#EE9B00', '#3B82F6', '#10B981', '#EF4444'];
+  const COLORS = ['#062089', '#6025BC', '#159DFC', '#10B981', '#EF4444'];
 
   const defaultData = [
     { name: 'No Bookings', value: 100, color: '#94a3b8' }

@@ -99,7 +99,7 @@ export default function Topbar() {
     : user?.email?.charAt(0).toUpperCase() || 'U';
 
   return (
-    <header className="h-14 border-b border-gray-100 bg-white flex items-center justify-between px-6 sticky top-0 z-20">
+    <header className="h-14 border-b border-gray-100 bg-white flex items-center justify-between px-6 sticky top-0 z-20 select-none">
       {/* Breadcrumbs / Sidebar Toggle */}
       <div className="flex items-center gap-3">
         <button
@@ -108,6 +108,13 @@ export default function Topbar() {
         >
           <Menu className="h-4.5 w-4.5" />
         </button>
+
+        {/* Brand identity emblem */}
+        <div className="flex items-center gap-1.5 mr-1 shrink-0">
+          <img src="/favicon.png" alt="Infovex Halls" className="h-5 w-5 object-contain" />
+          <span className="font-black text-[11px] text-[#062089] tracking-tight uppercase">Infovex Halls</span>
+          <span className="text-gray-205 font-light text-sm hidden sm:inline">|</span>
+        </div>
 
         <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-gray-400">
           <Link href="/dashboard" className="hover:text-primary transition-colors">
@@ -165,7 +172,7 @@ export default function Topbar() {
                 {unreadCount > 0 && (
                   <button
                     onClick={handleMarkAllAsRead}
-                    className="text-[#EE9B00] hover:text-[#D48A00] hover:underline font-bold lowercase first-letter:uppercase"
+                    className="text-[#159DFC] hover:text-[#002499] hover:underline font-bold lowercase first-letter:uppercase"
                   >
                     Mark all read
                   </button>
@@ -216,7 +223,7 @@ export default function Topbar() {
               setShowProfileMenu(!showProfileMenu);
               setShowNotifications(false);
             }}
-            className="flex items-center justify-center h-8 w-8 rounded-full bg-[#EE9B00] hover:bg-[#D48A00] text-white text-xs font-bold transition-all shadow-sm border border-[#EE9B00] cursor-pointer"
+            className="flex items-center justify-center h-8 w-8 rounded-full btn-primary-grad text-white text-xs font-bold transition-all shadow-sm border border-[#159DFC] cursor-pointer"
           >
             {nameInitials}
           </button>

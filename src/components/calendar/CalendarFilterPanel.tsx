@@ -35,7 +35,7 @@ export function CalendarFilterPanel({
   if (!isOpen) return null;
 
   const eventTypesConfig = [
-    { value: 'booking' as CalendarEventType, label: 'Booking', color: 'bg-[#7C3AED]' },
+    { value: 'booking' as CalendarEventType, label: 'Booking', color: 'bg-[#159DFC]' },
     { value: 'blocked' as CalendarEventType, label: 'Blocked Out', color: 'bg-[#6B7280]' },
     { value: 'maintenance' as CalendarEventType, label: 'Maintenance', color: 'bg-[#F97316]' },
     { value: 'personal' as CalendarEventType, label: 'Personal', color: 'bg-[#3B82F6]' },
@@ -92,7 +92,7 @@ export function CalendarFilterPanel({
         {/* Header */}
         <div className="flex justify-between items-center border-b border-slate-100 pb-2.5">
           <span className="font-bold text-slate-800 flex items-center gap-1.5 leading-none">
-            <SlidersHorizontal className="h-4 w-4 text-[#EE9B00]" />
+            <SlidersHorizontal className="h-4 w-4 text-[#159DFC]" />
             Filter Schedule Events
           </span>
           <button

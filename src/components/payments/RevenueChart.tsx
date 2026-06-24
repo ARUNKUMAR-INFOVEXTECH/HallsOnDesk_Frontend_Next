@@ -124,7 +124,7 @@ export function RevenueChart({ initialPeriod = '6M' }: RevenueChartProps) {
               <Tooltip content={<CustomTooltip />} cursor={{ fill: '#F8FAFC', opacity: 0.8 }} />
               <Bar
                 dataKey="revenue"
-                fill="#7C3AED"
+                fill="#159DFC"
                 radius={[4, 4, 0, 0]}
                 maxBarSize={45}
               />

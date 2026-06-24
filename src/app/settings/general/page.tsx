@@ -1492,7 +1492,7 @@ export default function GeneralSettingsPage() {
                               <td className="py-1.5">Amount Paid</td>
                               <td className="py-1.5 text-right font-mono">- ₹1,00,000.00</td>
                             </tr>
-                            <tr className="border-t-2 border-slate-700 font-black text-[#EE9B00] text-base">
+                            <tr className="border-t-2 border-slate-700 font-black text-[#159DFC] text-base">
                               <td className="py-3">Balance Due</td>
                               <td className="py-3 text-right font-mono">₹2,54,000.00</td>
                             </tr>

@@ -45,20 +45,12 @@ export default function Navbar({ onBookDemoClick }: NavbarProps) {
     >
       <div className="flex items-center justify-between">
         {/* Left: Brand Logo */}
-        <Link href="/" className="flex items-center gap-2 group hover:opacity-95 transition-opacity">
+        <Link href="/" className="flex items-center group hover:opacity-95 transition-opacity">
           <img 
-            src="/favicon.png" 
-            alt="Infovex Halls Icon" 
-            className="h-8 w-8 object-contain shrink-0 transition-transform duration-300 group-hover:scale-105" 
+            src="/logo.png" 
+            alt="Infovex Halls Logo" 
+            className="h-8 w-auto object-contain shrink-0 transition-transform duration-300 group-hover:scale-103" 
           />
-          <div>
-            <span className="font-extrabold text-[11px] leading-none tracking-tight block text-[#0A2540]">
-              Infovex <span className="text-[#EE9B00]">Halls</span>
-            </span>
-            <span className="text-[5.5px] text-slate-500 font-extrabold uppercase tracking-widest block mt-0.5 transition-colors duration-300 group-hover:text-[#EE9B00]">
-              Marriage Hall CRM & ERP
-            </span>
-          </div>
         </Link>
 
         {/* Center: Desktop Navigation Links */}
@@ -70,11 +62,11 @@ export default function Navbar({ onBookDemoClick }: NavbarProps) {
                 key={link.label}
                 href={link.href}
                 className={`text-[9.5px] font-extrabold uppercase tracking-wider transition-colors relative py-1 group/link ${
-                  isActive ? 'text-[#EE9B00]' : 'text-slate-650 hover:text-[#0A2540]'
+                  isActive ? 'text-[#159DFC]' : 'text-slate-650 hover:text-[#0F172A]'
                 }`}
               >
                 {link.label}
-                <span className={`absolute bottom-0 left-0 w-full h-[1.5px] bg-[#EE9B00] transition-transform duration-250 origin-left ${
+                <span className={`absolute bottom-0 left-0 w-full h-[1.5px] bg-[#159DFC] transition-transform duration-250 origin-left ${
                   isActive ? 'scale-x-100' : 'scale-x-0 group-hover/link:scale-x-100'
                 }`} />
               </Link>
@@ -83,11 +75,11 @@ export default function Navbar({ onBookDemoClick }: NavbarProps) {
           <Link
             href="/contact"
             className={`text-[9.5px] font-extrabold uppercase tracking-wider transition-colors relative py-1 group/link ${
-              pathname === '/contact' ? 'text-[#EE9B00]' : 'text-slate-650 hover:text-[#0A2540]'
+              pathname === '/contact' ? 'text-[#159DFC]' : 'text-slate-650 hover:text-[#0F172A]'
             }`}
           >
             Contact
-            <span className={`absolute bottom-0 left-0 w-full h-[1.5px] bg-[#EE9B00] transition-transform duration-250 origin-left ${
+            <span className={`absolute bottom-0 left-0 w-full h-[1.5px] bg-[#159DFC] transition-transform duration-250 origin-left ${
               pathname === '/contact' ? 'scale-x-100' : 'scale-x-0 group-hover/link:scale-x-100'
             }`} />
           </Link>
@@ -98,7 +90,7 @@ export default function Navbar({ onBookDemoClick }: NavbarProps) {
           {showDashboard ? (
             <Link
               href="/dashboard"
-              className="bg-[#0A2540] hover:bg-[#081D33] text-white text-[9.5px] font-extrabold px-4 py-2 rounded-full transition-all shadow-sm hover:scale-[1.02] active:scale-95"
+              className="bg-[#0F172A] hover:bg-[#1E293B] text-white text-[9.5px] font-extrabold px-4 py-2 rounded-full transition-all shadow-sm hover:scale-[1.02] active:scale-95"
             >
               Dashboard
             </Link>
@@ -106,13 +98,13 @@ export default function Navbar({ onBookDemoClick }: NavbarProps) {
             <>
               <Link
                 href="/login"
-                className="text-[10px] font-extrabold px-2.5 py-1.5 text-slate-600 hover:text-[#0A2540] transition-colors"
+                className="text-[10px] font-extrabold px-2.5 py-1.5 text-slate-600 hover:text-[#0F172A] transition-colors"
               >
                 Login
               </Link>
               <button
                 onClick={onBookDemoClick}
-                className="bg-[#EE9B00] hover:bg-[#D48A00] text-[#0A2540] text-[9.5px] font-extrabold px-4.5 py-2 rounded-full transition-all shadow-md hover:scale-[1.03] active:scale-95 cursor-pointer shadow-[#EE9B00]/10 hover:shadow-[#EE9B00]/25 flex items-center gap-1"
+                className="bg-[#159DFC] hover:bg-[#002499] text-[#0F172A] text-[9.5px] font-extrabold px-4.5 py-2 rounded-full transition-all shadow-md hover:scale-[1.03] active:scale-95 cursor-pointer shadow-[#159DFC]/10 hover:shadow-[#159DFC]/25 flex items-center gap-1"
               >
                 Book Demo
                 <ArrowRight className="h-3 w-3" />
@@ -142,7 +134,7 @@ export default function Navbar({ onBookDemoClick }: NavbarProps) {
                   href={link.href}
                   onClick={() => setIsOpen(false)}
                   className={`font-extrabold py-1 uppercase tracking-wider text-[9px] transition-colors ${
-                    isActive ? 'text-[#EE9B00]' : 'text-slate-650 hover:text-[#0A2540]'
+                    isActive ? 'text-[#159DFC]' : 'text-slate-650 hover:text-[#0F172A]'
                   }`}
                 >
                   {link.label}
@@ -153,7 +145,7 @@ export default function Navbar({ onBookDemoClick }: NavbarProps) {
               href="/contact"
               onClick={() => setIsOpen(false)}
               className={`font-extrabold py-1 uppercase tracking-wider text-[9px] transition-colors ${
-                pathname === '/contact' ? 'text-[#EE9B00]' : 'text-slate-650 hover:text-[#0A2540]'
+                pathname === '/contact' ? 'text-[#159DFC]' : 'text-slate-650 hover:text-[#0F172A]'
               }`}
             >
               Contact
@@ -164,7 +156,7 @@ export default function Navbar({ onBookDemoClick }: NavbarProps) {
               <Link
                 onClick={() => setIsOpen(false)}
                 href="/dashboard"
-                className="w-full text-center text-white bg-[#0A2540] hover:bg-[#081D33] rounded-full py-2 text-[10px] font-bold shadow-sm"
+                className="w-full text-center text-white bg-[#0F172A] hover:bg-[#1E293B] rounded-full py-2 text-[10px] font-bold shadow-sm"
               >
                 Dashboard
               </Link>
@@ -182,7 +174,7 @@ export default function Navbar({ onBookDemoClick }: NavbarProps) {
                     setIsOpen(false);
                     onBookDemoClick();
                   }}
-                  className="w-full text-center text-[#0A2540] bg-[#EE9B00] hover:bg-[#D48A00] rounded-full py-2 text-[10px] font-extrabold shadow-md hover:scale-[1.02] transition-transform"
+                  className="w-full text-center text-[#0F172A] bg-[#159DFC] hover:bg-[#002499] rounded-full py-2 text-[10px] font-extrabold shadow-md hover:scale-[1.02] transition-transform"
                 >
                   Book Demo
                 </button>

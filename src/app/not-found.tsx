@@ -14,7 +14,7 @@ export default function NotFound() {
       <div className="max-w-md w-full text-center border border-slate-200 bg-white rounded-2xl p-8 md:p-10 shadow-premium relative z-10">
         
         {/* Ornate Gold Emblem Header */}
-        <div className="h-16 w-16 rounded-full bg-amber-50 border border-amber-100 text-[#EE9B00] flex items-center justify-center mx-auto mb-6 shadow-sm">
+        <div className="h-16 w-16 rounded-full bg-amber-50 border border-amber-100 text-[#159DFC] flex items-center justify-center mx-auto mb-6 shadow-sm">
           <MapPinOff className="h-7 w-7" />
         </div>
 
@@ -23,7 +23,7 @@ export default function NotFound() {
           Error 404
         </span>
         
-        <h1 className="text-2xl font-black text-[#0A2540] tracking-tight leading-none mb-3">
+        <h1 className="text-2xl font-black text-[#0F172A] tracking-tight leading-none mb-3">
           Path Not Found
         </h1>
         

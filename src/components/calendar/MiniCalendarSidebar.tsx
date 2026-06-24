@@ -111,7 +111,7 @@ export function MiniCalendarSidebar({
       {/* Sidebar Header / Collapser */}
       <div className="p-4 border-b border-slate-100 flex items-center justify-between shrink-0">
         <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-[#EE9B00]" />
+          <Calendar className="h-4 w-4 text-[#159DFC]" />
           Schedule Helper
         </h3>
         <button
@@ -225,7 +225,7 @@ export function MiniCalendarSidebar({
                     <div className="flex items-center gap-1.5 w-full">
                       <span className={`h-2 w-2 rounded-full ${
                         event.type === 'booking'
-                          ? event.status === 'confirmed' ? 'bg-[#7C3AED]' : 'bg-[#F59E0B]'
+                          ? event.status === 'confirmed' ? 'bg-[#159DFC]' : 'bg-[#F59E0B]'
                           : event.type === 'maintenance' ? 'bg-[#F97316]' : 'bg-[#3B82F6]'
                       } shrink-0`} />
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide truncate">

@@ -254,7 +254,7 @@ export function CustomerCombobox({ selectedCustomerId, onSelect, error }: Custom
               className="relative w-full max-w-md bg-white rounded-xl shadow-premium border border-slate-200 overflow-hidden z-10 flex flex-col text-xs font-semibold text-slate-700"
             >
               {/* Header Accent color */}
-              <div className="h-1 bg-[#EE9B00]" />
+              <div className="h-1 bg-[#159DFC]" />
 
               {/* Header */}
               <div className="p-5 pb-3 flex justify-between items-start border-b border-slate-100">

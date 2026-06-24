@@ -96,18 +96,15 @@ export default function LoginPage() {
     <div className="grid grid-cols-1 lg:grid-cols-12 min-h-screen w-screen bg-white text-gray-700 antialiased overflow-hidden">
       
       {/* Left panel (hidden on mobile) */}
-      <div className="hidden lg:flex lg:col-span-6 flex-col justify-between p-16 bg-[#0B1A30] text-white relative">
+      <div className="hidden lg:flex lg:col-span-6 flex-col justify-between p-16 bg-[#062089] text-white relative">
         {/* Subtle grid backdrop overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1E2E44_1px,transparent_1px),linear-gradient(to_bottom,#1E2E44_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] opacity-20 pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1E293B_1px,transparent_1px),linear-gradient(to_bottom,#1E293B_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] opacity-20 pointer-events-none" />
         
         {/* Header Logo */}
         <div className="flex items-center gap-3 relative z-10">
-          <div className="h-9 w-9 rounded-xl bg-[#071426] overflow-hidden flex items-center justify-center border border-[#1E2E44] shrink-0 shadow-sm">
-            <img src="/favicon.png" alt="Infovex Halls Icon" className="h-full w-full object-cover" />
-          </div>
-          <span className="font-bold text-lg text-white tracking-tight">
-            Infovex <span className="text-[#EE9B00]">Halls</span>
-          </span>
+          <Link href="/" className="flex items-center bg-white px-3 py-1.5 rounded-lg shadow-sm border border-white/20 hover:bg-slate-50 transition-all duration-150 shrink-0">
+            <img src="/logo.png" alt="Infovex Halls Logo" className="h-6.5 w-auto object-contain" />
+          </Link>
         </div>
 
         {/* Center Pitch & Features */}
@@ -124,7 +121,7 @@ export default function LoginPage() {
           <div className="space-y-4">
             {featureHighlights.map((feat, i) => (
               <div key={i} className="flex items-start gap-3 text-xs">
-                <div className="h-5 w-5 rounded-full bg-[#EE9B00]/10 border border-[#EE9B00]/20 text-[#EE9B00] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="h-5 w-5 rounded-full bg-[#159DFC]/10 border border-[#159DFC]/20 text-[#159DFC] flex items-center justify-center shrink-0 mt-0.5">
                   <Check className="h-3.5 w-3.5 font-bold" />
                 </div>
                 <span className="text-gray-300 font-semibold leading-relaxed">{feat}</span>
@@ -139,7 +136,7 @@ export default function LoginPage() {
         </div>
 
         {/* Left glow */}
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#EE9B00]/5 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#159DFC]/5 rounded-full blur-[100px] pointer-events-none" />
       </div>
 
       {/* Right panel: Centered form */}
@@ -148,12 +145,9 @@ export default function LoginPage() {
           
           {/* Small Top Logo on mobile only */}
           <div className="flex items-center gap-2.5 lg:hidden mb-6">
-            <div className="h-8.5 w-8.5 rounded-xl bg-[#071426] overflow-hidden flex items-center justify-center border border-[#1E2E44] shrink-0">
-              <img src="/favicon.png" alt="Infovex Halls Icon" className="h-full w-full object-cover" />
-            </div>
-            <span className="font-bold text-sm text-gray-900 tracking-tight">
-              Infovex <span className="text-[#EE9B00]">Halls</span>
-            </span>
+            <Link href="/" className="flex items-center bg-white px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 hover:bg-slate-50 transition-all duration-150 shrink-0">
+              <img src="/logo.png" alt="Infovex Halls Logo" className="h-6 w-auto object-contain" />
+            </Link>
           </div>
 
           {/* Welcome Header */}

@@ -79,32 +79,32 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
 
   const founderBenefits = [
     {
-      icon: <Lock className="h-5 w-5 text-[#EE9B00]" />,
+      icon: <Lock className="h-5 w-5 text-[#159DFC]" />,
       title: 'Permanent Pricing Lock',
       desc: 'Lock in your early-partner subscription rates forever. Your pricing remains unchanged even when market rates increase.',
     },
     {
-      icon: <MessageSquare className="h-5 w-5 text-[#EE9B00]" />,
+      icon: <MessageSquare className="h-5 w-5 text-[#159DFC]" />,
       title: 'Direct Product Influence',
       desc: 'Have a feature request or custom receipt template? Our developers build it directly into your platform at no extra cost.',
     },
     {
-      icon: <Crown className="h-5 w-5 text-[#EE9B00]" />,
+      icon: <Crown className="h-5 w-5 text-[#159DFC]" />,
       title: 'VIP Onboarding Concierge',
       desc: 'Our technical team personally imports your registers, sets up staff members, and hosts interactive training webinars.',
     },
     {
-      icon: <Zap className="h-5 w-5 text-[#EE9B00]" />,
+      icon: <Zap className="h-5 w-5 text-[#159DFC]" />,
       title: 'Priority Support Channel',
       desc: 'Get access to a dedicated WhatsApp and phone support group with guaranteed sub-2-hour responses from engineering.',
     },
     {
-      icon: <Gift className="h-5 w-5 text-[#EE9B00]" />,
+      icon: <Gift className="h-5 w-5 text-[#159DFC]" />,
       title: 'Free Add-ons for Life',
       desc: 'Receive future major releases and platform upgrades automatically for free without ever paying addon upgrade fees.',
     },
     {
-      icon: <Shield className="h-5 w-5 text-[#EE9B00]" />,
+      icon: <Shield className="h-5 w-5 text-[#159DFC]" />,
       title: 'Website Hosting Covered',
       desc: 'We fully cover your website domain, SSL security certificate, and hosting infrastructure under your monthly package.',
     },
@@ -114,17 +114,17 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
     <section className="py-28 bg-white border-b border-slate-200/80 relative overflow-hidden" id="pricing">
       {/* Background spot glows */}
       <div className="absolute top-1/4 left-0 h-[400px] w-[400px] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-0 h-[400px] w-[400px] bg-[#EE9B00]/2 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-0 h-[400px] w-[400px] bg-[#159DFC]/2 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         
         {/* Pricing Hero Section */}
         <div className="text-center max-w-3xl mx-auto mb-10 space-y-4">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-[10px] font-bold text-[#D48A00] uppercase tracking-widest backdrop-blur-sm shadow-sm">
-            <Sparkles className="h-3.5 w-3.5 text-[#EE9B00]" />
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-[10px] font-bold text-[#002499] uppercase tracking-widest backdrop-blur-sm shadow-sm">
+            <Sparkles className="h-3.5 w-3.5 text-[#159DFC]" />
             Founder Hall Partner Program
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0A2540] tracking-tight leading-tight font-display">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight leading-tight font-display">
             Transform Your Hall Operations
           </h2>
           <p className="text-sm text-slate-500 font-semibold leading-relaxed max-w-xl mx-auto">
@@ -139,8 +139,8 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
               onClick={() => setBillingCycle('monthly')}
               className={`px-4.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
                 billingCycle === 'monthly'
-                  ? 'bg-[#EE9B00] text-[#0A2540] shadow-md shadow-[#EE9B00]/10'
-                  : 'text-slate-500 hover:text-[#0A2540]'
+                  ? 'bg-[#159DFC] text-[#0F172A] shadow-md shadow-[#159DFC]/10'
+                  : 'text-slate-500 hover:text-[#0F172A]'
               }`}
             >
               Monthly
@@ -149,8 +149,8 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
               onClick={() => setBillingCycle('annual')}
               className={`px-4.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1.5 ${
                 billingCycle === 'annual'
-                  ? 'bg-[#EE9B00] text-[#0A2540] shadow-md shadow-[#EE9B00]/10'
-                  : 'text-slate-500 hover:text-[#0A2540]'
+                  ? 'bg-[#159DFC] text-[#0F172A] shadow-md shadow-[#159DFC]/10'
+                  : 'text-slate-500 hover:text-[#0F172A]'
               }`}
             >
               Annual
@@ -158,20 +158,20 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
           </div>
           
           {/* Floating discount badge */}
-          <span className="bg-[#EE9B00] text-[#0A2540] text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider animate-bounce select-none shadow-md shadow-[#EE9B00]/10">
+          <span className="bg-[#159DFC] text-[#0F172A] text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider animate-bounce select-none shadow-md shadow-[#159DFC]/10">
             Save 20%
           </span>
         </div>
 
         {/* Founder Hall Program Banner (Slot Tracker) */}
         <div className="max-w-4xl mx-auto mb-20 bg-gradient-to-b from-[#F8FAFC] to-slate-100/80 text-slate-800 rounded-3xl p-8 shadow-xl relative overflow-hidden border border-slate-200/80">
-          <div className="absolute -right-16 -top-16 w-40 h-40 bg-[#EE9B00]/3 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -right-16 -top-16 w-40 h-40 bg-[#159DFC]/3 rounded-full blur-3xl pointer-events-none" />
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
             <div className="md:col-span-8 space-y-3">
-              <span className="inline-block px-2.5 py-1 rounded bg-[#EE9B00]/10 border border-[#EE9B00]/25 text-[9px] text-[#D48A00] font-extrabold uppercase tracking-widest animate-pulse">
+              <span className="inline-block px-2.5 py-1 rounded bg-[#159DFC]/10 border border-[#159DFC]/25 text-[9px] text-[#002499] font-extrabold uppercase tracking-widest animate-pulse">
                 Urgent: Limited Enrollment
               </span>
-              <h3 className="font-extrabold text-xl text-[#0A2540] font-display">
+              <h3 className="font-extrabold text-xl text-[#0F172A] font-display">
                 Exclusive Founder Partner Rates Locked Forever
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed font-semibold">
@@ -181,12 +181,12 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
             <div className="md:col-span-4 space-y-4 bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm">
               <div className="flex justify-between text-xs font-bold">
                 <span className="text-slate-500">Slots Claimed</span>
-                <span className="text-[#EE9B00]">{slotsClaimed} of {totalSlots} Halls</span>
+                <span className="text-[#159DFC]">{slotsClaimed} of {totalSlots} Halls</span>
               </div>
               {/* Progress Bar */}
               <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden border border-slate-350/20 p-0.5">
                 <div 
-                  className="bg-gradient-to-r from-amber-400 to-[#EE9B00] h-full rounded-full transition-all duration-750 shadow-md shadow-[#EE9B00]/25" 
+                  className="bg-gradient-to-r from-amber-400 to-[#159DFC] h-full rounded-full transition-all duration-750 shadow-md shadow-[#159DFC]/25" 
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -204,13 +204,13 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
               key={idx}
               className={`relative rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 border backdrop-blur-sm ${
                 plan.popular
-                  ? 'border-[#EE9B00] bg-white ring-4 ring-[#EE9B00]/5 shadow-2xl lg:scale-[1.04] z-10 hover:shadow-[0_15px_40px_-15px_rgba(238,155,0,0.12)]'
+                  ? 'border-[#159DFC] bg-white ring-4 ring-[#159DFC]/5 shadow-2xl lg:scale-[1.04] z-10 hover:shadow-[0_15px_40px_-15px_rgba(238,155,0,0.12)]'
                   : 'border-slate-200/80 bg-[#F8FAFC]/50 hover:border-slate-300 hover:bg-white hover:shadow-lg'
               }`}
             >
               {/* Popular Badge */}
               {plan.popular && (
-                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 px-4 py-1.5 bg-[#EE9B00] text-[#0A2540] rounded-full text-[9px] font-extrabold uppercase tracking-widest shadow-md">
+                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 px-4 py-1.5 bg-[#159DFC] text-[#0F172A] rounded-full text-[9px] font-extrabold uppercase tracking-widest shadow-md">
                   <Sparkles className="h-3 w-3" />
                   Recommended Package
                 </span>
@@ -218,9 +218,9 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
 
               {/* Plan Details */}
               <div>
-                <h4 className="font-extrabold text-[#0A2540] text-lg flex items-center gap-2 font-display">
+                <h4 className="font-extrabold text-[#0F172A] text-lg flex items-center gap-2 font-display">
                   {plan.name}
-                  {plan.popular && <Crown className="h-5 w-5 text-[#EE9B00] shrink-0 animate-pulse" />}
+                  {plan.popular && <Crown className="h-5 w-5 text-[#159DFC] shrink-0 animate-pulse" />}
                 </h4>
                 <p className="text-xs text-slate-500 font-semibold leading-relaxed mt-2.5 min-h-[36px]">
                   {plan.tagline}
@@ -230,7 +230,7 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
                 <div className="my-6 border-y border-slate-200/60 py-6 space-y-4">
                   <div className="flex items-baseline justify-between">
                     <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Monthly License</span>
-                    <span className="text-3xl font-extrabold text-[#0A2540] leading-none tracking-tight">
+                    <span className="text-3xl font-extrabold text-[#0F172A] leading-none tracking-tight">
                       {plan.monthlyPrice}
                       <span className="text-xs text-slate-400 font-semibold tracking-normal">/mo</span>
                     </span>
@@ -244,7 +244,7 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
 
                   <div className="flex items-baseline justify-between text-xs text-slate-500 border-t border-slate-200 pt-3.5">
                     <span className="font-semibold">Setup & Concierge Onboarding</span>
-                    <span className="font-extrabold text-[#0A2540]">{plan.setupFee}</span>
+                    <span className="font-extrabold text-[#0F172A]">{plan.setupFee}</span>
                   </div>
                 </div>
 
@@ -268,7 +268,7 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
                   onClick={onBookDemoClick}
                   className={`w-full py-3.5 px-4 rounded-xl text-xs font-bold cursor-pointer transition-all duration-200 text-center ${
                     plan.popular
-                      ? 'bg-[#EE9B00] text-[#0A2540] hover:bg-[#D48A00] shadow-md hover:scale-[1.02] shadow-[#EE9B00]/10'
+                      ? 'bg-[#159DFC] text-[#0F172A] hover:bg-[#002499] shadow-md hover:scale-[1.02] shadow-[#159DFC]/10'
                       : 'border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-slate-650 hover:scale-[1.01]'
                   }`}
                 >
@@ -284,10 +284,10 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
 
         {/* Founder Partner Advantages Header */}
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-          <span className="text-[10px] font-extrabold text-[#EE9B00] uppercase tracking-widest block">
+          <span className="text-[10px] font-extrabold text-[#159DFC] uppercase tracking-widest block">
             Partner Value Addition
           </span>
-          <h3 className="text-2xl font-extrabold text-[#0A2540] tracking-tight">
+          <h3 className="text-2xl font-extrabold text-[#0F172A] tracking-tight">
             Founder Member Advantages
           </h3>
           <p className="text-xs text-slate-500 font-semibold">
@@ -302,10 +302,10 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
               key={i} 
               className="bg-white border border-slate-200/80 rounded-2xl p-6.5 shadow-sm hover:shadow-md hover:border-slate-300 hover:bg-[#F8FAFC]/50 transition-all duration-300 space-y-3 backdrop-blur-sm"
             >
-              <div className="h-10 w-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-sm text-[#EE9B00]">
+              <div className="h-10 w-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-sm text-[#159DFC]">
                 {benefit.icon}
               </div>
-              <h5 className="font-extrabold text-xs text-[#0A2540] leading-snug">
+              <h5 className="font-extrabold text-xs text-[#0F172A] leading-snug">
                 {benefit.title}
               </h5>
               <p className="text-xs text-slate-500 leading-relaxed font-semibold">

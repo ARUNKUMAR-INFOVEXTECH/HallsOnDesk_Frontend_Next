@@ -102,7 +102,7 @@ export function RememberMeCheckbox({ name = 'rememberMe', label, disabled = fals
       <input
         type="checkbox"
         disabled={disabled}
-        className="rounded border-slate-200 text-primary-light focus:ring-primary-light h-3.5 w-3.5 accent-[#EE9B00] cursor-pointer"
+        className="rounded border-slate-200 text-primary-light focus:ring-primary-light h-3.5 w-3.5 accent-[#159DFC] cursor-pointer"
         {...register(name)}
       />
       <span className="text-xs font-semibold text-gray-500 hover:text-gray-700 transition-colors">

@@ -16,7 +16,7 @@
 
 /* Today cell highlighting */
 .hod-calendar .fc-day-today {
-  background: #EDE9FE !important; /* violet-50 brand style today cell background */
+  background: #E0F2FE !important; /* violet-50 brand style today cell background */
 }
 
 /* Day cell number styling */
@@ -28,8 +28,8 @@
 }
 
 .hod-calendar .fc-day-today .fc-daygrid-day-number {
-  color: #7C3AED;
-  background: #EDE9FE;
+  color: #159DFC;
+  background: #E0F2FE;
   border-radius: 50%;
 }
 
@@ -75,13 +75,13 @@
 
 /* Now timeline indicator line */
 .hod-calendar .fc-now-indicator-line {
-  border-color: #7C3AED !important; /* violet-600 */
+  border-color: #159DFC !important; /* violet-600 */
   border-width: 2px 0 0 0 !important;
 }
 
 .hod-calendar .fc-now-indicator-arrow {
-  border-color: #7C3AED !important;
-  color: #7C3AED !important;
+  border-color: #159DFC !important;
+  color: #159DFC !important;
 }
 
 /* Custom event pill styling overrides */
@@ -118,14 +118,14 @@
 /* Day grid +N more links override */
 .hod-calendar .fc-daygrid-more-link {
   font-size: 11px !important;
-  color: #7C3AED !important; /* violet-600 */
+  color: #159DFC !important; /* violet-600 */
   font-weight: 700 !important;
   text-decoration: none !important;
   padding: 2px 4px !important;
 }
 
 .hod-calendar .fc-daygrid-more-link:hover {
-  background: #EDE9FE;
+  background: #E0F2FE;
   border-radius: 4px;
 }
 

@@ -53,7 +53,7 @@ export default function AdminDashboardPage() {
     return new Intl.NumberFormat('en-IN').format(val);
   };
 
-  const COLORS = ['#7C3AED', '#EE9B00', '#10B981', '#3B82F6', '#EF4444'];
+  const COLORS = ['#159DFC', '#159DFC', '#10B981', '#3B82F6', '#EF4444'];
 
   const isLoading = dashboardLoading || analyticsLoading;
 
@@ -191,12 +191,12 @@ export default function AdminDashboardPage() {
               <AreaChart data={analyticsData?.revenueHistory} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorMrr" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#7C3AED" stopOpacity={0.0}/>
+                    <stop offset="5%" stopColor="#159DFC" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="#159DFC" stopOpacity={0.0}/>
                   </linearGradient>
                   <linearGradient id="colorSetup" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#EE9B00" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#EE9B00" stopOpacity={0.0}/>
+                    <stop offset="5%" stopColor="#159DFC" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="#159DFC" stopOpacity={0.0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -215,8 +215,8 @@ export default function AdminDashboardPage() {
                   formatter={(value: any) => [`₹${formatNumber(value)}`]}
                 />
                 <Legend verticalAlign="top" height={36} iconSize={8} iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 600 }} />
-                <Area type="monotone" dataKey="mrr" fill="url(#colorMrr)" stroke="#7C3AED" strokeWidth={2} name="Monthly Recurring (MRR)" />
-                <Area type="monotone" dataKey="setupFees" fill="url(#colorSetup)" stroke="#EE9B00" strokeWidth={2} name="Setup Fees" />
+                <Area type="monotone" dataKey="mrr" fill="url(#colorMrr)" stroke="#159DFC" strokeWidth={2} name="Monthly Recurring (MRR)" />
+                <Area type="monotone" dataKey="setupFees" fill="url(#colorSetup)" stroke="#159DFC" strokeWidth={2} name="Setup Fees" />
               </AreaChart>
             </ResponsiveContainer>
           </div>

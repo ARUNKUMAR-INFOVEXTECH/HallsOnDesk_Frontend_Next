@@ -37,10 +37,10 @@ export default function Testimonials() {
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-20 space-y-4">
-          <span className="text-[10px] font-bold text-[#D48A00] uppercase tracking-widest block">
+          <span className="text-[10px] font-bold text-[#002499] uppercase tracking-widest block">
             Customer Success Stories
           </span>
-          <h2 className="text-3xl font-extrabold text-[#0A2540] tracking-tight">
+          <h2 className="text-3xl font-extrabold text-[#0F172A] tracking-tight">
             Loved By Marriage Hall Operators
           </h2>
           <p className="text-sm text-slate-500 font-semibold leading-relaxed">
@@ -53,11 +53,11 @@ export default function Testimonials() {
           {testimonials.map((test, idx) => (
             <div
               key={idx}
-              className="bg-[#F8FAFC] border border-slate-200/80 rounded-2xl p-8 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-[#EE9B00]/25 transition-all duration-300 relative group overflow-hidden backdrop-blur-sm"
+              className="bg-[#F8FAFC] border border-slate-200/80 rounded-2xl p-8 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-[#159DFC]/25 transition-all duration-300 relative group overflow-hidden backdrop-blur-sm"
             >
               <div>
                 {/* Stars */}
-                <div className="flex gap-1 mb-6 text-[#EE9B00]">
+                <div className="flex gap-1 mb-6 text-[#159DFC]">
                   {[...Array(test.stars)].map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-current shrink-0" />
                   ))}
@@ -65,7 +65,7 @@ export default function Testimonials() {
 
                 {/* Quote Graphic Overlay */}
                 <div className="relative">
-                  <Quote className="h-8 w-8 text-[#EE9B00]/8 absolute -top-4 -left-4 pointer-events-none -z-10 group-hover:scale-110 transition-transform duration-350" />
+                  <Quote className="h-8 w-8 text-[#159DFC]/8 absolute -top-4 -left-4 pointer-events-none -z-10 group-hover:scale-110 transition-transform duration-350" />
                   <p className="text-xs text-slate-650 font-semibold leading-relaxed italic relative z-10">
                     "{test.quote}"
                   </p>
@@ -74,13 +74,13 @@ export default function Testimonials() {
 
               {/* Author metadata */}
               <div className="pt-6 border-t border-slate-200/60 flex items-center gap-3.5 mt-8">
-                <div className="h-9 w-9 rounded-full bg-slate-200 border border-slate-300 text-[#0A2540] flex items-center justify-center font-extrabold text-sm shrink-0 uppercase shadow-sm">
+                <div className="h-9 w-9 rounded-full bg-slate-200 border border-slate-300 text-[#0F172A] flex items-center justify-center font-extrabold text-sm shrink-0 uppercase shadow-sm">
                   {test.author.charAt(0)}
                 </div>
                 <div>
-                  <span className="font-extrabold text-[#0A2540] text-xs block leading-none">{test.author}</span>
+                  <span className="font-extrabold text-[#0F172A] text-xs block leading-none">{test.author}</span>
                   <span className="text-[10px] text-slate-500 block mt-1.5 font-semibold">
-                    {test.role} • <span className="text-[#EE9B00] font-bold">{test.location}</span>
+                    {test.role} • <span className="text-[#159DFC] font-bold">{test.location}</span>
                   </span>
                 </div>
               </div>

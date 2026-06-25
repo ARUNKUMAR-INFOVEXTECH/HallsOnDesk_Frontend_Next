@@ -128,6 +128,18 @@ export const ADMIN_NAV_ITEMS: NavigationItem[] = [
     roles: ['super_admin'],
   },
   {
+    title: 'Setup Payments',
+    href: '/admin/payments',
+    icon: 'Banknote',
+    roles: ['super_admin'],
+  },
+  {
+    title: 'Invoice Generator',
+    href: '/admin/invoices',
+    icon: 'FileText',
+    roles: ['super_admin'],
+  },
+  {
     title: 'User Management',
     href: '/admin/users',
     icon: 'Users',

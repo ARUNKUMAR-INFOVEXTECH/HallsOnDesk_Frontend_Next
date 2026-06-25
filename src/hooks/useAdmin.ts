@@ -509,3 +509,39 @@ export function useAdminRecordManualPayment(id: string) {
   });
 }
 
+// 15. Setup Fee Payments hooks
+export function useAdminSetupFeePayments() {
+  return useQuery({
+    queryKey: ['admin', 'setup-fee-payments'],
+    queryFn: adminService.getSetupFeePayments,
+  });
+}
+
+export function useAdminUpdateSetupFee() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: { amount_paid: number; payment_method: string; transaction_ref_no?: string; notes?: string } }) =>
+      adminService.updateSetupFeePayment(id, data),
+    onSuccess: (res) => {
+      toast.success(res.message || 'Setup fee payment updated successfully');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'setup-fee-payments'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'halls'] });
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Failed to update setup fee payment');
+    },
+  });
+}
+
+export function useAdminGenerateCustomInvoice() {
+  return useMutation({
+    mutationFn: (data: adminService.CustomInvoiceData) => adminService.generateCustomInvoice(data),
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Failed to generate custom invoice');
+    },
+  });
+}
+
+

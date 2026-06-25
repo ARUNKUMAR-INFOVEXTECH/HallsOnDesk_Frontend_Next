@@ -306,3 +306,79 @@ export async function getAdminSubscriptionInvoiceHtml(id: string): Promise<strin
   return res.data;
 }
 
+export interface SetupFeePayment {
+  id: string;
+  hall_id: string;
+  package_id: string;
+  setup_fee_amount: number;
+  amount_paid: number;
+  status: 'unpaid' | 'partially_paid' | 'paid';
+  due_date: string;
+  payment_method: 'upi' | 'bank_transfer' | 'cash' | 'offline' | 'none';
+  transaction_ref_no?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  marriage_halls?: {
+    hall_name: string;
+  };
+  packages?: {
+    name: string;
+  };
+}
+
+export interface CustomInvoiceData {
+  hallId: string;
+  billToName: string;
+  billToPhone?: string;
+  billToEmail?: string;
+  billToAddress?: string;
+  invoiceDate: string;
+  dueDate: string;
+  invoiceNo?: string;
+  taxEnabled: boolean;
+  taxPercentage: number;
+  items: Array<{
+    description: string;
+    quantity: number;
+    rate: number;
+  }>;
+  notes?: string;
+}
+
+export async function getSetupFeePayments(): Promise<SetupFeePayment[]> {
+  const res = await apiClient.get<SetupFeePayment[]>('/admin/setup-fee-payments');
+  return res.data;
+}
+
+export async function updateSetupFeePayment(
+  id: string,
+  data: {
+    amount_paid: number;
+    payment_method: string;
+    transaction_ref_no?: string;
+    notes?: string;
+  }
+): Promise<{ message: string; data: SetupFeePayment }> {
+  const res = await apiClient.put<{ message: string; data: SetupFeePayment }>(`/admin/setup-fee-payments/${id}`, data);
+  return res.data;
+}
+
+export async function generateCustomInvoice(data: CustomInvoiceData): Promise<string> {
+  const payload = {
+    hall_id: data.hallId,
+    invoice_no: data.invoiceNo || undefined,
+    invoice_date: data.invoiceDate,
+    tax_enabled: data.taxEnabled,
+    notes: data.notes || undefined,
+    items: data.items.map(item => ({
+      description: item.description,
+      qty: item.quantity,
+      rate: item.rate
+    }))
+  };
+  const res = await apiClient.post<string>('/admin/generate-custom-invoice', payload);
+  return res.data;
+}
+
+

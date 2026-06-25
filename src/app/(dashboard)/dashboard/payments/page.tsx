@@ -1,8 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, Download, CalendarRange, AlertCircle, RefreshCw, Loader2 } from 'lucide-react';
+import { Plus, Download, CalendarRange, AlertCircle, RefreshCw, Loader2, Lock as LockIcon } from 'lucide-react';
+import Link from 'next/link';
 import { usePayments, usePaymentSummary, useDeletePayment } from '@/hooks/usePayments';
+import { useActiveSubscription } from '@/hooks/useSettings';
+import { hasFeature } from '@/utils/subscription';
+import { useAuthStore } from '@/store/authStore';
 import { PaymentStatsCards } from '@/components/payments/PaymentStatsCards';
 import { RevenueChart } from '@/components/payments/RevenueChart';
 import { PaymentMethodChart } from '@/components/payments/PaymentMethodChart';
@@ -15,6 +19,10 @@ import { toast } from 'sonner';
 
 export default function PaymentsListPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  
+  const { data: subscription } = useActiveSubscription();
+  const user = useAuthStore((state) => state.user);
+  const isReportsLocked = user?.role === 'super_admin' ? false : (subscription ? !hasFeature(subscription, 'reports') : false);
   
   // Date Range Filters State
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -268,14 +276,46 @@ export default function PaymentsListPage() {
       {summary && <PaymentStatsCards summary={summary} />}
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
-        <div className="lg:col-span-3">
-          <RevenueChart />
+      {!isReportsLocked ? (
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
+          <div className="lg:col-span-3">
+            <RevenueChart />
+          </div>
+          <div className="lg:col-span-2">
+            <PaymentMethodChart />
+          </div>
         </div>
-        <div className="lg:col-span-2">
-          <PaymentMethodChart />
+      ) : (
+        <div className="relative border border-slate-200 rounded-2xl bg-white shadow-sm p-8 flex flex-col items-center text-center justify-center min-h-[300px] overflow-hidden select-none">
+          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-violet-500/5 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-indigo-500/5 blur-3xl pointer-events-none" />
+          
+          <div className="relative z-10 space-y-4 max-w-md">
+            <div className="h-12 w-12 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600 mx-auto shadow-sm">
+              <LockIcon className="h-5 w-5" />
+            </div>
+            
+            <div className="space-y-1">
+              <span className="text-[9px] font-black text-violet-750 bg-violet-50 border border-violet-100 rounded-full px-3 py-1 uppercase tracking-widest inline-block">
+                Premium Analytics Module
+              </span>
+              <h3 className="text-xs font-bold text-slate-850 uppercase tracking-wider">Revenue Charts Locked</h3>
+              <p className="text-[11px] text-slate-400 font-semibold leading-relaxed max-w-sm mx-auto">
+                Access interactive payments collection projections and payment method statistics with the Digital Transformation Plan.
+              </p>
+            </div>
+            
+            <div className="pt-1">
+              <Link
+                href="/settings/subscription"
+                className="inline-flex h-8 items-center justify-center px-4 bg-violet-650 hover:bg-violet-750 text-white text-[10px] font-bold rounded-lg shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+              >
+                Upgrade to Unlock Charts
+              </Link>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Main Transactions Table */}
       <PaymentTable

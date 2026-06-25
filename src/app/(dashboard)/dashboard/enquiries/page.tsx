@@ -35,12 +35,28 @@ import { TodayFollowupsDrawer } from '@/components/enquiries/TodayFollowupsDrawe
 import { LostReasonModal } from '@/components/enquiries/LostReasonModal';
 import { Enquiry, EnquiryStage } from '@/types/enquiry';
 import { obfuscateId } from '@/utils/obfuscate';
+import { useActiveSubscription } from '@/hooks/useSettings';
+import { hasFeature } from '@/utils/subscription';
+import FeatureLockOverlay from '@/components/layout/FeatureLockOverlay';
 
 export default function EnquiriesDashboardPage() {
   const router = useRouter();
 
   const user = useAuthStore((state) => state.user);
+  const role = useAuthStore((state) => state.role);
   const activeHallId = useAuthStore((state) => state.activeHallId);
+
+  const { data: subscription, isLoading: subLoading } = useActiveSubscription();
+
+  if (role !== 'super_admin' && !subLoading && subscription && !hasFeature(subscription, 'crm')) {
+    return (
+      <FeatureLockOverlay 
+        requiredPlan="Digital Transformation Plan"
+        featureName="Leads & Enquiries CRM"
+        description="Track customer walk-ins, digital inquiries, follow-up logs, and manage your pipeline through a visual Kanban Board."
+      />
+    );
+  }
 
   const canCreate = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('create_bookings');
   const canEdit = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('edit_bookings');

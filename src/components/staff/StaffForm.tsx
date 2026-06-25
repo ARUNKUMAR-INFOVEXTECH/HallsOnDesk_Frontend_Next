@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronDown, ChevronUp, User, ShieldCheck } from 'lucide-react';
+import { ChevronDown, ChevronUp, User, ShieldCheck, Lock } from 'lucide-react';
+import { useActiveSubscription } from '@/hooks/useSettings';
+import { hasFeature } from '@/utils/subscription';
 import { staffCreateSchema, StaffCreateValues } from '@/schemas/staff.schema';
 import { FormProvider } from '@/components/forms/FormProvider';
 import { InputField } from '@/components/forms/InputField';
@@ -31,6 +33,9 @@ export function StaffForm({
 }: StaffFormProps) {
   const [locationExpanded, setLocationExpanded] = useState(false);
   const [additionalExpanded, setAdditionalExpanded] = useState(false);
+
+  const { data: subscription } = useActiveSubscription();
+  const isPayrollLocked = subscription ? !hasFeature(subscription, 'payroll') : false;
 
   const form = useForm<StaffCreateValues>({
     resolver: zodResolver(staffCreateSchema),
@@ -373,23 +378,30 @@ export function StaffForm({
         {additionalExpanded && (
           <div className="p-5 space-y-4 animate-in slide-in-from-top-2 duration-200">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="salary" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                  Monthly Salary (Private Details)
-                </label>
-                <div className="relative flex rounded-md">
-                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-slate-200 bg-slate-50 text-slate-550 text-sm">
-                    ₹
-                  </span>
-                  <input
-                    id="salary"
-                    type="number"
-                    placeholder="25000"
-                    className="block w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-r-md transition-all outline-none focus:ring-2 focus:ring-primary-light focus:border-transparent"
-                    {...register('salary', { valueAsNumber: true })}
-                  />
+              {!isPayrollLocked ? (
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="salary" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Monthly Salary (Private Details)
+                  </label>
+                  <div className="relative flex rounded-md">
+                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-slate-200 bg-slate-50 text-slate-550 text-sm">
+                      ₹
+                    </span>
+                    <input
+                      id="salary"
+                      type="number"
+                      placeholder="25000"
+                      className="block w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-r-md transition-all outline-none focus:ring-2 focus:ring-primary-light focus:border-transparent"
+                      {...register('salary', { valueAsNumber: true })}
+                    />
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex items-center gap-2 p-3 bg-violet-50/50 border border-violet-100 rounded-lg text-[10px] text-violet-750 font-bold col-span-2">
+                  <Lock className="h-3.5 w-3.5 text-violet-500" />
+                  <span>Monthly Salary / Payroll management requires a Digital Transformation Plan.</span>
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col gap-1.5">

@@ -25,8 +25,10 @@ import {
   Trash2,
   Check,
   ClipboardList,
-  Loader2
+  Loader2,
+  Lock
 } from 'lucide-react';
+import { hasFeature } from '@/utils/subscription';
 
 // Formatter Helpers
 import { formatCurrency, formatDate } from '@/utils/formatters';
@@ -207,6 +209,7 @@ export default function DashboardPage() {
   const upcomingEvents = upcoming.data || [];
   const todayFollowups = followups.data || [];
   const activeSubscription = data?.subscription;
+  const isReportsLocked = user?.role === 'super_admin' ? false : (activeSubscription ? !hasFeature(activeSubscription, 'reports') : false);
   const recentActivities = activitiesQuery.data || [];
 
   const growthRateVal = analytics?.growth_rate ?? 0;
@@ -433,94 +436,130 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      {/* Advanced Performance Analytics Row */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
-        <div>
-          <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Business Analytics Metrics</h4>
-          <p className="text-[11px] text-slate-400 font-medium mt-0.5">Core performance percentages for venue conversion and collections</p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-lg">
-            <div className="h-8 w-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
-              <Percent className="h-4 w-4" />
+      {isReportsLocked ? (
+        <div className="relative border border-slate-200 rounded-2xl bg-white shadow-sm p-8 flex flex-col items-center text-center justify-center min-h-[350px] overflow-hidden select-none">
+          {/* Subtle Background Elements */}
+          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-violet-500/5 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-indigo-500/5 blur-3xl pointer-events-none" />
+          
+          <div className="relative z-10 space-y-4 max-w-md">
+            <div className="h-14 w-14 rounded-2xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600 mx-auto shadow-sm relative">
+              <Lock className="h-6 w-6" />
+              <span className="absolute -top-1 -right-1 h-3 w-3 bg-amber-500 rounded-full border-2 border-white" />
             </div>
-            <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block leading-none">Enquiry Conversion</span>
-              <div className="flex items-baseline gap-1 mt-1">
-                <span className="text-base text-slate-800 font-bold font-mono">
-                  {analytics?.enquiry_conversion_rate !== undefined ? `${analytics.enquiry_conversion_rate}%` : '0%'}
-                </span>
-              </div>
+            
+            <div className="space-y-2">
+              <span className="text-[9px] font-black text-violet-750 bg-violet-50 border border-violet-100 rounded-full px-3 py-1 uppercase tracking-widest inline-block">
+                Premium Analytics Module
+              </span>
+              <h3 className="text-base font-black text-slate-850 tracking-tight">Advanced Reports & Insights</h3>
+              <p className="text-xs text-slate-500 font-semibold leading-relaxed max-w-sm mx-auto">
+                Gain access to interactive revenue projection graphs, booking channel analytics, enquiry conversion funnels, and MoM growth statistics.
+              </p>
             </div>
-          </div>
-
-          <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-lg">
-            <div className="h-8 w-8 rounded-lg bg-[#159DFC]/10 text-[#159DFC] flex items-center justify-center shrink-0 border border-[#159DFC]/20">
-              <DollarSign className="h-4 w-4" />
-            </div>
-            <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block leading-none">Avg. Order Value</span>
-              <div className="flex items-baseline gap-1 mt-1">
-                <span className="text-base text-slate-800 font-bold font-mono">
-                  {formatCurrency(analytics?.avg_order_value || 0)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-lg">
-            <div className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
-              <CheckCircle2 className="h-4 w-4" />
-            </div>
-            <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block leading-none">Collection Rate</span>
-              <div className="flex items-baseline gap-1 mt-1">
-                <span className="text-base text-slate-800 font-bold font-mono">
-                  {analytics?.collection_rate !== undefined ? `${analytics.collection_rate}%` : '0%'}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-lg">
-            <div className="h-8 w-8 rounded-lg bg-primary-lighter text-primary-light flex items-center justify-center shrink-0 border border-primary-light/10">
-              <TrendingUp className="h-4 w-4" />
-            </div>
-            <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block leading-none">MoM Revenue Growth</span>
-              <div className="flex items-baseline gap-1 mt-1">
-                <span className="text-base text-slate-800 font-bold font-mono">
-                  {growthRateVal >= 0 ? '+' : ''}{growthRateVal}%
-                </span>
-                <span className={`text-[9px] font-bold font-mono ${growthRateVal >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                  {growthRateVal >= 0 ? 'Increase MoM' : 'Decrease MoM'}
-                </span>
-              </div>
+            
+            <div className="pt-2">
+              <Link
+                href="/settings/subscription"
+                className="inline-flex h-9 items-center justify-center px-5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl shadow-md shadow-violet-600/10 hover:shadow-violet-600/25 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer"
+              >
+                Upgrade to Digital Transformation Plan
+              </Link>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Advanced Performance Analytics Row */}
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
+            <div>
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Business Analytics Metrics</h4>
+              <p className="text-[11px] text-slate-400 font-medium mt-0.5">Core performance percentages for venue conversion and collections</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-lg">
+                <div className="h-8 w-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
+                  <Percent className="h-4 w-4" />
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block leading-none">Enquiry Conversion</span>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="text-base text-slate-800 font-bold font-mono">
+                      {analytics?.enquiry_conversion_rate !== undefined ? `${analytics.enquiry_conversion_rate}%` : '0%'}
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-      {/* Analytics Charts Row 1 (Revenue & Booking Status) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <RevenueChart />
-        <PaymentStatusChart
-          total={revenue?.total_revenue || 0}
-          confirmed={summary?.confirmed_bookings || 0}
-          pending={revenue?.total_pending || 0}
-        />
-      </div>
+              <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-lg">
+                <div className="h-8 w-8 rounded-lg bg-[#159DFC]/10 text-[#159DFC] flex items-center justify-center shrink-0 border border-[#159DFC]/20">
+                  <DollarSign className="h-4 w-4" />
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block leading-none">Avg. Order Value</span>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="text-base text-slate-800 font-bold font-mono">
+                      {formatCurrency(analytics?.avg_order_value || 0)}
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-      {/* Analytics Charts Row 2 (Enquiry Funnel & Category Distribution) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <EnquiryFunnelChart data={analytics?.enquiry_funnel} />
-        <EventCategoryChart data={analytics?.event_distribution} />
-      </div>
+              <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-lg">
+                <div className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+                  <CheckCircle2 className="h-4 w-4" />
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block leading-none">Collection Rate</span>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="text-base text-slate-800 font-bold font-mono">
+                      {analytics?.collection_rate !== undefined ? `${analytics.collection_rate}%` : '0%'}
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-      {/* Analytics Charts Row 3 (Booking Trends month-over-month) */}
-      <div className="grid grid-cols-1 gap-6">
-        <BookingTrendsChart />
-      </div>
+              <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-lg">
+                <div className="h-8 w-8 rounded-lg bg-primary-lighter text-primary-light flex items-center justify-center shrink-0 border border-primary-light/10">
+                  <TrendingUp className="h-4 w-4" />
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block leading-none">MoM Revenue Growth</span>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="text-base text-slate-800 font-bold font-mono">
+                      {growthRateVal >= 0 ? '+' : ''}{growthRateVal}%
+                    </span>
+                    <span className={`text-[9px] font-bold font-mono ${growthRateVal >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                      {growthRateVal >= 0 ? 'Increase MoM' : 'Decrease MoM'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Analytics Charts Row 1 (Revenue & Booking Status) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <RevenueChart />
+            <PaymentStatusChart
+              total={revenue?.total_revenue || 0}
+              confirmed={summary?.confirmed_bookings || 0}
+              pending={revenue?.total_pending || 0}
+            />
+          </div>
+
+          {/* Analytics Charts Row 2 (Enquiry Funnel & Category Distribution) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <EnquiryFunnelChart data={analytics?.enquiry_funnel} />
+            <EventCategoryChart data={analytics?.event_distribution} />
+          </div>
+
+          {/* Analytics Charts Row 3 (Booking Trends month-over-month) */}
+          <div className="grid grid-cols-1 gap-6">
+            <BookingTrendsChart />
+          </div>
+        </>
+      )}
 
       {/* Main Operations Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

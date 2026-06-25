@@ -25,11 +25,26 @@ import { Vendor } from '@/types/vendor';
 import { obfuscateId } from '@/utils/obfuscate';
 import { getLocalDateString } from '@/utils/formatters';
 import { useAuthStore } from '@/store/authStore';
+import { useActiveSubscription } from '@/hooks/useSettings';
+import { hasFeature } from '@/utils/subscription';
+import FeatureLockOverlay from '@/components/layout/FeatureLockOverlay';
 
 export default function VendorsPage() {
   const router = useRouter();
-  const { user } = useAuthStore();
+  const { user, role } = useAuthStore();
   const canManage = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('manage_vendors');
+
+  const { data: subscription, isLoading: subLoading } = useActiveSubscription();
+
+  if (role !== 'super_admin' && !subLoading && subscription && !hasFeature(subscription, 'vendors')) {
+    return (
+      <FeatureLockOverlay 
+        requiredPlan="Digital Transformation Plan"
+        featureName="Vendor Directory & Allocation"
+        description="Onboard outsourced service vendors (catering, photography, decors, sound), track allocated costs, and monitor contract logs."
+      />
+    );
+  }
 
   // 1. Persistent UI states (Grid vs Table view preference)
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');

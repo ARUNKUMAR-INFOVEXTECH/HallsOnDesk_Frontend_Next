@@ -10,6 +10,7 @@ import { DASHBOARD_NAV_ITEMS, ADMIN_NAV_ITEMS } from '@/constants';
 import { X, LogOut } from 'lucide-react';
 import { useDashboardQuery } from '@/hooks/useDashboardQueries';
 import HallSwitcher from './HallSwitcher';
+import { hasFeature } from '@/utils/subscription';
 
 // Dynamic Icon rendering utility
 function SidebarIcon({ name, className = 'h-4 w-4' }: { name: string; className?: string }) {
@@ -35,6 +36,19 @@ export default function Sidebar() {
   let allowedNavItems = DASHBOARD_NAV_ITEMS.filter((item) =>
     role ? item.roles.includes(role as any) : false
   );
+
+  // Filter based on active subscription package capabilities
+  if (role !== 'super_admin' && activeSubscription) {
+    allowedNavItems = allowedNavItems.filter((item) => {
+      if (item.href === '/dashboard/enquiries') {
+        return hasFeature(activeSubscription, 'crm');
+      }
+      if (item.href === '/dashboard/vendors') {
+        return hasFeature(activeSubscription, 'vendors');
+      }
+      return true;
+    });
+  }
 
   if (isSubExpired) {
     allowedNavItems = allowedNavItems.filter((item) => item.href === '/dashboard' || item.href === '/dashboard/settings' || item.href === '/dashboard/support' || item.href === '/dashboard/invoices');

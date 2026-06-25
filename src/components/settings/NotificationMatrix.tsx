@@ -10,7 +10,8 @@ import {
   Inbox,
   Bell,
   CheckCircle,
-  HelpCircle
+  HelpCircle,
+  Lock as LockIcon
 } from 'lucide-react';
 import { NotificationSettings } from '@/types/settings';
 
@@ -19,6 +20,7 @@ interface NotificationMatrixProps {
   onChange: (updated: Partial<NotificationSettings>) => void;
   emailContact?: string;
   phoneContact?: string;
+  isWhatsappPremium?: boolean;
 }
 
 export default function NotificationMatrix({
@@ -26,6 +28,7 @@ export default function NotificationMatrix({
   onChange,
   emailContact = 'owner@vasanthamahal.com',
   phoneContact = '+91 98401 23456',
+  isWhatsappPremium = false,
 }: NotificationMatrixProps) {
 
   const channelsList = [
@@ -93,33 +96,49 @@ export default function NotificationMatrix({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {channelsList.map((chan) => {
           const Icon = chan.icon;
-          const isEnabled = values[chan.key];
+          const isLocked = chan.key === 'whatsappEnabled' && !isWhatsappPremium;
+          const isEnabled = values[chan.key] && !isLocked;
           return (
             <div
               key={chan.key}
               className={`p-4 border rounded-xl flex items-start justify-between gap-4 bg-white transition-all shadow-sm ${
-                isEnabled ? 'border-violet-200 ring-1 ring-violet-200' : 'border-gray-150'
+                isLocked ? 'opacity-70 bg-gray-50/50' : isEnabled ? 'border-violet-200 ring-1 ring-violet-200' : 'border-gray-150'
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className={`h-10 w-10 rounded-xl flex items-center justify-center border ${chan.color}`}>
+                <div className={`h-10 w-10 rounded-xl flex items-center justify-center border ${isLocked ? 'text-gray-400 bg-gray-100 border-gray-200' : chan.color}`}>
                   <Icon className="h-5 w-5" />
                 </div>
                 <div className="min-w-0">
-                  <span className="font-bold text-xs text-gray-950 block">{chan.label}</span>
-                  <span className="text-[10px] text-gray-400 font-semibold truncate block mt-0.5">{chan.meta}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-xs text-gray-950 block">{chan.label}</span>
+                    {isLocked && (
+                      <span className="text-[7px] font-extrabold text-violet-750 bg-violet-50 border border-violet-100 px-1 rounded uppercase tracking-wide">
+                        Lock
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[10px] text-gray-400 font-semibold truncate block mt-0.5">
+                    {isLocked ? 'Requires Premium Plan' : chan.meta}
+                  </span>
                 </div>
               </div>
 
-              <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                <input
-                  type="checkbox"
-                  checked={isEnabled}
-                  onChange={() => handleToggleChannel(chan.key)}
-                  className="sr-only peer"
-                />
-                <div className="w-8 h-4.5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-violet-600" />
-              </label>
+              {isLocked ? (
+                <div className="text-gray-400 p-1 shrink-0" title="Premium Feature Locked">
+                  <LockIcon className="h-4 w-4" />
+                </div>
+              ) : (
+                <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={isEnabled}
+                    onChange={() => handleToggleChannel(chan.key)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-8 h-4.5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-violet-600" />
+                </label>
+              )}
             </div>
           );
         })}

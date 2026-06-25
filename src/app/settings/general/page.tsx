@@ -33,8 +33,10 @@ import {
   Lock,
   XCircle,
   X,
-  Eye
+  Eye,
+  Bell
 } from 'lucide-react';
+import NotificationMatrix from '@/components/settings/NotificationMatrix';
 import { toast } from 'sonner';
 import Cookies from 'js-cookie';
 import apiClient from '@/services/api/client';
@@ -214,6 +216,7 @@ export default function GeneralSettingsPage() {
     2: true,  // Tax
     3: false, // Invoice Templates
     4: false, // Multi-Hall
+    5: false, // Notifications
   });
 
   const user = useAuthStore((state) => state.user);
@@ -1134,6 +1137,31 @@ export default function GeneralSettingsPage() {
             )}
           </AccordionSection>
         )}
+
+        {/* Section 5: Notification Alerts & Channels */}
+        <AccordionSection
+          index={5}
+          isOpen={openSections[5] ?? false}
+          onToggle={() => toggleSection(5)}
+          title="Notification Alerts & Channels"
+          description="Configure email alerts, SMS notifications, and premium WhatsApp reminders for your staff and clients."
+          icon={Bell}
+        >
+          <Controller
+            name="notifications"
+            control={control}
+            render={({ field }) => (
+              <NotificationMatrix
+                values={field.value}
+                onChange={(updated) => field.onChange({ ...field.value, ...updated })}
+                emailContact={profile?.email || 'owner@vasanthamahal.com'}
+                phoneContact={profile?.phone || '+91 98401 23456'}
+                isWhatsappPremium={isPremium}
+              />
+            )}
+          />
+        </AccordionSection>
+
 
         {/* Bottom Save bar */}
         <SettingsSaveBar

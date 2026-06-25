@@ -15,6 +15,8 @@ import {
   Users
 } from 'lucide-react';
 import { useStaffList, useStaffStats, useUpdateStaff, useDeleteStaff } from '@/hooks/useStaff';
+import { useActiveSubscription } from '@/hooks/useSettings';
+import { toast } from 'sonner';
 import { StaffStatsCards } from '@/components/staff/StaffStatsCards';
 import { DepartmentFilterPills } from '@/components/staff/DepartmentFilterPills';
 import { StaffCard } from '@/components/staff/StaffCard';
@@ -82,6 +84,10 @@ export default function StaffPage() {
   const updateStaffMutation = useUpdateStaff();
   const deleteStaffMutation = useDeleteStaff();
 
+  // Active subscription for user limits gating
+  const { data: subscription } = useActiveSubscription();
+  const activePackage = subscription?.packages;
+
   // Modals state
   const [editMember, setEditMember] = useState<StaffMember | null>(null);
   const [deleteMember, setDeleteMember] = useState<StaffMember | null>(null);
@@ -94,6 +100,11 @@ export default function StaffPage() {
   // Extract staff list
   const staff = staffRes?.data || [];
   const totalCount = staffRes?.total || 0;
+
+  const totalStaffCount = stats?.totalStaff ?? totalCount;
+  const totalUsersCount = totalStaffCount + 1; // Owner + Staff
+  const maxUsers = activePackage?.max_users ?? null;
+  const isLimitReached = maxUsers !== null && totalUsersCount >= maxUsers;
 
   const hasActiveFilters =
     search !== '' || roleFilter !== 'all' || statusFilter !== 'all' || deptFilter !== 'all';
@@ -220,6 +231,28 @@ export default function StaffPage() {
   return (
     <div className="space-y-6 select-none pb-12">
       
+      {/* User Limit Warning Banner */}
+      {isLimitReached && (
+        <div className="flex items-start md:items-center justify-between gap-4 bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-900 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-bold text-xs">User Account Limit Reached</h4>
+              <p className="text-[11px] text-amber-705 mt-1 leading-relaxed font-semibold">
+                Your venue is currently on the <strong>{activePackage?.name}</strong> plan which allows a maximum of <strong>{maxUsers}</strong> active user accounts (1 Owner + {maxUsers - 1} Staff/Managers).
+                You have used all available slots. To register additional team members, please upgrade your subscription plan.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => router.push('/settings/subscription')}
+            className="shrink-0 bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold px-3 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Upgrade Plan
+          </button>
+        </div>
+      )}
+
       {/* PAGE HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-2.5">
@@ -268,8 +301,19 @@ export default function StaffPage() {
 
           {/* Add Staff button */}
           <button
-            onClick={() => router.push('/dashboard/staff/new')}
-            className="flex items-center justify-center gap-1.5 h-9 px-4.5 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
+            onClick={() => {
+              if (isLimitReached) {
+                toast.error(`User limit reached! Your plan allows a maximum of ${maxUsers} user accounts (Owner + Staff). Please upgrade.`);
+                router.push('/settings/subscription');
+              } else {
+                router.push('/dashboard/staff/new');
+              }
+            }}
+            className={`flex items-center justify-center gap-1.5 h-9 px-4.5 rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer ${
+              isLimitReached
+                ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                : 'bg-primary hover:bg-primary-hover text-white'
+            }`}
           >
             <Plus className="h-4 w-4 shrink-0" />
             <span>Add Staff Member</span>

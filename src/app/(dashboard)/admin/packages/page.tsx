@@ -8,6 +8,7 @@ import {
   Trash2,
   Edit,
   Check,
+  X,
   Building,
   Users,
   CalendarRange,
@@ -16,6 +17,7 @@ import {
   Loader2,
   Settings
 } from 'lucide-react';
+import { packageHasFeature } from '@/utils/subscription';
 import Link from 'next/link';
 
 export default function AdminPackagesPage() {
@@ -124,15 +126,91 @@ export default function AdminPackagesPage() {
                   <hr className="border-gray-100" />
 
                   {/* Features list */}
-                  <div className="space-y-2.5">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Included Features</span>
-                    <div className="space-y-2">
-                      {pkg.features && Array.isArray(pkg.features) && pkg.features.map((feature, idx) => (
-                        <div key={idx} className="flex items-start gap-2 text-xs font-semibold text-gray-700">
-                          <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                          <span className="leading-tight">{feature}</span>
-                        </div>
-                      ))}
+                  <div className="space-y-2.5 pt-2">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Plan features & capabilities</span>
+                    
+                    <div className="space-y-2 text-xs font-semibold text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                        <span>Core Booking & Event Calendar</span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {packageHasFeature(pkg.name, 'crm') ? (
+                          <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                        ) : (
+                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
+                        )}
+                        <span className={packageHasFeature(pkg.name, 'crm') ? 'text-gray-950 font-bold' : 'text-gray-400 font-medium line-through'}>
+                          Customer CRM (Leads/Enquiries)
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {packageHasFeature(pkg.name, 'vendors') ? (
+                          <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                        ) : (
+                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
+                        )}
+                        <span className={packageHasFeature(pkg.name, 'vendors') ? 'text-gray-950 font-bold' : 'text-gray-400 font-medium line-through'}>
+                          Vendor Directory & Allocation
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {packageHasFeature(pkg.name, 'reports') ? (
+                          <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                        ) : (
+                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
+                        )}
+                        <span className={packageHasFeature(pkg.name, 'reports') ? 'text-gray-950 font-bold' : 'text-gray-400 font-medium line-through'}>
+                          Advanced Reports & Analytics
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {packageHasFeature(pkg.name, 'payroll') ? (
+                          <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                        ) : (
+                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
+                        )}
+                        <span className={packageHasFeature(pkg.name, 'payroll') ? 'text-gray-950 font-bold' : 'text-gray-400 font-medium line-through'}>
+                          Staff Salary & Payroll Fields
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {packageHasFeature(pkg.name, 'multihall') ? (
+                          <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                        ) : (
+                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
+                        )}
+                        <span className={packageHasFeature(pkg.name, 'multihall') ? 'text-gray-950 font-bold' : 'text-gray-400 font-medium line-through'}>
+                          Multi-Hall Context Switcher
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {packageHasFeature(pkg.name, 'whatsapp') ? (
+                          <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                        ) : (
+                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
+                        )}
+                        <span className={packageHasFeature(pkg.name, 'whatsapp') ? 'text-gray-950 font-bold' : 'text-gray-400 font-medium line-through'}>
+                          Premium WhatsApp Alerts
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {packageHasFeature(pkg.name, 'support') ? (
+                          <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                        ) : (
+                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
+                        )}
+                        <span className={packageHasFeature(pkg.name, 'support') ? 'text-gray-950 font-bold' : 'text-gray-400 font-medium line-through'}>
+                          Priority 24/7 Support Center
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>

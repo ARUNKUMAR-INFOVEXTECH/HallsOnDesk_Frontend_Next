@@ -46,6 +46,9 @@ export default function Sidebar() {
       if (item.href === '/dashboard/vendors') {
         return hasFeature(activeSubscription, 'vendors');
       }
+      if (item.href === '/dashboard/support') {
+        return hasFeature(activeSubscription, 'support');
+      }
       return true;
     });
   }

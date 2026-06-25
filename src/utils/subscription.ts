@@ -6,18 +6,14 @@
  * Premium SaaS Plan (₹3,999): Core Booking, Calendar, All Invoices, Basic Alerts, 10 Staff, Multi-Hall, WhatsApp Alerts, Support.
  * Premium DT Plan (₹4,999): All features, 15 Staff.
  */
-export type SaaSFeature = 'crm' | 'vendors' | 'payroll' | 'reports' | 'multihall' | 'whatsapp';
+export type SaaSFeature = 'crm' | 'vendors' | 'payroll' | 'reports' | 'multihall' | 'whatsapp' | 'support';
 
-export function hasFeature(activeSubscription: any, feature: SaaSFeature): boolean {
-  if (!activeSubscription) return false;
+/**
+ * Validates a feature against a package name.
+ */
+export function packageHasFeature(packageName: string, feature: SaaSFeature): boolean {
+  const planName = (packageName || '').toLowerCase();
   
-  // Extract plan name from either nested packages or raw plan field
-  const planName = (
-    activeSubscription.plan || 
-    activeSubscription.packages?.name || 
-    ''
-  ).toLowerCase();
-
   switch (feature) {
     case 'crm':
     case 'vendors':
@@ -28,10 +24,26 @@ export function hasFeature(activeSubscription: any, feature: SaaSFeature): boole
       
     case 'multihall':
     case 'whatsapp':
+    case 'support':
       // Requires a Premium plan (contains 'premium')
       return planName.includes('premium');
       
     default:
       return false;
   }
+}
+
+/**
+ * Validates a feature against an active subscription object.
+ */
+export function hasFeature(activeSubscription: any, feature: SaaSFeature): boolean {
+  if (!activeSubscription) return false;
+  
+  // Extract plan name from either nested packages or raw plan field
+  const planName = 
+    activeSubscription.plan || 
+    activeSubscription.packages?.name || 
+    '';
+
+  return packageHasFeature(planName, feature);
 }

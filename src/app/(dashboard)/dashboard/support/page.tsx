@@ -4,6 +4,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import * as supportService from '@/services/api/modules/support.service';
 import { SupportTicket, SupportTicketMessage } from '@/types';
+import { useActiveSubscription } from '@/hooks/useSettings';
+import { hasFeature } from '@/utils/subscription';
+import FeatureLockOverlay from '@/components/layout/FeatureLockOverlay';
 import { 
   LifeBuoy, 
   Plus, 
@@ -22,6 +25,8 @@ import {
 
 export default function OwnerSupportPage() {
   const user = useAuthStore((state) => state.user);
+  const { data: subscription, isLoading: isSubLoading } = useActiveSubscription();
+  const isSupportLocked = user?.role === 'super_admin' ? false : (subscription ? !hasFeature(subscription, 'support') : false);
   
   // State variables
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
@@ -41,6 +46,24 @@ export default function OwnerSupportPage() {
   const [errorMsg, setErrorMsg] = useState('');
 
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  if (isSubLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (isSupportLocked) {
+    return (
+      <FeatureLockOverlay
+        requiredPlan="Premium SaaS Plan"
+        featureName="Priority Support Center"
+        description="Access our 24/7 priority support ticketing system to chat directly with engineering and operations coordinators."
+      />
+    );
+  }
 
   // Fetch all tickets on load
   const fetchTickets = async (selectId?: string) => {

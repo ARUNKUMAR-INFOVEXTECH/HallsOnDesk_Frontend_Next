@@ -14,7 +14,6 @@ import {
   ShieldAlert,
   Loader2,
   AlertCircle,
-  MoreHorizontal,
   Eye,
   EyeOff,
   X
@@ -27,8 +26,6 @@ export default function AdminUsersPage() {
   const [selectedRole, setSelectedRole] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   
-  // Action Menu toggle state
-  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [visiblePasswords, setVisiblePasswords] = useState<Record<string, boolean>>({});
   const togglePasswordVisibility = (userId: string) => {
     setVisiblePasswords((prev) => ({ ...prev, [userId]: !prev[userId] }));
@@ -56,14 +53,12 @@ export default function AdminUsersPage() {
     if (confirm(`Change this user system access state to ${nextStatus}?`)) {
       await toggleUserStatus({ userId: id, status: nextStatus });
     }
-    setActiveMenuId(null);
   };
 
   const handleResetPassword = async (id: string, email: string) => {
     if (confirm(`Send credentials password reset instructions email to ${email}?`)) {
       await resetPassword(id);
     }
-    setActiveMenuId(null);
   };
 
   const handleChangePasswordSubmit = async (e: React.FormEvent) => {
@@ -228,59 +223,46 @@ export default function AdminUsersPage() {
                       <td className="px-5 py-4 text-gray-500 font-medium">
                         {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('en-GB') : 'Never'}
                       </td>
-                      <td className="px-5 py-4 text-right relative">
-                        <button
-                          onClick={() => setActiveMenuId(activeMenuId === user.id ? null : user.id)}
-                          className="p-1 rounded hover:bg-gray-100 text-gray-500 cursor-pointer"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </button>
+                      <td className="px-5 py-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {/* Suspend / Activate User */}
+                          <button
+                            onClick={() => handleStatusToggle(user.id, user.status)}
+                            className={`p-1.5 rounded-lg transition-colors inline-block cursor-pointer ${
+                              user.status === 'active' 
+                                ? 'hover:bg-amber-50 text-amber-600 hover:text-amber-700' 
+                                : 'hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700'
+                            }`}
+                            title={user.status === 'active' ? 'Suspend User' : 'Activate User'}
+                          >
+                            {user.status === 'active' ? (
+                              <ShieldAlert className="h-4 w-4" />
+                            ) : (
+                              <ShieldCheck className="h-4 w-4" />
+                            )}
+                          </button>
 
-                        {activeMenuId === user.id && (
-                          <>
-                            <div className="fixed inset-0 z-10" onClick={() => setActiveMenuId(null)} />
-                            <div className="absolute right-5 mt-1 w-48 bg-white border border-gray-150 rounded-lg shadow-lg py-1.5 z-20 text-left">
-                              <button
-                                onClick={() => handleStatusToggle(user.id, user.status)}
-                                className={`w-full flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 text-xs font-semibold cursor-pointer ${
-                                  user.status === 'active' ? 'text-amber-600' : 'text-emerald-600'
-                                }`}
-                              >
-                                {user.status === 'active' ? (
-                                  <>
-                                    <ShieldAlert className="h-3.5 w-3.5" />
-                                    <span>Suspend User</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <ShieldCheck className="h-3.5 w-3.5" />
-                                    <span>Activate User</span>
-                                  </>
-                                )}
-                              </button>
+                          {/* Reset Password Link via Email */}
+                          <button
+                            onClick={() => handleResetPassword(user.id, user.email)}
+                            className="p-1.5 rounded-lg hover:bg-gray-150/50 text-gray-500 hover:text-violet-650 transition-colors inline-block cursor-pointer"
+                            title="Send Reset Password Link"
+                          >
+                            <Mail className="h-4 w-4" />
+                          </button>
 
-                              <button
-                                onClick={() => handleResetPassword(user.id, user.email)}
-                                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 text-gray-750 text-xs font-semibold text-left cursor-pointer"
-                              >
-                                <Key className="h-3.5 w-3.5 text-gray-450" />
-                                <span>Reset Password Link</span>
-                              </button>
-
-                              <button
-                                onClick={() => {
-                                  setChangePasswordId(user.id);
-                                  setNewPassword('');
-                                  setActiveMenuId(null);
-                                }}
-                                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 text-violet-650 text-xs font-semibold text-left cursor-pointer"
-                              >
-                                <Key className="h-3.5 w-3.5 text-violet-500" />
-                                <span>Manual Change Password</span>
-                              </button>
-                            </div>
-                          </>
-                        )}
+                          {/* Manual Change Password */}
+                          <button
+                            onClick={() => {
+                              setChangePasswordId(user.id);
+                              setNewPassword('');
+                            }}
+                            className="p-1.5 rounded-lg hover:bg-gray-150/50 text-gray-500 hover:text-violet-650 transition-colors inline-block cursor-pointer"
+                            title="Manual Change Password"
+                          >
+                            <Key className="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

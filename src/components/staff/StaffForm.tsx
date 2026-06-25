@@ -3,9 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronDown, ChevronUp, User, ShieldCheck, Lock } from 'lucide-react';
-import { useActiveSubscription } from '@/hooks/useSettings';
-import { hasFeature } from '@/utils/subscription';
+import { ChevronDown, ChevronUp, User, ShieldCheck } from 'lucide-react';
 import { staffCreateSchema, StaffCreateValues } from '@/schemas/staff.schema';
 import { FormProvider } from '@/components/forms/FormProvider';
 import { InputField } from '@/components/forms/InputField';
@@ -33,9 +31,6 @@ export function StaffForm({
 }: StaffFormProps) {
   const [locationExpanded, setLocationExpanded] = useState(false);
   const [additionalExpanded, setAdditionalExpanded] = useState(false);
-
-  const { data: subscription } = useActiveSubscription();
-  const isPayrollLocked = subscription ? !hasFeature(subscription, 'payroll') : false;
 
   const form = useForm<StaffCreateValues>({
     resolver: zodResolver(staffCreateSchema),
@@ -355,7 +350,7 @@ export function StaffForm({
         )}
       </div>
 
-      {/* CARD 5: Salary & Notes (Collapsible) */}
+      {/* CARD 5: Additional Notes (Collapsible) */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden transition-all">
         <button
           type="button"
@@ -363,7 +358,7 @@ export function StaffForm({
           className="w-full flex items-center justify-between p-5 border-b border-slate-50 hover:bg-slate-50/50 transition-all cursor-pointer"
         >
           <div className="flex items-center gap-2">
-            <span className="text-sm font-extrabold text-slate-850">Salary & Additional Notes</span>
+            <span className="text-sm font-extrabold text-slate-850">Additional Notes</span>
             <span className="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
               Optional
             </span>
@@ -377,33 +372,6 @@ export function StaffForm({
 
         {additionalExpanded && (
           <div className="p-5 space-y-4 animate-in slide-in-from-top-2 duration-200">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {!isPayrollLocked ? (
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="salary" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Monthly Salary (Private Details)
-                  </label>
-                  <div className="relative flex rounded-md">
-                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-slate-200 bg-slate-50 text-slate-550 text-sm">
-                      ₹
-                    </span>
-                    <input
-                      id="salary"
-                      type="number"
-                      placeholder="25000"
-                      className="block w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-r-md transition-all outline-none focus:ring-2 focus:ring-primary-light focus:border-transparent"
-                      {...register('salary', { valueAsNumber: true })}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 p-3 bg-violet-50/50 border border-violet-100 rounded-lg text-[10px] text-violet-750 font-bold col-span-2">
-                  <Lock className="h-3.5 w-3.5 text-violet-500" />
-                  <span>Monthly Salary / Payroll management requires a Digital Transformation Plan.</span>
-                </div>
-              )}
-            </div>
-
             <div className="flex flex-col gap-1.5">
               <label htmlFor="notes" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Staff Notes
@@ -411,7 +379,7 @@ export function StaffForm({
               <textarea
                 id="notes"
                 rows={2}
-                className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none hover:border-slate-300 focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg outline-none hover:border-slate-305 focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                 placeholder="Add private performance summaries or other comments..."
                 {...register('notes')}
               />

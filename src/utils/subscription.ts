@@ -16,10 +16,19 @@ export function packageHasFeature(packageName: string, feature: SaaSFeature): bo
   
   switch (feature) {
     case 'crm':
+      // Allowed in Digital Transformation and Premium plans
+      return planName.includes('transformation') || planName.includes('premium') || planName.includes('pro') || planName.includes('deluxe');
+      
     case 'vendors':
+      // Allowed in Premium plans only (restricted in Digital Transformation plan)
+      return planName.includes('premium');
+      
     case 'payroll':
+      // Payroll module is removed universally
+      return false;
+      
     case 'reports':
-      // Requires a Digital Transformation plan (contains 'transformation', 'pro', 'deluxe')
+      // Requires a Digital Transformation plan (Digital Transformation or Premium DT)
       return planName.includes('transformation') || planName.includes('pro') || planName.includes('deluxe');
       
     case 'multihall':

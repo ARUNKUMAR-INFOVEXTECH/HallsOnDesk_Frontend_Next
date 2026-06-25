@@ -168,16 +168,7 @@ export default function AdminPackagesPage() {
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        {packageHasFeature(pkg.name, 'payroll') ? (
-                          <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
-                        )}
-                        <span className={packageHasFeature(pkg.name, 'payroll') ? 'text-gray-950 font-bold' : 'text-gray-400 font-medium line-through'}>
-                          Staff Salary & Payroll Fields
-                        </span>
-                      </div>
+
 
                       <div className="flex items-center gap-2">
                         {packageHasFeature(pkg.name, 'multihall') ? (

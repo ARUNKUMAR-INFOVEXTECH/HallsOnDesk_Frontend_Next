@@ -3,9 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { X, ShieldCheck, User, Info, FileText, Lock } from 'lucide-react';
-import { useActiveSubscription } from '@/hooks/useSettings';
-import { hasFeature } from '@/utils/subscription';
+import { X, ShieldCheck, User, Info, FileText } from 'lucide-react';
 import { staffFormSchema, StaffFormValues } from '@/schemas/staff.schema';
 import { FormProvider } from '@/components/forms/FormProvider';
 import { InputField } from '@/components/forms/InputField';
@@ -34,9 +32,6 @@ export function StaffEditDrawer({
   isSaving = false,
 }: StaffEditDrawerProps) {
   const [activeTab, setActiveTab] = useState<SubTabType>('details');
-
-  const { data: subscription } = useActiveSubscription();
-  const isPayrollLocked = subscription ? !hasFeature(subscription, 'payroll') : false;
 
   const form = useForm<StaffFormValues>({
     resolver: zodResolver(staffFormSchema),
@@ -312,32 +307,8 @@ export function StaffEditDrawer({
 
                   <div className="space-y-4 border-t border-slate-100 pt-4">
                     <h4 className="text-xs font-black uppercase text-slate-450 tracking-wider">
-                      Private & Billing Info
+                      Private Notes
                     </h4>
-                    {!isPayrollLocked ? (
-                      <div className="flex flex-col gap-1.5">
-                        <label htmlFor="drawer-salary" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                          Monthly Salary
-                        </label>
-                        <div className="relative flex rounded-md">
-                          <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-slate-200 bg-slate-50 text-slate-550 text-sm">
-                            ₹
-                          </span>
-                          <input
-                            id="drawer-salary"
-                            type="number"
-                            placeholder="25000"
-                            className="block w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-r-md transition-all outline-none focus:ring-2 focus:ring-primary-light focus:border-transparent font-semibold text-slate-700"
-                            {...form.register('salary', { valueAsNumber: true })}
-                          />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 p-3 bg-violet-50/50 border border-violet-100 rounded-lg text-[10px] text-violet-750 font-bold">
-                        <Lock className="h-3.5 w-3.5 text-violet-500 shrink-0" />
-                        <span>Monthly Salary / Payroll management requires a Digital Transformation Plan.</span>
-                      </div>
-                    )}
 
                     <div className="flex flex-col gap-1.5">
                       <label htmlFor="drawer-notes" className="text-xs font-semibold uppercase tracking-wider text-slate-500">

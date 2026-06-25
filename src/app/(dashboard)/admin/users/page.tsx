@@ -16,11 +16,12 @@ import {
   AlertCircle,
   MoreHorizontal,
   Eye,
-  EyeOff
+  EyeOff,
+  X
 } from 'lucide-react';
 
 export default function AdminUsersPage() {
-  const { users = [], isLoading, toggleUserStatus, resetPassword } = useAdminUsers();
+  const { users = [], isLoading, toggleUserStatus, resetPassword, changePassword, isChangingPassword } = useAdminUsers();
 
   const [search, setSearch] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
@@ -32,6 +33,10 @@ export default function AdminUsersPage() {
   const togglePasswordVisibility = (userId: string) => {
     setVisiblePasswords((prev) => ({ ...prev, [userId]: !prev[userId] }));
   };
+
+  // Dialog State
+  const [changePasswordId, setChangePasswordId] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
 
   const filteredUsers = users.filter((u) => {
     const matchesSearch =
@@ -59,6 +64,18 @@ export default function AdminUsersPage() {
       await resetPassword(id);
     }
     setActiveMenuId(null);
+  };
+
+  const handleChangePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!changePasswordId || !newPassword || newPassword.length < 6) return;
+    try {
+      await changePassword({ userId: changePasswordId, password: newPassword });
+      setChangePasswordId(null);
+      setNewPassword('');
+    } catch {
+      // handled
+    }
   };
 
   return (
@@ -179,9 +196,9 @@ export default function AdminUsersPage() {
                               className="text-gray-400 hover:text-gray-600 p-0.5 cursor-pointer inline-flex items-center"
                             >
                               {visiblePasswords[user.id] ? (
-                                <EyeOff className="h-3.5 w-3.5" />
+                                <EyeOff className="h-3.5 w-3.5 text-slate-500" />
                               ) : (
-                                <Eye className="h-3.5 w-3.5" />
+                                <Eye className="h-3.5 w-3.5 text-slate-400" />
                               )}
                             </button>
                           </div>
@@ -247,7 +264,19 @@ export default function AdminUsersPage() {
                                 className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 text-gray-750 text-xs font-semibold text-left cursor-pointer"
                               >
                                 <Key className="h-3.5 w-3.5 text-gray-450" />
-                                <span>Reset Password</span>
+                                <span>Reset Password Link</span>
+                              </button>
+
+                              <button
+                                onClick={() => {
+                                  setChangePasswordId(user.id);
+                                  setNewPassword('');
+                                  setActiveMenuId(null);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 text-violet-650 text-xs font-semibold text-left cursor-pointer"
+                              >
+                                <Key className="h-3.5 w-3.5 text-violet-500" />
+                                <span>Manual Change Password</span>
                               </button>
                             </div>
                           </>
@@ -261,6 +290,57 @@ export default function AdminUsersPage() {
           </div>
         )}
       </div>
+
+      {/* Manual Change Password Dialog */}
+      {changePasswordId && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-gray-100 rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+              <span className="font-bold text-gray-900 text-sm">Manual Change Password</span>
+              <button onClick={() => setChangePasswordId(null)} className="text-gray-400 hover:text-gray-600 cursor-pointer">
+                <X className="h-4.5 w-4.5" />
+              </button>
+            </div>
+            <form onSubmit={handleChangePasswordSubmit} className="p-5 space-y-4">
+              <p className="text-xs text-gray-500 font-medium leading-relaxed">
+                Set a new password directly for <span className="font-bold text-gray-800">
+                  {users.find(u => u.id === changePasswordId)?.name}
+                </span> ({users.find(u => u.id === changePasswordId)?.email}).
+              </p>
+              
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">New Password</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Min 6 characters"
+                  className="px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500"
+                  minLength={6}
+                  required
+                />
+              </div>
+
+              <div className="pt-4 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setChangePasswordId(null)}
+                  className="px-3 py-1.5 border border-gray-250 text-gray-500 text-xs font-semibold rounded-lg hover:bg-gray-100 cursor-pointer"
+                >
+                  Discard
+                </button>
+                <button
+                  type="submit"
+                  disabled={isChangingPassword}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 bg-violet-600 hover:bg-violet-700 text-xs font-semibold text-white rounded-lg cursor-pointer"
+                >
+                  {isChangingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>Update password</span>}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

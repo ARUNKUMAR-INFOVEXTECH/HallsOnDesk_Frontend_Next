@@ -389,4 +389,17 @@ export async function generateCustomInvoice(data: CustomInvoiceData): Promise<st
   return res.data;
 }
 
+export async function changeAdminUserPassword(userId: string, password: string): Promise<{ message: string }> {
+  const res = await apiClient.post<{ message: string }>(`/admin/users/${userId}/change-password`, { password });
+  return res.data;
+}
+
+export async function adjustSubscription(
+  subscriptionId: string,
+  data: { end_date?: string; grace_days?: number; status?: string }
+): Promise<{ message: string }> {
+  const res = await apiClient.put<{ message: string }>(`/admin/subscriptions/${subscriptionId}/adjust`, data);
+  return res.data;
+}
+
 

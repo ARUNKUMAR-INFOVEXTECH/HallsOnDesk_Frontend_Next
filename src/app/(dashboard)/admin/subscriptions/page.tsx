@@ -14,13 +14,23 @@ import {
   X,
   Loader2,
   AlertCircle,
-  Eye
+  Eye,
+  Sliders
 } from 'lucide-react';
 import Link from 'next/link';
 import { obfuscateId } from '@/utils/obfuscate';
 
 export default function AdminSubscriptionsPage() {
-  const { subscriptions = [], isLoading: subsLoading, renewSubscription, changePackage, isRenewing, isChangingPackage } = useAdminSubscriptions();
+  const { 
+    subscriptions = [], 
+    isLoading: subsLoading, 
+    renewSubscription, 
+    changePackage, 
+    adjustSubscription,
+    isRenewing, 
+    isChangingPackage,
+    isAdjusting
+  } = useAdminSubscriptions();
   const { packages = [], isLoading: pkgsLoading } = useAdminPackages();
   const { suspendHall } = useAdminHalls();
 
@@ -31,8 +41,14 @@ export default function AdminSubscriptionsPage() {
   const [activeSubId, setActiveSubId] = useState<string | null>(null);
   const [renewDialogOpen, setRenewDialogOpen] = useState(false);
   const [packageDialogOpen, setPackageDialogOpen] = useState(false);
+  const [adjustDialogOpen, setAdjustDialogOpen] = useState(false);
+  
   const [selectedMonths, setSelectedMonths] = useState(1);
   const [selectedNewPkgId, setSelectedNewPkgId] = useState('');
+  
+  // Custom Override States
+  const [customEndDate, setCustomEndDate] = useState('');
+  const [selectedStatusOverride, setSelectedStatusOverride] = useState('');
 
   const activeSubscription = subscriptions.find((s) => s.id === activeSubId);
 
@@ -69,6 +85,36 @@ export default function AdminSubscriptionsPage() {
       setPackageDialogOpen(false);
     } catch {
       // handled
+    }
+  };
+
+  const handleAdjustSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeSubId) return;
+    try {
+      await adjustSubscription({
+        subscriptionId: activeSubId,
+        endDate: customEndDate || undefined,
+        status: selectedStatusOverride || undefined,
+      });
+      setAdjustDialogOpen(false);
+    } catch {
+      // handled
+    }
+  };
+
+  const handleApplyGrace = async (days: number) => {
+    if (!activeSubId) return;
+    if (confirm(`Apply custom grace period of +${days} days to this venue license?`)) {
+      try {
+        await adjustSubscription({
+          subscriptionId: activeSubId,
+          graceDays: days,
+        });
+        setAdjustDialogOpen(false);
+      } catch {
+        // handled
+      }
     }
   };
 
@@ -205,6 +251,20 @@ export default function AdminSubscriptionsPage() {
                           </button>
 
                           <button
+                            onClick={() => {
+                              setActiveSubId(sub.id);
+                              const formattedDate = sub.endDate ? new Date(sub.endDate).toISOString().split('T')[0] : '';
+                              setCustomEndDate(formattedDate);
+                              setSelectedStatusOverride(sub.status);
+                              setAdjustDialogOpen(true);
+                            }}
+                            className="p-1.5 rounded-lg hover:bg-gray-150/50 text-gray-500 hover:text-violet-650 transition-colors inline-block cursor-pointer"
+                            title="Adjust End Date & Grace Overrides"
+                          >
+                            <Sliders className="h-4 w-4" />
+                          </button>
+
+                          <button
                             onClick={() => handleCancelSubscription(sub.hallId)}
                             className="p-1.5 rounded-lg hover:bg-red-50 text-red-600 hover:text-red-750 transition-colors inline-block cursor-pointer"
                             title="Suspend Access"
@@ -319,6 +379,92 @@ export default function AdminSubscriptionsPage() {
                   className="flex items-center gap-1.5 px-3.5 py-1.5 bg-violet-600 hover:bg-violet-700 text-xs font-semibold text-white rounded-lg cursor-pointer"
                 >
                   {isChangingPackage ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>Update Plan</span>}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Manual Subscription Adjust Overrides Dialog */}
+      {adjustDialogOpen && activeSubscription && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-gray-100 rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+              <span className="font-bold text-gray-900 text-sm">Adjust Subscription & Grace</span>
+              <button onClick={() => setAdjustDialogOpen(false)} className="text-gray-400 hover:text-gray-600 cursor-pointer">
+                <X className="h-4.5 w-4.5" />
+              </button>
+            </div>
+            <form onSubmit={handleAdjustSubmit} className="p-5 space-y-4">
+              <p className="text-xs text-gray-500 font-medium leading-relaxed">
+                Manually adjust parameters for <span className="font-bold text-gray-800">{activeSubscription.hallName}</span>.
+              </p>
+
+              {/* Status Override */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Billing Plan Status</label>
+                <select
+                  value={selectedStatusOverride}
+                  onChange={(e) => setSelectedStatusOverride(e.target.value)}
+                  className="px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:ring-1 focus:ring-violet-500 cursor-pointer"
+                  required
+                >
+                  <option value="active">Active Plan</option>
+                  <option value="trial">Free Trial</option>
+                  <option value="suspended">Suspended</option>
+                  <option value="expired">Expired</option>
+                </select>
+              </div>
+
+              {/* Custom Expiry Date */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Plan Expiry Date</label>
+                <input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className="px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500"
+                />
+              </div>
+
+              {/* Quick Grace Periods */}
+              <div className="space-y-1.5 pt-1">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Quick Grace Extension</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleApplyGrace(7)}
+                    disabled={isAdjusting}
+                    className="py-2 text-center text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-lg cursor-pointer transition-colors"
+                  >
+                    +7 Days Grace
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyGrace(14)}
+                    disabled={isAdjusting}
+                    className="py-2 text-center text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-lg cursor-pointer transition-colors"
+                  >
+                    +14 Days Grace
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-4 flex items-center justify-end gap-3 border-t border-gray-50">
+                <button
+                  type="button"
+                  onClick={() => setAdjustDialogOpen(false)}
+                  className="px-3 py-1.5 border border-gray-250 text-gray-500 text-xs font-semibold rounded-lg hover:bg-gray-100 cursor-pointer"
+                >
+                  Discard
+                </button>
+                <button
+                  type="submit"
+                  disabled={isAdjusting}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 bg-violet-600 hover:bg-violet-700 text-xs font-semibold text-white rounded-lg cursor-pointer"
+                >
+                  {isAdjusting ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>Apply Changes</span>}
                 </button>
               </div>
             </form>

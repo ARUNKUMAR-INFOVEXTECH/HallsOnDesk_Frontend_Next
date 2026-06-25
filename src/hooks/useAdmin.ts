@@ -273,13 +273,28 @@ export function useAdminSubscriptions() {
     };
   });
 
+  const adjustSubMutation = useMutation({
+    mutationFn: ({ subscriptionId, endDate, graceDays, status }: { subscriptionId: string; endDate?: string; graceDays?: number; status?: string }) =>
+      adminService.adjustSubscription(subscriptionId, { end_date: endDate, grace_days: graceDays, status }),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'halls'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard-stats'] });
+      toast.success(res.message || 'Subscription adjusted successfully');
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Failed to adjust subscription');
+    }
+  });
+
   return {
     subscriptions,
     isLoading: hallsLoading,
     renewSubscription: renewMutation.mutateAsync,
     changePackage: changePackageMutation.mutateAsync,
+    adjustSubscription: adjustSubMutation.mutateAsync,
     isRenewing: renewMutation.isPending,
     isChangingPackage: changePackageMutation.isPending,
+    isAdjusting: adjustSubMutation.isPending,
   };
 }
 
@@ -315,11 +330,25 @@ export function useAdminUsers() {
     }
   });
 
+  const changePasswordMutation = useMutation({
+    mutationFn: ({ userId, password }: { userId: string; password: string }) =>
+      adminService.changeAdminUserPassword(userId, password),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+      toast.success(res.message || 'Password changed successfully');
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Failed to change password');
+    }
+  });
+
   return {
     users,
     isLoading,
     toggleUserStatus: toggleStatusMutation.mutateAsync,
     resetPassword: resetPasswordMutation.mutateAsync,
+    changePassword: changePasswordMutation.mutateAsync,
+    isChangingPassword: changePasswordMutation.isPending,
   };
 }
 

@@ -118,160 +118,87 @@ export default function SubscriptionSettingsPage() {
             </p>
           </div>
         </div>
-      )}
-
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
-        
-        {/* Left Column: Active Subscription & Usage Tracker */}
-        <div className="xl:col-span-2 space-y-6">
-                   {/* Active Plan Detail Card */}
-          <div className="relative overflow-hidden rounded-2xl border border-white/10 shadow-xl bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-violet-600 via-indigo-950 to-slate-900 text-white p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-            
-            {/* Engineered Grid Background Pattern */}
-            <svg className="absolute inset-0 h-full w-full stroke-white/[0.04] [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)] pointer-events-none" aria-hidden="true">
-              <defs>
-                <pattern id="grid-pattern-sub" width="20" height="20" patternUnits="userSpaceOnUse" x="100%" y="-1">
-                  <path d="M.5 20V.5H20" fill="none" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#grid-pattern-sub)" strokeWidth="0" />
-            </svg>
-            
-            {/* Glowing Neon Blobs */}
-            <div className="absolute -left-10 -bottom-10 h-36 w-36 rounded-full bg-blue-500/20 blur-3xl pointer-events-none" />
-            <div className="absolute right-10 -top-10 h-36 w-36 rounded-full bg-violet-500/25 blur-3xl pointer-events-none" />
-            <div className="absolute right-1/4 bottom-0 h-28 w-28 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
-
-            <div className="space-y-3 relative z-10">
-              <div className="flex items-center gap-2">
-                <span className="bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-black tracking-wider uppercase px-2.5 py-1 rounded-full flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                  Active Workspace
-                </span>
-                <span className="bg-white/10 border border-white/15 text-violet-200 text-[9px] font-black tracking-wider uppercase px-2.5 py-1 rounded-full">
-                  {activePackage?.billing_cycle || 'monthly'} plan
-                </span>
-              </div>
-              <h2 className="text-2xl font-black tracking-tight font-sans drop-shadow-sm">{activePackage?.name || 'Free Trial Plan'}</h2>
-              <div className="flex items-center gap-1.5 text-xs text-slate-350 font-bold">
-                <Clock className="h-4 w-4 text-violet-300" />
-                <span>Next renewal date: <strong className="text-white">{new Date(subscription.end_date).toLocaleDateString('en-GB')}</strong></span>
-              </div>
+      )}      {/* Unified Billing Overview Card */}
+      <div className="bg-white border border-gray-150 rounded-2xl p-6 shadow-sm space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <span className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                Active Workspace
+              </span>
+              <span className="bg-slate-50 border border-slate-200 text-slate-600 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
+                {activePackage?.billing_cycle || 'monthly'} plan
+              </span>
+              <span className="bg-violet-50 border border-violet-100 text-violet-700 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
+                ₹{activePackage?.price?.toLocaleString('en-IN') || '0'}/{activePackage?.billing_cycle === 'yearly' ? 'yr' : 'mo'}
+              </span>
             </div>
-
-            <div className="flex items-center gap-3 relative z-10 shrink-0 self-start sm:self-auto flex-wrap sm:flex-nowrap">
-              {/* Cost Capsule */}
-              <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-xl px-4.5 py-2.5 flex flex-col items-start sm:items-end justify-center min-h-[58px]">
-                <span className="text-[8px] text-violet-250 font-black uppercase tracking-wider block font-sans">Plan Cost</span>
-                <span className="text-lg font-black text-white font-mono leading-none mt-1">
-                  ₹{activePackage?.price?.toLocaleString('en-IN') || '0'}
-                  <span className="text-[10px] text-violet-300 font-bold lowercase">/{activePackage?.billing_cycle === 'yearly' ? 'yr' : 'mo'}</span>
-                </span>
-              </div>
-
-              {/* Days Left Capsule */}
-              <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-xl px-4.5 py-2.5 flex flex-col items-center justify-center text-center shadow-inner min-w-[76px] min-h-[58px]">
-                <span className="text-xl font-black text-amber-400 font-mono tracking-tight leading-none">
-                  {daysRemaining}
-                </span>
-                <span className="text-[8px] text-slate-300 font-black uppercase tracking-wider mt-1.5 font-sans">
-                  Days Left
-                </span>
-              </div>
+            <h2 className="text-xl font-bold text-gray-900 font-sans">{activePackage?.name || 'Free Trial Plan'}</h2>
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+              <Clock className="h-4 w-4 text-slate-400" />
+              <span>Next renewal: <strong className="text-slate-700 font-semibold">{new Date(subscription.end_date).toLocaleDateString('en-GB')}</strong> ({daysRemaining} days left)</span>
             </div>
           </div>
 
-          {/* Usage Tracker */}
-          <SettingsCard title="Subscription Usage Limits" subtitle="Track your active usage metrics against your plan limitations." icon={TrendingUp}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                         {/* Users Count progress */}
-              <div className="bg-slate-50/50 border border-slate-100 rounded-xl p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-lg bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
-                      <Users className="h-4.5 w-4.5" />
-                    </div>
-                    <div>
-                      <span className="font-extrabold text-xs text-slate-850 block">Active User Accounts</span>
-                      <p className="text-[9px] text-slate-450 font-bold uppercase tracking-wider mt-0.5">Owner + Staff operators limit</p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-black text-slate-805 font-mono font-extrabold">
-                    {totalUsersCount} <span className="text-slate-400 font-bold">/ {activePackage?.max_users || 5}</span>
-                  </span>
-                </div>
-
-                <div className="space-y-1">
-                  <div className="h-2 w-full bg-slate-105 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-violet-650 rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min(100, (totalUsersCount / (activePackage?.max_users || 5)) * 100)}%` }}
-                    />
-                  </div>
-                  <span className="text-[9px] text-slate-450 font-bold block text-right">
-                    {Math.round((totalUsersCount / (activePackage?.max_users || 5)) * 100)}% capacity filled
-                  </span>
-                </div>
-              </div>
-
-              {/* Bookings Count progress */}
-              <div className="bg-slate-50/50 border border-slate-100 rounded-xl p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-lg bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
-                      <CalendarDays className="h-4.5 w-4.5" />
-                    </div>
-                    <div>
-                      <span className="font-extrabold text-xs text-slate-850 block">Active Bookings</span>
-                      <p className="text-[9px] text-slate-450 font-bold uppercase tracking-wider mt-0.5">Event scheduling limit</p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-black text-slate-805 font-mono font-extrabold">
-                    {bookingCount} <span className="text-slate-400 font-bold">/ {activePackage?.max_bookings ? activePackage.max_bookings : 'Unlimited'}</span>
-                  </span>
-                </div>
-
-                <div className="space-y-1">
-                  <div className="h-2 w-full bg-slate-105 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-violet-650 rounded-full transition-all duration-500"
-                      style={{ width: `${activePackage?.max_bookings ? Math.min(100, (bookingCount / activePackage.max_bookings) * 100) : 100}%` }}
-                    />
-                  </div>
-                  <span className="text-[9px] text-slate-450 font-bold block text-right">
-                    {activePackage?.max_bookings 
-                      ? `${Math.round((bookingCount / activePackage.max_bookings) * 100)}% capacity filled`
-                      : 'Unlimited Capacity'}
-                  </span>
-                </div>
-              </div>
-
-            </div>
-          </SettingsCard>
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <button
+              onClick={() => handleCheckoutRedirect(subscription.package_id)}
+              className="h-9 px-4 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 cursor-pointer shadow-md shadow-violet-600/10 hover:shadow-violet-600/20 hover:scale-[1.01] active:scale-[0.99] transition-all duration-150"
+            >
+              <QrCode className="h-4 w-4" />
+              <span>Scan & Pay</span>
+            </button>
+            <a
+              href="mailto:billing@infovex.com"
+              className="h-9 px-4 border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-[1.01] active:scale-[0.99] transition-all duration-150"
+            >
+              <HelpCircle className="h-4 w-4 text-slate-500" />
+              <span>Contact Billing</span>
+            </a>
+          </div>
         </div>
 
-        {/* Right Column: Support & Actions */}
-        <div className="space-y-6">
-          <div className="bg-white border border-gray-150 rounded-2xl shadow-sm p-5 space-y-4">
-            <h3 className="font-bold text-gray-800 text-sm">Quick Remittance Actions</h3>
-            <p className="text-[11px] text-slate-450 leading-relaxed font-semibold">
-              Ready to renew your current plan or upload a new bank transaction details? Navigate straight to checkout scan page.
-            </p>
-            <div className="space-y-2.5 pt-2">
-              <button
-                onClick={() => handleCheckoutRedirect(subscription.package_id)}
-                className="w-full h-9 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-violet-600/10 hover:shadow-violet-600/20 hover:scale-[1.01] active:scale-[0.99] transition-all duration-150"
-              >
-                <QrCode className="h-4.5 w-4.5" />
-                <span>Go to Scan & Pay</span>
-              </button>
-              <a
-                href="mailto:billing@infovex.com"
-                className="w-full h-9 border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:scale-[1.01] active:scale-[0.99] transition-all duration-150"
-              >
-                <HelpCircle className="h-4 w-4 text-slate-500" />
-                <span>Contact Billing Team</span>
-              </a>
+        <div className="border-t border-slate-100 pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Users Count progress */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center text-xs font-semibold">
+                <span className="text-slate-500">Active User Accounts</span>
+                <span className="text-slate-800 font-mono">
+                  {totalUsersCount} / {activePackage?.max_users || 5}
+                </span>
+              </div>
+              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-violet-600 rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min(100, (totalUsersCount / (activePackage?.max_users || 5)) * 100)}%` }}
+                />
+              </div>
+              <p className="text-[10px] text-slate-400 font-medium">
+                {Math.round((totalUsersCount / (activePackage?.max_users || 5)) * 100)}% usage capacity
+              </p>
+            </div>
+
+            {/* Bookings Count progress */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center text-xs font-semibold">
+                <span className="text-slate-500">Active Bookings</span>
+                <span className="text-slate-800 font-mono">
+                  {bookingCount} / {activePackage?.max_bookings ? activePackage.max_bookings : 'Unlimited'}
+                </span>
+              </div>
+              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-violet-650 rounded-full transition-all duration-500"
+                  style={{ width: `${activePackage?.max_bookings ? Math.min(100, (bookingCount / activePackage.max_bookings) * 100) : 100}%` }}
+                />
+              </div>
+              <p className="text-[10px] text-slate-400 font-medium">
+                {activePackage?.max_bookings 
+                  ? `${Math.round((bookingCount / activePackage.max_bookings) * 100)}% usage capacity`
+                  : 'Unlimited capacity'}
+              </p>
             </div>
           </div>
         </div>
@@ -332,96 +259,55 @@ export default function SubscriptionSettingsPage() {
                   </div>
 
                   {/* Dynamic Features List */}
-                  <div className="space-y-2.5 border-t border-slate-50 pt-4 text-[10px] font-bold text-slate-650">
-                    <span className="text-[9px] uppercase tracking-wider text-slate-405 block font-black">Plan features & capabilities</span>
+                  <div className="space-y-2 border-t border-slate-50 pt-4 text-[10px] font-bold text-slate-650">
+                    <span className="text-[9px] uppercase tracking-wider text-slate-405 block font-black mb-1">Plan features & capabilities</span>
                     
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="flex items-center gap-1.5 font-bold">
+                    <div className="flex items-center gap-1.5 text-slate-800">
+                      <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                      <span>Core Booking & Event Calendar</span>
+                    </div>
+
+                    {packageHasFeature(pkg.name, 'crm') && (
+                      <div className="flex items-center gap-1.5 text-slate-800">
                         <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                        <span>Core Booking & Event Calendar</span>
-                      </span>
-                    </div>
+                        <span>Customer CRM (Leads/Enquiries)</span>
+                      </div>
+                    )}
 
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="flex items-center gap-1.5 font-bold">
-                        {packageHasFeature(pkg.name, 'crm') ? (
-                          <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
-                        )}
-                        <span className={packageHasFeature(pkg.name, 'crm') ? 'text-slate-800' : 'text-slate-400 line-through'}>
-                          Customer CRM (Leads/Enquiries)
-                        </span>
-                      </span>
-                    </div>
+                    {packageHasFeature(pkg.name, 'vendors') && (
+                      <div className="flex items-center gap-1.5 text-slate-800">
+                        <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                        <span>Vendor Directory & Allocation</span>
+                      </div>
+                    )}
 
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="flex items-center gap-1.5 font-bold">
-                        {packageHasFeature(pkg.name, 'vendors') ? (
-                          <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
-                        )}
-                        <span className={packageHasFeature(pkg.name, 'vendors') ? 'text-slate-800' : 'text-slate-400 line-through'}>
-                          Vendor Directory & Allocation
-                        </span>
-                      </span>
-                    </div>
+                    {packageHasFeature(pkg.name, 'reports') && (
+                      <div className="flex items-center gap-1.5 text-slate-800">
+                        <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                        <span>Advanced Reports & Analytics</span>
+                      </div>
+                    )}
 
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="flex items-center gap-1.5 font-bold">
-                        {packageHasFeature(pkg.name, 'reports') ? (
-                          <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
-                        )}
-                        <span className={packageHasFeature(pkg.name, 'reports') ? 'text-slate-800' : 'text-slate-400 line-through'}>
-                          Advanced Reports & Analytics
-                        </span>
-                      </span>
-                    </div>
+                    {packageHasFeature(pkg.name, 'multihall') && (
+                      <div className="flex items-center gap-1.5 text-slate-800">
+                        <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                        <span>Multi-Hall Context Switcher</span>
+                      </div>
+                    )}
 
+                    {packageHasFeature(pkg.name, 'whatsapp') && (
+                      <div className="flex items-center gap-1.5 text-slate-800">
+                        <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                        <span>Premium WhatsApp Alerts</span>
+                      </div>
+                    )}
 
-
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="flex items-center gap-1.5 font-bold">
-                        {packageHasFeature(pkg.name, 'multihall') ? (
-                          <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
-                        )}
-                        <span className={packageHasFeature(pkg.name, 'multihall') ? 'text-slate-800' : 'text-slate-400 line-through'}>
-                          Multi-Hall Context Switcher
-                        </span>
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="flex items-center gap-1.5 font-bold">
-                        {packageHasFeature(pkg.name, 'whatsapp') ? (
-                          <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
-                        )}
-                        <span className={packageHasFeature(pkg.name, 'whatsapp') ? 'text-slate-800' : 'text-slate-400 line-through'}>
-                          Premium WhatsApp Alerts
-                        </span>
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="flex items-center gap-1.5 font-bold">
-                        {packageHasFeature(pkg.name, 'support') ? (
-                          <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
-                        )}
-                        <span className={packageHasFeature(pkg.name, 'support') ? 'text-slate-800' : 'text-slate-400 line-through'}>
-                          Priority 24/7 Support Center
-                        </span>
-                      </span>
-                    </div>
-
+                    {packageHasFeature(pkg.name, 'support') && (
+                      <div className="flex items-center gap-1.5 text-slate-800">
+                        <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                        <span>Priority 24/7 Support Center</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 

@@ -126,82 +126,56 @@ export default function AdminPackagesPage() {
                   <hr className="border-gray-100" />
 
                   {/* Features list */}
-                  <div className="space-y-2.5 pt-2">
+                  <div className="space-y-2 pt-2">
                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Plan features & capabilities</span>
                     
-                    <div className="space-y-2 text-xs font-semibold text-gray-700">
-                      <div className="flex items-center gap-2">
+                    <div className="space-y-1.5 text-xs font-semibold text-gray-700">
+                      <div className="flex items-center gap-2 text-gray-950 font-bold">
                         <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                         <span>Core Booking & Event Calendar</span>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        {packageHasFeature(pkg.name, 'crm') ? (
+                      {packageHasFeature(pkg.name, 'crm') && (
+                        <div className="flex items-center gap-2 text-gray-950 font-bold">
                           <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
-                        )}
-                        <span className={packageHasFeature(pkg.name, 'crm') ? 'text-gray-950 font-bold' : 'text-gray-400 font-medium line-through'}>
-                          Customer CRM (Leads/Enquiries)
-                        </span>
-                      </div>
+                          <span>Customer CRM (Leads/Enquiries)</span>
+                        </div>
+                      )}
 
-                      <div className="flex items-center gap-2">
-                        {packageHasFeature(pkg.name, 'vendors') ? (
+                      {packageHasFeature(pkg.name, 'vendors') && (
+                        <div className="flex items-center gap-2 text-gray-950 font-bold">
                           <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
-                        )}
-                        <span className={packageHasFeature(pkg.name, 'vendors') ? 'text-gray-950 font-bold' : 'text-gray-400 font-medium line-through'}>
-                          Vendor Directory & Allocation
-                        </span>
-                      </div>
+                          <span>Vendor Directory & Allocation</span>
+                        </div>
+                      )}
 
-                      <div className="flex items-center gap-2">
-                        {packageHasFeature(pkg.name, 'reports') ? (
+                      {packageHasFeature(pkg.name, 'reports') && (
+                        <div className="flex items-center gap-2 text-gray-950 font-bold">
                           <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
-                        )}
-                        <span className={packageHasFeature(pkg.name, 'reports') ? 'text-gray-950 font-bold' : 'text-gray-400 font-medium line-through'}>
-                          Advanced Reports & Analytics
-                        </span>
-                      </div>
+                          <span>Advanced Reports & Analytics</span>
+                        </div>
+                      )}
 
-
-
-                      <div className="flex items-center gap-2">
-                        {packageHasFeature(pkg.name, 'multihall') ? (
+                      {packageHasFeature(pkg.name, 'multihall') && (
+                        <div className="flex items-center gap-2 text-gray-950 font-bold">
                           <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
-                        )}
-                        <span className={packageHasFeature(pkg.name, 'multihall') ? 'text-gray-950 font-bold' : 'text-gray-400 font-medium line-through'}>
-                          Multi-Hall Context Switcher
-                        </span>
-                      </div>
+                          <span>Multi-Hall Context Switcher</span>
+                        </div>
+                      )}
 
-                      <div className="flex items-center gap-2">
-                        {packageHasFeature(pkg.name, 'whatsapp') ? (
+                      {packageHasFeature(pkg.name, 'whatsapp') && (
+                        <div className="flex items-center gap-2 text-gray-950 font-bold">
                           <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
-                        )}
-                        <span className={packageHasFeature(pkg.name, 'whatsapp') ? 'text-gray-950 font-bold' : 'text-gray-400 font-medium line-through'}>
-                          Premium WhatsApp Alerts
-                        </span>
-                      </div>
+                          <span>Premium WhatsApp Alerts</span>
+                        </div>
+                      )}
 
-                      <div className="flex items-center gap-2">
-                        {packageHasFeature(pkg.name, 'support') ? (
+                      {packageHasFeature(pkg.name, 'support') && (
+                        <div className="flex items-center gap-2 text-gray-950 font-bold">
                           <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <X className="h-3.5 w-3.5 text-rose-450 shrink-0" />
-                        )}
-                        <span className={packageHasFeature(pkg.name, 'support') ? 'text-gray-950 font-bold' : 'text-gray-400 font-medium line-through'}>
-                          Priority 24/7 Support Center
-                        </span>
-                      </div>
+                          <span>Priority 24/7 Support Center</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -35,6 +35,7 @@ import { SourceBadge } from './SourceBadge';
 import { PriorityBadge } from './PriorityBadge';
 import { obfuscateId } from '@/utils/obfuscate';
 import { formatDate } from '@/utils/formatters';
+import { useAuthStore } from '@/store/authStore';
 
 interface EnquiryTableProps {
   data: Enquiry[];
@@ -59,6 +60,10 @@ export function EnquiryTable({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pageSize, setPageSize] = useState(10);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+
+  const { user } = useAuthStore();
+  const canCreateBookings = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('create_bookings');
+  const canEditBookings = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('edit_bookings');
 
   const getInitials = (name: string) => {
     if (!name) return 'LD';
@@ -359,54 +364,62 @@ export function EnquiryTable({
                     <Eye className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                     View Details
                   </button>
-                  <button
-                    onClick={(ev) => {
-                      ev.stopPropagation();
-                      setActiveMenuId(null);
-                      onAddFollowup(e);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-55 text-left transition-colors cursor-pointer border-t border-slate-50"
-                  >
-                    <Bell className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                    Add Followup
-                  </button>
+                  {canEditBookings && (
+                    <button
+                      onClick={(ev) => {
+                        ev.stopPropagation();
+                        setActiveMenuId(null);
+                        onAddFollowup(e);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-55 text-left transition-colors cursor-pointer border-t border-slate-50"
+                    >
+                      <Bell className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                      Add Followup
+                    </button>
+                  )}
                   {e.stage !== 'booked' && e.stage !== 'lost' && (
                     <>
-                      <button
-                        onClick={(ev) => {
-                          ev.stopPropagation();
-                          setActiveMenuId(null);
-                          onConvert(e);
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-green-50 text-green-700 text-left transition-colors cursor-pointer border-t border-slate-50"
-                      >
-                        <CheckCircle className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                        Convert
-                      </button>
-                      <button
-                        onClick={(ev) => {
-                          ev.stopPropagation();
-                          setActiveMenuId(null);
-                          onMarkLost(e);
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-rose-50 hover:text-rose-650 text-left transition-colors cursor-pointer border-t border-slate-50"
-                      >
-                        <XCircle className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                        Mark Lost
-                      </button>
+                      {canCreateBookings && (
+                        <button
+                          onClick={(ev) => {
+                            ev.stopPropagation();
+                            setActiveMenuId(null);
+                            onConvert(e);
+                          }}
+                          className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-green-50 text-green-700 text-left transition-colors cursor-pointer border-t border-slate-50"
+                        >
+                          <CheckCircle className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                          Convert
+                        </button>
+                      )}
+                      {canEditBookings && (
+                        <button
+                          onClick={(ev) => {
+                            ev.stopPropagation();
+                            setActiveMenuId(null);
+                            onMarkLost(e);
+                          }}
+                          className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-rose-50 hover:text-rose-650 text-left transition-colors cursor-pointer border-t border-slate-50"
+                        >
+                          <XCircle className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                          Mark Lost
+                        </button>
+                      )}
                     </>
                   )}
-                  <button
-                    onClick={(ev) => {
-                      ev.stopPropagation();
-                      setActiveMenuId(null);
-                      onEdit(e);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-55 text-left transition-colors cursor-pointer border-t border-slate-50"
-                  >
-                    <Pencil className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                    Edit
-                  </button>
+                  {canEditBookings && (
+                    <button
+                      onClick={(ev) => {
+                        ev.stopPropagation();
+                        setActiveMenuId(null);
+                        onEdit(e);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-55 text-left transition-colors cursor-pointer border-t border-slate-50"
+                    >
+                      <Pencil className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                      Edit
+                    </button>
+                  )}
                 </div>
               )}
             </div>

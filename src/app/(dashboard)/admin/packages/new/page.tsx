@@ -75,7 +75,7 @@ export default function AdminNewPackagePage() {
         reset({
           name: match.name,
           price: match.price,
-          setupFee: 4999, // dummy setup fee fallback
+          setupFee: match.setup_fee || 0,
           billing_cycle: match.billing_cycle || 'monthly',
           max_users: match.max_users,
           max_bookings: match.max_bookings,
@@ -92,6 +92,7 @@ export default function AdminNewPackagePage() {
       const payload = {
         name: values.name,
         price: values.price,
+        setup_fee: values.setupFee,
         billing_cycle: values.billing_cycle,
         max_users: values.max_users ?? null,
         max_bookings: values.max_bookings ?? null,

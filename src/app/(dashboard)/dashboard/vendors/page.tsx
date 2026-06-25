@@ -24,9 +24,12 @@ import { VendorTable } from '@/components/vendors/VendorTable';
 import { Vendor } from '@/types/vendor';
 import { obfuscateId } from '@/utils/obfuscate';
 import { getLocalDateString } from '@/utils/formatters';
+import { useAuthStore } from '@/store/authStore';
 
 export default function VendorsPage() {
   const router = useRouter();
+  const { user } = useAuthStore();
+  const canManage = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('manage_vendors');
 
   // 1. Persistent UI states (Grid vs Table view preference)
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
@@ -251,13 +254,15 @@ export default function VendorsPage() {
           </button>
 
           {/* Add Vendor button */}
-          <button
-            onClick={() => router.push('/dashboard/vendors/new')}
-            className="flex items-center justify-center gap-1.5 h-9 px-4.5 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
-          >
-            <Plus className="h-4 w-4 shrink-0" />
-            <span>Add Vendor</span>
-          </button>
+          {canManage && (
+            <button
+              onClick={() => router.push('/dashboard/vendors/new')}
+              className="flex items-center justify-center gap-1.5 h-9 px-4.5 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
+            >
+              <Plus className="h-4 w-4 shrink-0" />
+              <span>Add Vendor</span>
+            </button>
+          )}
         </div>
       </div>
 

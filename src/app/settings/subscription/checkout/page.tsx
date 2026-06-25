@@ -352,7 +352,7 @@ export default function CheckoutPage() {
 
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
-              <span>Full system booking limits capped at {selectedPkg.max_bookings} events</span>
+              <span>{selectedPkg.max_bookings ? `Full system booking limits capped at ${selectedPkg.max_bookings} events` : 'Unlimited system booking volume'}</span>
             </div>
 
             <div className="flex items-center gap-2">

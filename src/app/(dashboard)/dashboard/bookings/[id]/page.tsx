@@ -154,8 +154,13 @@ function BookingDetailPage() {
   const deleteInvoiceMutation = useDeleteInvoice();
   const deallocateMutation = useDeallocateVendor(id);
 
-  const { role } = useAuthStore();
-  const isAllowedToDeleteInvoice = role === 'owner' || role === 'manager';
+  const { user } = useAuthStore();
+  const canEdit = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('edit_bookings');
+  const canDelete = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('delete_bookings');
+  const canCreatePayments = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('create_payments');
+  const canManageVendors = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('manage_vendors');
+
+  const isAllowedToDeleteInvoice = canDelete;
 
   const handleRefresh = () => {
     refetchBooking();
@@ -342,7 +347,9 @@ function BookingDetailPage() {
   }
 
   // Calculate live financial figures
-  const netAmount = Math.max(0, booking.bookingAmount - booking.discountAmount);
+  const taxableAmount = Math.max(0, booking.bookingAmount - booking.discountAmount);
+  const taxAmount = booking.taxEnabled ? (booking.taxAmount || 0) : 0;
+  const netAmount = taxableAmount + taxAmount;
   const totalPaid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
   const pendingBalance = Math.max(0, netAmount - totalPaid);
   const paymentProgress = netAmount > 0 ? Math.min(100, Math.round((totalPaid / netAmount) * 100)) : 0;
@@ -406,6 +413,8 @@ function BookingDetailPage() {
             notes: booking.notes,
             coordinatorName: booking.coordinatorName || '',
             coordinatorPhone: booking.coordinatorPhone || '',
+            taxEnabled: booking.taxEnabled,
+            taxPercentage: booking.taxPercentage,
           }}
           onSubmit={handleEditSubmit}
           loading={updateMutation.isPending}
@@ -429,11 +438,11 @@ function BookingDetailPage() {
           // Sync live calculated payment status
           paymentStatus: totalPaid >= netAmount ? 'paid' : totalPaid > 0 ? 'partial' : 'unpaid',
         }}
-        onEditClick={() => {
+        onEditClick={canEdit ? () => {
           setIsEditing(true);
           router.push(`/dashboard/bookings/${obfuscateId(id)}?tab=edit`);
-        }}
-        onDeleteClick={handleDeleteBooking}
+        } : undefined}
+        onDeleteClick={canDelete ? handleDeleteBooking : undefined}
         isDeleting={deleteMutation.isPending}
       />
 
@@ -601,6 +610,13 @@ function BookingDetailPage() {
                 <span className="font-mono font-bold text-rose-500">- {formatCurrency(booking.discountAmount)}</span>
               </div>
 
+              {booking.taxEnabled && (
+                <div className="flex justify-between items-center text-slate-500 font-medium">
+                  <span>GST ({booking.taxPercentage || 0}%)</span>
+                  <span className="font-mono font-bold text-slate-700">+ {formatCurrency(booking.taxAmount || 0)}</span>
+                </div>
+              )}
+
               <div className="border-t border-slate-100 pt-3 flex justify-between items-center text-slate-800 font-bold">
                 <span>Net Billing Amount</span>
                 <span className="font-extrabold text-primary font-mono">{formatCurrency(netAmount)}</span>
@@ -634,15 +650,17 @@ function BookingDetailPage() {
             </div>
 
             {/* Payment CTAs */}
-            <div className="pt-2">
-              <button
-                onClick={() => setShowPaymentModal(true)}
-                className="w-full flex items-center justify-center gap-1.5 py-2.5 btn-primary-grad text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
-              >
-                <Plus className="h-4 w-4 shrink-0" />
-                Record Client Payment
-              </button>
-            </div>
+            {canCreatePayments && (
+              <div className="pt-2">
+                <button
+                  onClick={() => setShowPaymentModal(true)}
+                  className="w-full flex items-center justify-center gap-1.5 py-2.5 btn-primary-grad text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
+                >
+                  <Plus className="h-4 w-4 shrink-0" />
+                  Record Client Payment
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Card E: Invoice generator details */}
@@ -735,23 +753,25 @@ function BookingDetailPage() {
                 <p className="text-[11px] text-slate-450 leading-relaxed max-w-[220px] mx-auto">
                   No billing invoice drafted for this customer reservation.
                 </p>
-                <button
-                  onClick={handleGenerateInvoice}
-                  disabled={createInvoiceMutation.isPending}
-                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer disabled:opacity-50"
-                >
-                  {createInvoiceMutation.isPending ? (
-                    <>
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <FileText className="h-3.5 w-3.5" />
-                      Draft Invoicing Record
-                    </>
-                  )}
-                </button>
+                {canCreatePayments && (
+                  <button
+                    onClick={handleGenerateInvoice}
+                    disabled={createInvoiceMutation.isPending}
+                    className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    {createInvoiceMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <FileText className="h-3.5 w-3.5" />
+                        Draft Invoicing Record
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -789,14 +809,16 @@ function BookingDetailPage() {
                       >
                         <Printer className="h-3.5 w-3.5" />
                       </button>
-                      <button
-                        onClick={() => handleDeletePayment(payment.id, payment.amount)}
-                        title="Reverse Payment"
-                        disabled={deletePaymentMutation.isPending}
-                        className="h-7 w-7 inline-flex items-center justify-center text-red-500 hover:text-red-750 border border-red-100 hover:border-red-200 bg-white hover:bg-rose-50 rounded-md transition-all cursor-pointer shadow-sm disabled:opacity-50"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      {canCreatePayments && (
+                        <button
+                          onClick={() => handleDeletePayment(payment.id, payment.amount)}
+                          title="Reverse Payment"
+                          disabled={deletePaymentMutation.isPending}
+                          className="h-7 w-7 inline-flex items-center justify-center text-red-500 hover:text-red-750 border border-red-100 hover:border-red-200 bg-white hover:bg-rose-50 rounded-md transition-all cursor-pointer shadow-sm disabled:opacity-50"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -854,16 +876,18 @@ function BookingDetailPage() {
                 <h3 className="text-sm font-semibold text-slate-800">Allocated Vendor Partners</h3>
                 <p className="text-[11px] text-slate-400 font-medium mt-0.5">Manage decorators, caterers, photographers, and payment balances for this event</p>
               </div>
-              <button
-                onClick={() => {
-                  setEditingVendorAllocation(null);
-                  setIsVendorDrawerOpen(true);
-                }}
-                className="flex items-center gap-1.5 py-2 px-4 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
-              >
-                <Plus className="h-4 w-4 shrink-0" />
-                Allocate Vendor Partner
-              </button>
+              {canManageVendors && (
+                <button
+                  onClick={() => {
+                    setEditingVendorAllocation(null);
+                    setIsVendorDrawerOpen(true);
+                  }}
+                  className="flex items-center gap-1.5 py-2 px-4 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
+                >
+                  <Plus className="h-4 w-4 shrink-0" />
+                  Allocate Vendor Partner
+                </button>
+              )}
             </div>
 
             {isBookingVendorsLoading ? (
@@ -932,24 +956,28 @@ function BookingDetailPage() {
                             {vendorAlloc.notes || '-'}
                           </td>
                           <td className="px-6 py-3.5 text-right space-x-2 shrink-0">
-                            <button
-                              onClick={() => {
-                                setEditingVendorAllocation(vendorAlloc);
-                                setIsVendorDrawerOpen(true);
-                              }}
-                              title="Edit Allocation"
-                              className="h-7 w-7 inline-flex items-center justify-center text-slate-450 hover:text-slate-700 border border-slate-200 hover:border-slate-350 bg-white rounded-md transition-all cursor-pointer shadow-sm"
-                            >
-                              <Edit className="h-3.5 w-3.5" />
-                            </button>
-                            <button
-                              onClick={() => handleDeallocateVendor(vendorAlloc.vendorId, vName)}
-                              title="Deallocate Vendor"
-                              disabled={deallocateMutation.isPending}
-                              className="h-7 w-7 inline-flex items-center justify-center text-red-500 hover:text-red-750 border border-red-100 hover:border-red-200 bg-white hover:bg-rose-50 rounded-md transition-all cursor-pointer shadow-sm disabled:opacity-50"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
+                            {canManageVendors && (
+                              <>
+                                <button
+                                  onClick={() => {
+                                    setEditingVendorAllocation(vendorAlloc);
+                                    setIsVendorDrawerOpen(true);
+                                  }}
+                                  title="Edit Allocation"
+                                  className="h-7 w-7 inline-flex items-center justify-center text-slate-450 hover:text-slate-700 border border-slate-200 hover:border-slate-350 bg-white rounded-md transition-all cursor-pointer shadow-sm"
+                                >
+                                  <Edit className="h-3.5 w-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeallocateVendor(vendorAlloc.vendorId, vName)}
+                                  title="Deallocate Vendor"
+                                  disabled={deallocateMutation.isPending}
+                                  className="h-7 w-7 inline-flex items-center justify-center text-red-500 hover:text-red-750 border border-red-100 hover:border-red-200 bg-white hover:bg-rose-50 rounded-md transition-all cursor-pointer shadow-sm disabled:opacity-50"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              </>
+                            )}
                           </td>
                         </tr>
                       );
@@ -965,16 +993,18 @@ function BookingDetailPage() {
                 <p className="text-[11px] text-slate-450 leading-relaxed max-w-[240px] mx-auto">
                   No vendor partners allocated to this event yet.
                 </p>
-                <button
-                  onClick={() => {
-                    setEditingVendorAllocation(null);
-                    setIsVendorDrawerOpen(true);
-                  }}
-                  className="inline-flex items-center gap-1.5 py-2 px-4 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
-                >
-                  <Plus className="h-4 w-4 shrink-0" />
-                  Allocate First Vendor
-                </button>
+                {canManageVendors && (
+                  <button
+                    onClick={() => {
+                      setEditingVendorAllocation(null);
+                      setIsVendorDrawerOpen(true);
+                    }}
+                    className="inline-flex items-center gap-1.5 py-2 px-4 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
+                  >
+                    <Plus className="h-4 w-4 shrink-0" />
+                    Allocate First Vendor
+                  </button>
+                )}
               </div>
             )}
           </div>

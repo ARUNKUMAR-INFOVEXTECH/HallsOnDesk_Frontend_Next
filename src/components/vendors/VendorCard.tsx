@@ -8,6 +8,7 @@ import { StarRating } from './StarRating';
 import { CategoryBadge } from './CategoryBadge';
 import { formatCurrency } from '@/utils/currency';
 import { obfuscateId } from '@/utils/obfuscate';
+import { useAuthStore } from '@/store/authStore';
 
 interface VendorCardProps {
   vendor: Vendor;
@@ -19,6 +20,8 @@ export function VendorCard({ vendor, onEdit, onDelete }: VendorCardProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuthStore();
+  const canManage = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('manage_vendors');
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -104,7 +107,7 @@ export function VendorCard({ vendor, onEdit, onDelete }: VendorCardProps) {
           </div>
 
           <div className="min-w-0 space-y-1">
-            <h4 className="font-extrabold text-sm text-slate-850 tracking-tight leading-snug truncate pr-6">
+            <h4 className="font-extrabold text-sm text-slate-855 tracking-tight leading-snug truncate pr-6">
               {vendor.name}
             </h4>
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -141,33 +144,37 @@ export function VendorCard({ vendor, onEdit, onDelete }: VendorCardProps) {
                   setMenuOpen(false);
                   router.push(`/dashboard/vendors/${obfuscateId(vendor.id)}`);
                 }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 text-left transition-colors cursor-pointer"
+                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-55 text-left transition-colors cursor-pointer"
               >
                 <Eye className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                 View Profile
               </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setMenuOpen(false);
-                  onEdit(vendor);
-                }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 text-left transition-colors cursor-pointer"
-              >
-                <Pencil className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                Edit Vendor
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setMenuOpen(false);
-                  onDelete(vendor.id, vendor.name);
-                }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-rose-50 hover:text-rose-600 text-left transition-colors cursor-pointer"
-              >
-                <Trash2 className="h-3.5 w-3.5 text-slate-400 hover:text-rose-550 shrink-0" />
-                Delete
-              </button>
+              {canManage && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMenuOpen(false);
+                    onEdit(vendor);
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 text-left transition-colors cursor-pointer border-t border-slate-50"
+                >
+                  <Pencil className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                  Edit Vendor
+                </button>
+              )}
+              {canManage && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMenuOpen(false);
+                    onDelete(vendor.id, vendor.name);
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-rose-50 hover:text-rose-605 text-left transition-colors cursor-pointer border-t border-slate-50"
+                >
+                  <Trash2 className="h-3.5 w-3.5 text-slate-400 hover:text-rose-550 shrink-0" />
+                  Delete
+                </button>
+              )}
             </div>
           )}
         </div>

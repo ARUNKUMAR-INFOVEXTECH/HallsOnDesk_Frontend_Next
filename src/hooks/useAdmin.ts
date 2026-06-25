@@ -478,3 +478,34 @@ export function useAdminSendTestEmail() {
     },
   });
 }
+
+// 13. Hall Subscription Payments (Invoices)
+export function useAdminHallSubscriptionPayments(id: string) {
+  return useQuery({
+    queryKey: ['admin', 'hall-payments', id],
+    queryFn: () => adminService.getHallSubscriptionPayments(id),
+    enabled: !!id,
+  });
+}
+
+// 14. Record Manual Subscription Payment (Generate Invoice)
+export function useAdminRecordManualPayment(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { package_id: string; amount: number; payment_method?: string; transaction_ref_no?: string; notes?: string }) =>
+      adminService.recordManualSubscriptionPayment(id, data),
+    onSuccess: (res) => {
+      toast.success(res.message || 'Manual payment recorded successfully!');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'hall-payments', id] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'hall', id] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'halls'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'hall-stats', id] });
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Failed to record payment');
+    },
+  });
+}
+

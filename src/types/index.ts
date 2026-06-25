@@ -10,6 +10,7 @@ export interface User {
   accessible_halls?: Array<{ id: string; hall_name: string }>;
   status?: 'active' | 'suspended';
   backupPassword?: string;
+  permissions?: string[];
 }
 
 export interface Booking {
@@ -108,6 +109,7 @@ export interface Package {
   id: string;
   name: string;
   price: number;
+  setup_fee?: number;
   billing_cycle: 'monthly' | 'yearly';
   max_users: number;
   max_bookings: number;

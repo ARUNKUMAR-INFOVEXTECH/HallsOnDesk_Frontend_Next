@@ -99,7 +99,9 @@ export default function AdminPackagesPage() {
                     </span>
                     <span className="text-[10px] text-gray-400 font-bold uppercase">/ {billingPeriod}</span>
                   </div>
-                  <span className="text-[10px] text-gray-500 font-semibold mt-1">Setup Fee: ₹4,999</span>
+                  <span className="text-[10px] text-gray-500 font-semibold mt-1">
+                    Setup Fee: {pkg.setup_fee !== undefined && pkg.setup_fee !== null ? `₹${pkg.setup_fee.toLocaleString('en-IN')}` : '₹0'}
+                  </span>
                 </div>
 
                 {/* Package Limits & Caps */}

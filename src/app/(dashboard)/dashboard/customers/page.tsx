@@ -21,6 +21,7 @@ import StatCard from '@/components/dashboard/StatCard';
 import { formatCurrency } from '@/utils/formatters';
 import { ColumnDef } from '@tanstack/react-table';
 import { obfuscateId } from '@/utils/obfuscate';
+import { useAuthStore } from '@/store/authStore';
 
 // Extended customer type for helper definitions
 interface CustomerWithStats {
@@ -48,6 +49,11 @@ interface CustomerWithStats {
 export default function CustomersPage() {
   const { data: response, isLoading, isError, refetch } = useCustomersQuery();
   const deleteCustomerMutation = useDeleteCustomerMutation();
+  const { user } = useAuthStore();
+
+  const canCreate = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('create_customers');
+  const canEdit = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('edit_customers');
+  const canDelete = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('delete_customers');
 
   const [deleteTarget, setDeleteTarget] = useState<CustomerWithStats | null>(null);
 
@@ -265,25 +271,31 @@ export default function CustomersPage() {
             >
               <Eye className="h-3.5 w-3.5" />
             </Link>
-            <Link
-              href={`/dashboard/customers/${obfuscateId(id)}?edit=true`}
-              title="Edit Profile"
-              className="h-7 w-7 inline-flex items-center justify-center text-slate-450 hover:text-slate-700 border border-slate-200 hover:border-slate-350 bg-white rounded-md transition-all shadow-sm"
-            >
-              <Edit className="h-3.5 w-3.5" />
-            </Link>
-            <button
-              onClick={() => setDeleteTarget(row.original)}
-              title="Delete Customer"
-              className="h-7 w-7 inline-flex items-center justify-center text-rose-500 hover:text-rose-700 border border-rose-100 hover:border-rose-350 bg-rose-50/50 rounded-md transition-all cursor-pointer shadow-sm"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
+            {canEdit && (
+              <Link
+                href={`/dashboard/customers/${obfuscateId(id)}?edit=true`}
+                title="Edit Profile"
+                className="h-7 w-7 inline-flex items-center justify-center text-slate-450 hover:text-slate-700 border border-slate-200 hover:border-slate-350 bg-white rounded-md transition-all shadow-sm"
+              >
+                <Edit className="h-3.5 w-3.5" />
+              </Link>
+            )}
+            {canDelete && (
+              <button
+                onClick={() => setDeleteTarget(row.original)}
+                title="Delete Customer"
+                className="h-7 w-7 inline-flex items-center justify-center text-rose-500 hover:text-rose-700 border border-rose-100 hover:border-rose-350 bg-rose-50/50 rounded-md transition-all cursor-pointer shadow-sm"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         );
       },
     },
   ];
+
+  const visibleColumns = canDelete ? columns : columns.filter((col) => col.id !== 'select');
 
   return (
     <div className="space-y-6">
@@ -300,17 +312,19 @@ export default function CustomersPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={handleRefresh}
-            className="p-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-550 rounded-lg shadow-sm transition-colors cursor-pointer"
+            className="p-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-555 rounded-lg shadow-sm transition-colors cursor-pointer"
           >
             <RefreshCw className="h-4.5 w-4.5" />
           </button>
-          <Link
-            href="/dashboard/customers/new"
-            className="bg-primary hover:bg-primary-hover text-white h-9 px-4 rounded-lg text-sm font-semibold transition-colors duration-200 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
-          >
-            <UserPlus className="h-4 w-4 shrink-0" />
-            Add Customer
-          </Link>
+          {canCreate && (
+            <Link
+              href="/dashboard/customers/new"
+              className="bg-primary hover:bg-primary-hover text-white h-9 px-4 rounded-lg text-sm font-semibold transition-colors duration-200 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <UserPlus className="h-4 w-4 shrink-0" />
+              Add Customer
+            </Link>
+          )}
         </div>
       </div>
 
@@ -349,26 +363,30 @@ export default function CustomersPage() {
       {/* Main Customers List Data Table Wrapper */}
       <div className="w-full">
         <DataTable
-          columns={columns}
+          columns={visibleColumns}
           data={customersList}
           searchKey="customer_name"
           searchPlaceholder="Search customers..."
           exportFileName="customers_list"
-          bulkActions={[
-            {
-              label: 'Delete Selected',
-              onClick: (selected) => {
-                if (
-                  window.confirm(
-                    `Are you sure you want to delete ${selected.length} customer profiles?`
-                  )
-                ) {
-                  alert(`Bulk deletion triggered for: ${selected.map((s) => s.customer_name).join(', ')}`);
-                }
-              },
-              className: 'bg-red-500 hover:bg-red-650 text-white font-medium text-xs',
-            },
-          ]}
+          bulkActions={
+            canDelete
+              ? [
+                  {
+                    label: 'Delete Selected',
+                    onClick: (selected) => {
+                      if (
+                        window.confirm(
+                          `Are you sure you want to delete ${selected.length} customer profiles?`
+                        )
+                      ) {
+                        alert(`Bulk deletion triggered for: ${selected.map((s) => s.customer_name).join(', ')}`);
+                      }
+                    },
+                    className: 'bg-red-500 hover:bg-red-655 text-white font-medium text-xs',
+                  },
+                ]
+              : undefined
+          }
         />
       </div>
 

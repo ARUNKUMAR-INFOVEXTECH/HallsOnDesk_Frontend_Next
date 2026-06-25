@@ -42,7 +42,7 @@ export function BookingPaymentSummary({
           </span>
         </div>
 
-        {taxEnabled && taxPercentage > 0 && (
+        {taxEnabled && (
           <div className="flex justify-between items-center text-slate-500 font-medium">
             <span>GST ({taxPercentage}%)</span>
             <span className="font-mono font-bold text-slate-700">

@@ -273,66 +273,46 @@ export default function AdminHallsPage() {
                       <td className="px-5 py-4 text-gray-500 font-medium">
                         {hall.created_at ? new Date(hall.created_at).toLocaleDateString('en-GB') : 'N/A'}
                       </td>
-                      <td className="px-5 py-4 text-right relative">
-                        <button
-                          onClick={() => setActiveMenuId(activeMenuId === hall.id ? null : hall.id)}
-                          className="p-1 rounded hover:bg-gray-100 text-gray-500 cursor-pointer"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </button>
+                      <td className="px-5 py-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Link
+                            href={`/admin/halls/${obfuscateId(hall.id)}`}
+                            className="p-1.5 rounded-lg hover:bg-gray-150/50 text-gray-500 hover:text-violet-600 transition-colors inline-block"
+                            title="Inspect Hall"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Link>
 
-                        {/* Dropdown Menu */}
-                        {activeMenuId === hall.id && (
-                          <>
-                            <div className="fixed inset-0 z-10" onClick={() => setActiveMenuId(null)} />
-                            <div className="absolute right-5 mt-1 w-48 bg-white border border-gray-150 rounded-lg shadow-lg py-1.5 z-20 text-left">
-                              <Link
-                                href={`/admin/halls/${obfuscateId(hall.id)}`}
-                                className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 text-gray-700 text-xs font-semibold"
-                              >
-                                <Eye className="h-3.5 w-3.5 text-gray-450" />
-                                <span>Inspect Hall</span>
-                              </Link>
-                              
-                              <Link
-                                href={`/admin/subscriptions/${obfuscateId(`sub-${hall.id}`)}`}
-                                className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 text-gray-700 text-xs font-semibold"
-                              >
-                                <CreditCard className="h-3.5 w-3.5 text-gray-450" />
-                                <span>Subscription Info</span>
-                              </Link>
+                          <Link
+                            href={`/admin/subscriptions/${obfuscateId(`sub-${hall.id}`)}`}
+                            className="p-1.5 rounded-lg hover:bg-gray-150/50 text-gray-500 hover:text-violet-600 transition-colors inline-block"
+                            title="Subscription Info"
+                          >
+                            <CreditCard className="h-4 w-4" />
+                          </Link>
 
-                              <button
-                                onClick={() => handleSuspendToggle(hall.id, hall.status)}
-                                className={`w-full flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 text-xs font-semibold cursor-pointer ${
-                                  hall.status === 'active' ? 'text-amber-600' : 'text-emerald-600'
-                                }`}
-                              >
-                                {hall.status === 'active' ? (
-                                  <>
-                                    <ShieldAlert className="h-3.5 w-3.5" />
-                                    <span>Suspend System</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <ShieldCheck className="h-3.5 w-3.5" />
-                                    <span>Activate System</span>
-                                  </>
-                                )}
-                              </button>
+                          <button
+                            onClick={() => handleSuspendToggle(hall.id, hall.status)}
+                            className={`p-1.5 rounded-lg hover:bg-gray-150/50 transition-colors inline-block cursor-pointer ${
+                              hall.status === 'active' ? 'text-amber-600 hover:text-amber-700' : 'text-emerald-600 hover:text-emerald-700'
+                            }`}
+                            title={hall.status === 'active' ? 'Suspend System' : 'Activate System'}
+                          >
+                            {hall.status === 'active' ? (
+                              <ShieldAlert className="h-4 w-4" />
+                            ) : (
+                              <ShieldCheck className="h-4 w-4" />
+                            )}
+                          </button>
 
-                              <hr className="border-gray-100 my-1" />
-
-                              <button
-                                onClick={() => handleDeleteConfirm(hall.id)}
-                                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-red-50 text-red-600 text-xs font-semibold cursor-pointer"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                                <span>Delete Permanently</span>
-                              </button>
-                            </div>
-                          </>
-                        )}
+                          <button
+                            onClick={() => handleDeleteConfirm(hall.id)}
+                            className="p-1.5 rounded-lg hover:bg-red-50 text-red-650 hover:text-red-750 transition-colors inline-block cursor-pointer"
+                            title="Delete Permanently"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

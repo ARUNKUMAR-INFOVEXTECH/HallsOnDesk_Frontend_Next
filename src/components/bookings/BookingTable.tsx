@@ -10,6 +10,7 @@ import { BookingStatusBadge, BookingPaymentStatusBadge } from './BookingStatusBa
 import { DataTable } from '../tables/DataTable';
 import { useDeleteBooking } from '@/hooks/useBookings';
 import { obfuscateId } from '@/utils/obfuscate';
+import { useAuthStore } from '@/store/authStore';
 
 interface BookingTableProps {
   bookings: Booking[];
@@ -39,8 +40,13 @@ function getRelativeTimeString(dateStr: string): string {
 
 export function BookingTable({ bookings, isLoading = false }: BookingTableProps) {
   const deleteMutation = useDeleteBooking();
+  const { user } = useAuthStore();
+
+  const canEdit = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('edit_bookings');
+  const canDelete = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('delete_bookings');
 
   const handleDelete = async (id: string, bookingNumber: string) => {
+    if (!canDelete) return;
     if (window.confirm(`Are you sure you want to permanently delete booking #${bookingNumber}?`)) {
       try {
         await deleteMutation.mutateAsync(id);
@@ -210,56 +216,66 @@ export function BookingTable({ bookings, isLoading = false }: BookingTableProps)
             >
               <Eye className="h-3.5 w-3.5" />
             </Link>
-            <Link
-              href={`/dashboard/bookings/${obfuscateId(id)}?tab=edit`}
-              title="Edit Booking"
-              className="h-7 w-7 inline-flex items-center justify-center text-slate-450 hover:text-slate-700 border border-slate-200 hover:border-slate-350 bg-white rounded-md transition-all shadow-sm"
-            >
-              <Edit className="h-3.5 w-3.5" />
-            </Link>
-            <button
-              onClick={() => handleDelete(id, row.original.bookingNumber)}
-              title="Delete Booking"
-              className="h-7 w-7 inline-flex items-center justify-center text-rose-500 hover:text-rose-700 border border-rose-100 hover:border-rose-350 bg-rose-50/50 rounded-md transition-all cursor-pointer shadow-sm"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
+            {canEdit && (
+              <Link
+                href={`/dashboard/bookings/${obfuscateId(id)}?tab=edit`}
+                title="Edit Booking"
+                className="h-7 w-7 inline-flex items-center justify-center text-slate-450 hover:text-slate-700 border border-slate-200 hover:border-slate-350 bg-white rounded-md transition-all shadow-sm"
+              >
+                <Edit className="h-3.5 w-3.5" />
+              </Link>
+            )}
+            {canDelete && (
+              <button
+                onClick={() => handleDelete(id, row.original.bookingNumber)}
+                title="Delete Booking"
+                className="h-7 w-7 inline-flex items-center justify-center text-rose-500 hover:text-rose-700 border border-rose-100 hover:border-rose-350 bg-rose-50/50 rounded-md transition-all cursor-pointer shadow-sm"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         );
       },
     },
   ];
 
+  const visibleColumns = canDelete ? columns : columns.filter((col) => col.id !== 'select');
+
   return (
     <div className="w-full">
       <DataTable
-        columns={columns}
+        columns={visibleColumns}
         data={bookings}
         searchKey="customerName"
         searchPlaceholder="Search bookings, customer, event..."
         exportFileName="bookings_list"
-        bulkActions={[
-          {
-            label: 'Delete Selected',
-            onClick: async (selected) => {
-              if (
-                window.confirm(
-                  `Are you sure you want to delete ${selected.length} selected bookings?`
-                )
-              ) {
-                // Delete sequentially in the background
-                for (const item of selected) {
-                  try {
-                    await deleteMutation.mutateAsync(item.id);
-                  } catch (err) {
-                    console.error('Bulk delete item failed:', err);
-                  }
-                }
-              }
-            },
-            className: 'bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs',
-          },
-        ]}
+        bulkActions={
+          canDelete
+            ? [
+                {
+                  label: 'Delete Selected',
+                  onClick: async (selected) => {
+                    if (
+                      window.confirm(
+                        `Are you sure you want to delete ${selected.length} selected bookings?`
+                      )
+                    ) {
+                      // Delete sequentially in the background
+                      for (const item of selected) {
+                        try {
+                          await deleteMutation.mutateAsync(item.id);
+                        } catch (err) {
+                          console.error('Bulk delete item failed:', err);
+                        }
+                      }
+                    }
+                  },
+                  className: 'bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs',
+                },
+              ]
+            : undefined
+        }
       />
     </div>
   );

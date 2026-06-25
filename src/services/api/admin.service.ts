@@ -27,6 +27,7 @@ export interface HallWithSubscription extends Hall {
     packages?: {
       name: string;
       price: number;
+      setup_fee?: number;
       billing_cycle: string;
     };
   }>;
@@ -43,6 +44,7 @@ export interface HallDetails extends Hall {
     packages?: {
       name: string;
       price: number;
+      setup_fee?: number;
       billing_cycle: string;
       features: string[];
       max_users?: number | null;
@@ -112,6 +114,7 @@ export async function getPackagesList(): Promise<Package[]> {
 export async function createPackage(data: {
   name: string;
   price: number;
+  setup_fee?: number;
   billing_cycle: 'monthly' | 'yearly';
   max_users: number | null;
   max_bookings: number | null;
@@ -126,6 +129,7 @@ export async function updatePackage(
   data: {
     name?: string;
     price?: number;
+    setup_fee?: number;
     billing_cycle?: 'monthly' | 'yearly';
     max_users?: number | null;
     max_bookings?: number | null;
@@ -276,3 +280,23 @@ export async function sendTestEmail(email: string): Promise<{ success: boolean; 
   const res = await apiClient.post<{ success: boolean; message: string }>('/admin/billing/test-email', { email });
   return res.data;
 }
+
+export async function getHallSubscriptionPayments(id: string): Promise<SubscriptionPayment[]> {
+  const res = await apiClient.get<SubscriptionPayment[]>(`/admin/halls/${id}/payments`);
+  return res.data;
+}
+
+export async function recordManualSubscriptionPayment(
+  id: string,
+  data: {
+    package_id: string;
+    amount: number;
+    payment_method?: string;
+    transaction_ref_no?: string;
+    notes?: string;
+  }
+): Promise<{ message: string; data: SubscriptionPayment }> {
+  const res = await apiClient.post<{ message: string; data: SubscriptionPayment }>(`/admin/halls/${id}/payments`, data);
+  return res.data;
+}
+

@@ -31,6 +31,7 @@ import { formatDate } from '@/utils/formatters';
 import { formatCurrency } from '@/utils/currency';
 import { PaymentMethodBadge } from './PaymentMethodBadge';
 import { obfuscateId } from '@/utils/obfuscate';
+import { useAuthStore } from '@/store/authStore';
 
 interface PaymentTableProps {
   payments: Payment[];
@@ -48,6 +49,8 @@ export function PaymentTable({
   isDeleting = false,
 }: PaymentTableProps) {
   const [search, setSearch] = useState('');
+  const { user } = useAuthStore();
+  const canDelete = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('create_payments');
   const [methodFilter, setMethodFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
@@ -342,15 +345,17 @@ export function PaymentTable({
                     <Receipt className="h-3.5 w-3.5 text-slate-400" />
                     View Receipt
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => onDeletePayment(item.id, item.amount)}
-                    disabled={isDeleting}
-                    className="w-full text-left flex items-center gap-2 px-3 py-1.5 hover:bg-rose-50 text-rose-600 border-t border-slate-50 mt-1 pt-1.5 transition-colors cursor-pointer disabled:opacity-50"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    Delete Ledger
-                  </button>
+                  {canDelete && (
+                    <button
+                      type="button"
+                      onClick={() => onDeletePayment(item.id, item.amount)}
+                      disabled={isDeleting}
+                      className="w-full text-left flex items-center gap-2 px-3 py-1.5 hover:bg-rose-50 text-rose-605 border-t border-slate-50 mt-1 pt-1.5 transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Delete Ledger
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -361,10 +366,12 @@ export function PaymentTable({
     [activeDropdownId, isDeleting, onDeletePayment, onViewReceipt]
   );
 
+  const visibleColumns = canDelete ? columns : columns.filter((col) => col.id !== 'select');
+
   // React Table setup
   const table = useReactTable({
     data: filteredData,
-    columns,
+    columns: visibleColumns,
     state: {
       sorting,
       columnVisibility,

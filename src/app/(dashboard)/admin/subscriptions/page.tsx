@@ -9,15 +9,12 @@ import {
   Calendar,
   AlertTriangle,
   RefreshCw,
-  MoreHorizontal,
-  ChevronRight,
   TrendingUp,
-  UserCheck,
   PowerOff,
-  UserX,
   X,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Eye
 } from 'lucide-react';
 import Link from 'next/link';
 import { obfuscateId } from '@/utils/obfuscate';
@@ -173,61 +170,48 @@ export default function AdminSubscriptionsPage() {
                           {style.label}
                         </span>
                       </td>
-                      <td className="px-5 py-4 text-right relative">
-                        <button
-                          onClick={() => setActiveSubId(activeSubId === sub.id ? null : sub.id)}
-                          className="p-1 rounded hover:bg-gray-100 text-gray-500 cursor-pointer"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </button>
+                      <td className="px-5 py-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Link
+                            href={`/admin/subscriptions/${obfuscateId(sub.id)}`}
+                            className="p-1.5 rounded-lg hover:bg-gray-150/50 text-gray-500 hover:text-violet-600 transition-colors inline-block"
+                            title="Inspect Timeline"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Link>
 
-                        {activeSubId === sub.id && (
-                          <>
-                            <div className="fixed inset-0 z-10" onClick={() => setActiveSubId(null)} />
-                            <div className="absolute right-5 mt-1 w-48 bg-white border border-gray-150 rounded-lg shadow-lg py-1.5 z-20 text-left">
-                              <Link
-                                href={`/admin/subscriptions/${obfuscateId(sub.id)}`}
-                                className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 text-gray-700 text-xs font-semibold"
-                              >
-                                <ChevronRight className="h-3.5 w-3.5 text-gray-450" />
-                                <span>Inspect Timeline</span>
-                              </Link>
+                          <button
+                            onClick={() => {
+                              setRenewDialogOpen(true);
+                              setActiveSubId(sub.id);
+                              setSelectedMonths(1);
+                            }}
+                            className="p-1.5 rounded-lg hover:bg-gray-150/50 text-gray-500 hover:text-violet-600 transition-colors inline-block cursor-pointer"
+                            title="Extend License"
+                          >
+                            <RefreshCw className="h-4 w-4" />
+                          </button>
 
-                              <button
-                                onClick={() => {
-                                  setRenewDialogOpen(true);
-                                  setActiveSubId(sub.id);
-                                }}
-                                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 text-gray-700 text-xs font-semibold text-left cursor-pointer"
-                              >
-                                <RefreshCw className="h-3.5 w-3.5 text-gray-450" />
-                                <span>Extend License</span>
-                              </button>
+                          <button
+                            onClick={() => {
+                              setPackageDialogOpen(true);
+                              setActiveSubId(sub.id);
+                              setSelectedNewPkgId('');
+                            }}
+                            className="p-1.5 rounded-lg hover:bg-gray-150/50 text-gray-500 hover:text-violet-600 transition-colors inline-block cursor-pointer"
+                            title="Migrate Plan"
+                          >
+                            <TrendingUp className="h-4 w-4" />
+                          </button>
 
-                              <button
-                                onClick={() => {
-                                  setPackageDialogOpen(true);
-                                  setActiveSubId(sub.id);
-                                  setSelectedNewPkgId('');
-                                }}
-                                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 text-gray-700 text-xs font-semibold text-left cursor-pointer"
-                              >
-                                <TrendingUp className="h-3.5 w-3.5 text-gray-450" />
-                                <span>Migrate Plan</span>
-                              </button>
-
-                              <hr className="border-gray-100 my-1" />
-
-                              <button
-                                onClick={() => handleCancelSubscription(sub.hallId)}
-                                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-red-50 text-red-650 text-xs font-semibold text-left cursor-pointer"
-                              >
-                                <PowerOff className="h-3.5 w-3.5" />
-                                <span>Suspend Access</span>
-                              </button>
-                            </div>
-                          </>
-                        )}
+                          <button
+                            onClick={() => handleCancelSubscription(sub.hallId)}
+                            className="p-1.5 rounded-lg hover:bg-red-50 text-red-600 hover:text-red-750 transition-colors inline-block cursor-pointer"
+                            title="Suspend Access"
+                          >
+                            <PowerOff className="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

@@ -343,7 +343,9 @@ export default function DashboardPage() {
             </div>
             <div className="space-y-1">
               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Max Bookings Limit</span>
-              <span className="text-gray-800 font-bold text-sm block">{activeSubscription?.max_bookings || 'N/A'} bookings</span>
+              <span className="text-gray-800 font-bold text-sm block">
+                {activeSubscription?.max_bookings ? `${activeSubscription.max_bookings} bookings` : 'Unlimited'}
+              </span>
             </div>
           </div>
 

@@ -41,6 +41,9 @@ export default function EnquiriesDashboardPage() {
 
   const user = useAuthStore((state) => state.user);
   const activeHallId = useAuthStore((state) => state.activeHallId);
+
+  const canCreate = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('create_bookings');
+  const canEdit = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('edit_bookings');
   const halls = user?.accessible_halls || [];
   const activeHall = halls.find((h) => h.id === activeHallId)
     || halls.find((h) => h.id === user?.hall_id)
@@ -479,22 +482,26 @@ export default function EnquiriesDashboardPage() {
           </button>
 
           {/* Import CSV button */}
-          <button
-            onClick={() => setIsImportOpen(true)}
-            className="flex items-center justify-center gap-1.5 h-9.5 px-3 border border-indigo-200 hover:border-indigo-300 hover:bg-indigo-50/20 text-indigo-650 rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
-          >
-            <Upload className="h-4 w-4 shrink-0 text-indigo-500" />
-            <span>Import CSV</span>
-          </button>
+          {canCreate && (
+            <button
+              onClick={() => setIsImportOpen(true)}
+              className="flex items-center justify-center gap-1.5 h-9.5 px-3 border border-indigo-200 hover:border-indigo-300 hover:bg-indigo-50/20 text-indigo-650 rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
+            >
+              <Upload className="h-4 w-4 shrink-0 text-indigo-500" />
+              <span>Import CSV</span>
+            </button>
+          )}
 
           {/* Add Enquiry button */}
-          <button
-            onClick={() => router.push('/dashboard/enquiries/new')}
-            className="flex items-center justify-center gap-1.5 h-9.5 px-5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-lg text-xs font-extrabold tracking-wider uppercase shadow-md shadow-indigo-100 hover:shadow-lg hover:shadow-indigo-200 transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-          >
-            <Plus className="h-4 w-4 shrink-0" />
-            <span>Add Enquiry</span>
-          </button>
+          {canCreate && (
+            <button
+              onClick={() => router.push('/dashboard/enquiries/new')}
+              className="flex items-center justify-center gap-1.5 h-9.5 px-5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-lg text-xs font-extrabold tracking-wider uppercase shadow-md shadow-indigo-100 hover:shadow-lg hover:shadow-indigo-200 transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+            >
+              <Plus className="h-4 w-4 shrink-0" />
+              <span>Add Enquiry</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -769,43 +776,47 @@ export default function EnquiriesDashboardPage() {
 
           <div className="flex items-center gap-3 flex-wrap">
             {/* Bulk Change Stage */}
-            <select
-              onChange={(e) => {
-                if (e.target.value) {
-                  handleBulkStageChange(e.target.value as EnquiryStage);
-                  e.target.value = '';
-                }
-              }}
-              defaultValue=""
-              className="h-8 px-2.5 text-[10px] bg-slate-800 border border-slate-700 rounded-lg text-slate-200 font-extrabold focus:outline-none focus:ring-1 focus:ring-violet-500 cursor-pointer"
-              disabled={isBulkUpdating}
-            >
-              <option value="" disabled>Change Stage</option>
-              <option value="new">New Lead</option>
-              <option value="interested">Interested</option>
-              <option value="visit_scheduled">Visit Scheduled</option>
-              <option value="visited">Visited</option>
-              <option value="booked">Booked</option>
-              <option value="lost">Lost</option>
-            </select>
+            {canEdit && (
+              <select
+                onChange={(e) => {
+                  if (e.target.value) {
+                    handleBulkStageChange(e.target.value as EnquiryStage);
+                    e.target.value = '';
+                  }
+                }}
+                defaultValue=""
+                className="h-8 px-2.5 text-[10px] bg-slate-800 border border-slate-700 rounded-lg text-slate-200 font-extrabold focus:outline-none focus:ring-1 focus:ring-violet-500 cursor-pointer"
+                disabled={isBulkUpdating}
+              >
+                <option value="" disabled>Change Stage</option>
+                <option value="new">New Lead</option>
+                <option value="interested">Interested</option>
+                <option value="visit_scheduled">Visit Scheduled</option>
+                <option value="visited">Visited</option>
+                <option value="booked">Booked</option>
+                <option value="lost">Lost</option>
+              </select>
+            )}
 
             {/* Bulk Change Priority */}
-            <select
-              onChange={(e) => {
-                if (e.target.value) {
-                  handleBulkPriorityChange(e.target.value as 'high' | 'medium' | 'low');
-                  e.target.value = '';
-                }
-              }}
-              defaultValue=""
-              className="h-8 px-2.5 text-[10px] bg-slate-800 border border-slate-700 rounded-lg text-slate-200 font-extrabold focus:outline-none focus:ring-1 focus:ring-violet-500 cursor-pointer"
-              disabled={isBulkUpdating}
-            >
-              <option value="" disabled>Change Priority</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-            </select>
+            {canEdit && (
+              <select
+                onChange={(e) => {
+                  if (e.target.value) {
+                    handleBulkPriorityChange(e.target.value as 'high' | 'medium' | 'low');
+                    e.target.value = '';
+                  }
+                }}
+                defaultValue=""
+                className="h-8 px-2.5 text-[10px] bg-slate-800 border border-slate-700 rounded-lg text-slate-200 font-extrabold focus:outline-none focus:ring-1 focus:ring-violet-500 cursor-pointer"
+                disabled={isBulkUpdating}
+              >
+                <option value="" disabled>Change Priority</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            )}
 
             {/* Bulk Export Selected */}
             <button

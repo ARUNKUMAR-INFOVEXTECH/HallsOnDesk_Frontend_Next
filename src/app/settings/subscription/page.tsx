@@ -57,7 +57,7 @@ export default function SubscriptionSettingsPage() {
         <p className="text-xs text-gray-450 mt-1">We couldn't retrieve your active subscription or plan details. Please try again later.</p>
         <button
           onClick={() => window.location.reload()}
-          className="mt-4 px-4 py-2 bg-indigo-650 text-white text-xs font-bold rounded-lg hover:bg-indigo-750 transition-all cursor-pointer"
+          className="mt-4 px-4.5 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-lg shadow-md shadow-violet-600/10 hover:shadow-violet-600/20 active:scale-98 transition-all duration-150 cursor-pointer"
         >
           Try Again
         </button>
@@ -106,11 +106,11 @@ export default function SubscriptionSettingsPage() {
       )}
 
       {pendingPayment && (
-        <div className="flex items-start gap-3 bg-indigo-50 border border-indigo-200 rounded-xl p-4 text-indigo-900">
-          <Sparkles className="h-5 w-5 text-[#062089] shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 bg-violet-50 border border-violet-200 rounded-xl p-4 text-violet-955">
+          <Sparkles className="h-5 w-5 text-violet-600 shrink-0 mt-0.5" />
           <div>
             <h4 className="font-bold text-xs">Payment Verification Pending</h4>
-            <p className="text-[11px] text-indigo-700 mt-1">
+            <p className="text-[11px] text-violet-750 mt-1">
               We received your payment submission of <strong>₹{pendingPayment.amount.toLocaleString('en-IN')}</strong> (UTR: <strong>{pendingPayment.transaction_ref_no}</strong>). 
               Our billing administrators are verifying this transfer against bank statements. This verification usually resolves within 2 hours.
             </p>
@@ -124,31 +124,31 @@ export default function SubscriptionSettingsPage() {
         <div className="xl:col-span-2 space-y-6">
           
           {/* Active Plan Detail Card */}
-          <div className="relative overflow-hidden rounded-2xl border border-indigo-100 shadow-md bg-gradient-to-r from-[#062089] to-[#002499] text-white p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="relative overflow-hidden rounded-2xl border border-violet-100/10 shadow-lg bg-gradient-to-r from-violet-650 via-indigo-650 to-indigo-800 text-white p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-5 pointer-events-none" />
-            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-indigo-500/20 blur-3xl" />
+            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-violet-500/20 blur-3xl" />
             
             <div className="space-y-3 relative z-10">
-              <span className="bg-white/15 border border-white/20 text-indigo-200 text-[10px] font-black tracking-wider uppercase px-2.5 py-1 rounded-full">
+              <span className="bg-white/15 border border-white/20 text-violet-200 text-[10px] font-black tracking-wider uppercase px-2.5 py-1 rounded-full">
                 Active Plan
               </span>
               <h2 className="text-2xl font-black tracking-tight">{activePackage?.name || 'Free Trial Plan'}</h2>
-              <div className="flex items-center gap-1.5 text-xs text-indigo-200/90 font-semibold">
-                <Clock className="h-4 w-4 text-[#159DFC]" />
+              <div className="flex items-center gap-1.5 text-xs text-violet-200/90 font-semibold">
+                <Clock className="h-4 w-4 text-violet-300" />
                 <span>Next billing date: <strong>{new Date(subscription.end_date).toLocaleDateString('en-GB')}</strong></span>
               </div>
             </div>
 
             <div className="flex items-center gap-4 relative z-10 shrink-0">
               <div className="text-right hidden sm:block">
-                <span className="text-[10px] text-indigo-250 font-black uppercase block tracking-wider">Plan Cost</span>
+                <span className="text-[10px] text-violet-200 font-black uppercase block tracking-wider">Plan Cost</span>
                 <span className="text-xl font-black text-white font-mono">
                   ₹{activePackage?.price?.toLocaleString('en-IN') || '0'}
-                  <span className="text-xs text-indigo-250 font-semibold">/{activePackage?.billing_cycle || 'month'}</span>
+                  <span className="text-xs text-violet-200 font-semibold">/{activePackage?.billing_cycle || 'month'}</span>
                 </span>
               </div>
               <div className="h-16 w-16 bg-white/10 border border-white/20 rounded-2xl flex flex-col items-center justify-center p-2 text-center">
-                <span className="text-lg font-black text-[#159DFC] font-mono leading-none">{daysRemaining}</span>
+                <span className="text-lg font-black text-violet-300 font-mono leading-none">{daysRemaining}</span>
                 <span className="text-[8px] text-slate-350 font-black uppercase mt-1">Days Left</span>
               </div>
             </div>
@@ -157,12 +157,11 @@ export default function SubscriptionSettingsPage() {
           {/* Usage Tracker */}
           <SettingsCard title="Subscription Usage Limits" subtitle="Track your active usage metrics against your plan limitations." icon={TrendingUp}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              {/* Users Count progress */}
+                         {/* Users Count progress */}
               <div className="bg-slate-50/50 border border-slate-100 rounded-xl p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-[#062089]">
+                    <div className="h-9 w-9 rounded-lg bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
                       <Users className="h-4.5 w-4.5" />
                     </div>
                     <div>
@@ -178,7 +177,7 @@ export default function SubscriptionSettingsPage() {
                 <div className="space-y-1">
                   <div className="h-2 w-full bg-slate-105 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-[#062089] rounded-full transition-all duration-500"
+                      className="h-full bg-violet-650 rounded-full transition-all duration-500"
                       style={{ width: `${Math.min(100, (staffCount / (activePackage?.max_users || 5)) * 100)}%` }}
                     />
                   </div>
@@ -192,7 +191,7 @@ export default function SubscriptionSettingsPage() {
               <div className="bg-slate-50/50 border border-slate-100 rounded-xl p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-lg bg-indigo-55 border border-indigo-100 flex items-center justify-center text-[#159DFC]">
+                    <div className="h-9 w-9 rounded-lg bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
                       <CalendarDays className="h-4.5 w-4.5" />
                     </div>
                     <div>
@@ -201,19 +200,21 @@ export default function SubscriptionSettingsPage() {
                     </div>
                   </div>
                   <span className="text-xs font-black text-slate-805 font-mono font-extrabold">
-                    {bookingCount} <span className="text-slate-400 font-bold">/ {activePackage?.max_bookings || 150}</span>
+                    {bookingCount} <span className="text-slate-400 font-bold">/ {activePackage?.max_bookings ? activePackage.max_bookings : 'Unlimited'}</span>
                   </span>
                 </div>
 
                 <div className="space-y-1">
                   <div className="h-2 w-full bg-slate-105 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-[#159DFC] rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min(100, (bookingCount / (activePackage?.max_bookings || 150)) * 100)}%` }}
+                      className="h-full bg-violet-650 rounded-full transition-all duration-500"
+                      style={{ width: `${activePackage?.max_bookings ? Math.min(100, (bookingCount / activePackage.max_bookings) * 100) : 100}%` }}
                     />
                   </div>
                   <span className="text-[9px] text-slate-450 font-bold block text-right">
-                    {Math.round((bookingCount / (activePackage?.max_bookings || 150)) * 100)}% capacity filled
+                    {activePackage?.max_bookings 
+                      ? `${Math.round((bookingCount / activePackage.max_bookings) * 100)}% capacity filled`
+                      : 'Unlimited Capacity'}
                   </span>
                 </div>
               </div>
@@ -232,16 +233,16 @@ export default function SubscriptionSettingsPage() {
             <div className="space-y-2.5 pt-2">
               <button
                 onClick={() => handleCheckoutRedirect(subscription.package_id)}
-                className="w-full h-9 bg-[#062089] hover:bg-[#002499] text-white text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-indigo-100"
+                className="w-full h-9 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-violet-600/10 hover:shadow-violet-600/20 hover:scale-[1.01] active:scale-[0.99] transition-all duration-150"
               >
                 <QrCode className="h-4.5 w-4.5" />
                 <span>Go to Scan & Pay</span>
               </button>
               <a
                 href="mailto:billing@infovex.com"
-                className="w-full h-9 border border-slate-250 hover:bg-slate-50 text-slate-655 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full h-9 border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:scale-[1.01] active:scale-[0.99] transition-all duration-150"
               >
-                <HelpCircle className="h-4 w-4" />
+                <HelpCircle className="h-4 w-4 text-slate-500" />
                 <span>Contact Billing Team</span>
               </a>
             </div>
@@ -264,7 +265,7 @@ export default function SubscriptionSettingsPage() {
                 key={pkg.id} 
                 className={`bg-white rounded-2xl border p-6 flex flex-col justify-between gap-6 transition-all shadow-sm ${
                   isCurrent 
-                    ? 'border-[#062089] ring-2 ring-indigo-500/10 scale-[1.01]' 
+                    ? 'border-violet-650 ring-2 ring-violet-500/10 scale-[1.01]' 
                     : 'border-slate-205 hover:border-slate-350 hover:shadow-md'
                 }`}
               >
@@ -273,7 +274,7 @@ export default function SubscriptionSettingsPage() {
                   <div className="flex justify-between items-center gap-2">
                     <span className="font-extrabold text-slate-805 text-base">{pkg.name}</span>
                     {isCurrent && (
-                      <span className="text-[8px] font-extrabold text-[#062089] bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                      <span className="text-[8px] font-extrabold text-violet-700 bg-violet-50 border border-violet-100 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                         Active Now
                       </span>
                     )}
@@ -289,11 +290,11 @@ export default function SubscriptionSettingsPage() {
                   <div className="space-y-2 py-3 border-t border-slate-50 text-[11px] font-semibold text-slate-655">
                     <div className="flex items-center gap-2">
                       <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-                      <span>Up to <strong>{pkg.max_users}</strong> team members</span>
+                      <span>{pkg.max_users !== null && pkg.max_users !== undefined ? <>Up to <strong>{pkg.max_users}</strong> team members</> : <strong>Unlimited team members</strong>}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-                      <span>Up to <strong>{pkg.max_bookings}</strong> active bookings</span>
+                      <ShieldCheck className="h-4 w-4 text-emerald-650 shrink-0" />
+                      <span>{pkg.max_bookings ? <>Up to <strong>{pkg.max_bookings}</strong> active bookings</> : <strong>Unlimited active bookings</strong>}</span>
                     </div>
                     {pkg.setup_fee && (
                       <div className="flex items-center gap-2 text-indigo-700">
@@ -360,8 +361,8 @@ export default function SubscriptionSettingsPage() {
                   disabled={isCurrent}
                   className={`w-full h-9 rounded-lg text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
                     isCurrent 
-                      ? 'bg-slate-100 border border-slate-205 text-slate-400 cursor-not-allowed' 
-                      : 'bg-indigo-650 hover:bg-indigo-750 text-white shadow-md shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98]'
+                      ? 'bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed' 
+                      : 'bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/10 hover:shadow-violet-600/20 hover:scale-[1.01] active:scale-[0.99]'
                   }`}
                 >
                   <span>{isCurrent ? 'Current Plan' : 'Select Package'}</span>

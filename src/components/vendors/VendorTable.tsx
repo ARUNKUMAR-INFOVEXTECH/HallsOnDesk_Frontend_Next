@@ -29,6 +29,7 @@ import { obfuscateId } from '@/utils/obfuscate';
 import { CategoryBadge } from './CategoryBadge';
 import { VendorStatusBadge } from './VendorStatusBadge';
 import { formatCurrency } from '@/utils/currency';
+import { useAuthStore } from '@/store/authStore';
 
 interface VendorTableProps {
   data: Vendor[];
@@ -41,6 +42,8 @@ export function VendorTable({ data, onEdit, onDelete }: VendorTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pageSize, setPageSize] = useState(10);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const { user } = useAuthStore();
+  const canManage = !user || user.role === 'owner' || user.role === 'super_admin' || user.permissions?.includes('manage_vendors');
 
   const getInitials = (name: string) => {
     if (!name) return 'VD';
@@ -260,28 +263,32 @@ export function VendorTable({ data, onEdit, onDelete }: VendorTableProps) {
                       <Eye className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                       View Profile
                     </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveMenuId(null);
-                        onEdit(vendor);
-                      }}
-                      className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 text-left transition-colors cursor-pointer"
-                    >
-                      <Pencil className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                      Edit Vendor
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveMenuId(null);
-                        onDelete(vendor.id, vendor.name);
-                      }}
-                      className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-rose-50 hover:text-rose-600 text-left transition-colors cursor-pointer"
-                    >
-                      <Trash2 className="h-3.5 w-3.5 text-slate-400 hover:text-rose-550 shrink-0" />
-                      Delete
-                    </button>
+                    {canManage && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveMenuId(null);
+                          onEdit(vendor);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 text-left transition-colors cursor-pointer"
+                      >
+                        <Pencil className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                        Edit Vendor
+                      </button>
+                    )}
+                    {canManage && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveMenuId(null);
+                          onDelete(vendor.id, vendor.name);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-rose-50 hover:text-rose-600 text-left transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="h-3.5 w-3.5 text-slate-400 hover:text-rose-550 shrink-0" />
+                        Delete
+                      </button>
+                    )}
                   </div>
                 </>
               )}

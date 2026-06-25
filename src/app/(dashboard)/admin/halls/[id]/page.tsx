@@ -366,7 +366,11 @@ export default function AdminHallDetailPage() {
                   </div>
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold text-gray-400 uppercase block">Setup/Implementation Fee</span>
-                    <span className="text-gray-900 font-bold text-sm block">₹4,999</span>
+                    <span className="text-gray-900 font-bold text-sm block">
+                      {activeSub?.packages?.setup_fee !== undefined && activeSub.packages.setup_fee !== null
+                        ? `₹${activeSub.packages.setup_fee.toLocaleString('en-IN')}`
+                        : '₹0'}
+                    </span>
                   </div>
 
                   <hr className="col-span-1 sm:col-span-3 border-gray-50 my-1" />

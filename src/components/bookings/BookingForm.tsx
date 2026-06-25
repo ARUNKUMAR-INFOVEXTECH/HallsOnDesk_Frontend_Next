@@ -59,8 +59,8 @@ export function BookingForm({
       notes: '',
       coordinatorName: '',
       coordinatorPhone: '',
-      taxEnabled: false,
-      taxPercentage: 0,
+      taxEnabled: initialValues?.taxEnabled !== undefined ? initialValues.taxEnabled : (settings?.taxEnabled || false),
+      taxPercentage: initialValues?.taxPercentage !== undefined ? initialValues.taxPercentage : (settings?.gstRate || 0),
       ...initialValues,
       eventDate: initialValues?.eventDate ? formatToDatetimeLocal(initialValues.eventDate, false) : '',
       eventEndDate: initialValues?.eventEndDate ? formatToDatetimeLocal(initialValues.eventEndDate, true) : '',
@@ -78,20 +78,33 @@ export function BookingForm({
   useEffect(() => {
     if (initialValues) {
       reset({
-        taxEnabled: false,
-        taxPercentage: 0,
+        taxEnabled: initialValues.taxEnabled !== undefined ? initialValues.taxEnabled : (settings?.taxEnabled || false),
+        taxPercentage: initialValues.taxPercentage !== undefined ? initialValues.taxPercentage : (settings?.gstRate || 0),
         ...initialValues,
         eventDate: initialValues.eventDate ? formatToDatetimeLocal(initialValues.eventDate, false) : '',
         eventEndDate: initialValues.eventEndDate ? formatToDatetimeLocal(initialValues.eventEndDate, true) : '',
       });
     }
-  }, [initialValues, reset]);
+  }, [initialValues, reset, settings]);
 
   // Autofill settings defaults for new bookings
   useEffect(() => {
-    if (settings && !initialValues) {
-      setValue('taxEnabled', settings.taxEnabled || false);
-      setValue('taxPercentage', settings.gstRate || 0);
+    if (settings) {
+      if (initialValues) {
+        if (initialValues.taxEnabled !== undefined) {
+          setValue('taxEnabled', initialValues.taxEnabled);
+        } else {
+          setValue('taxEnabled', settings.taxEnabled || false);
+        }
+        if (initialValues.taxPercentage !== undefined) {
+          setValue('taxPercentage', initialValues.taxPercentage);
+        } else {
+          setValue('taxPercentage', settings.gstRate || 0);
+        }
+      } else {
+        setValue('taxEnabled', settings.taxEnabled || false);
+        setValue('taxPercentage', settings.gstRate || 0);
+      }
     }
   }, [settings, initialValues, setValue]);
 

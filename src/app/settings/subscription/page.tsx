@@ -124,34 +124,59 @@ export default function SubscriptionSettingsPage() {
         
         {/* Left Column: Active Subscription & Usage Tracker */}
         <div className="xl:col-span-2 space-y-6">
-          
-          {/* Active Plan Detail Card */}
-          <div className="relative overflow-hidden rounded-2xl border border-violet-100/10 shadow-lg bg-gradient-to-r from-violet-650 via-indigo-650 to-indigo-800 text-white p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-5 pointer-events-none" />
-            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-violet-500/20 blur-3xl" />
+                   {/* Active Plan Detail Card */}
+          <div className="relative overflow-hidden rounded-2xl border border-white/10 shadow-xl bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-violet-600 via-indigo-950 to-slate-900 text-white p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             
+            {/* Engineered Grid Background Pattern */}
+            <svg className="absolute inset-0 h-full w-full stroke-white/[0.04] [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)] pointer-events-none" aria-hidden="true">
+              <defs>
+                <pattern id="grid-pattern-sub" width="20" height="20" patternUnits="userSpaceOnUse" x="100%" y="-1">
+                  <path d="M.5 20V.5H20" fill="none" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#grid-pattern-sub)" strokeWidth="0" />
+            </svg>
+            
+            {/* Glowing Neon Blobs */}
+            <div className="absolute -left-10 -bottom-10 h-36 w-36 rounded-full bg-blue-500/20 blur-3xl pointer-events-none" />
+            <div className="absolute right-10 -top-10 h-36 w-36 rounded-full bg-violet-500/25 blur-3xl pointer-events-none" />
+            <div className="absolute right-1/4 bottom-0 h-28 w-28 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
+
             <div className="space-y-3 relative z-10">
-              <span className="bg-white/15 border border-white/20 text-violet-200 text-[10px] font-black tracking-wider uppercase px-2.5 py-1 rounded-full">
-                Active Plan
-              </span>
-              <h2 className="text-2xl font-black tracking-tight">{activePackage?.name || 'Free Trial Plan'}</h2>
-              <div className="flex items-center gap-1.5 text-xs text-violet-200/90 font-semibold">
+              <div className="flex items-center gap-2">
+                <span className="bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-black tracking-wider uppercase px-2.5 py-1 rounded-full flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                  Active Workspace
+                </span>
+                <span className="bg-white/10 border border-white/15 text-violet-200 text-[9px] font-black tracking-wider uppercase px-2.5 py-1 rounded-full">
+                  {activePackage?.billing_cycle || 'monthly'} plan
+                </span>
+              </div>
+              <h2 className="text-2xl font-black tracking-tight font-sans drop-shadow-sm">{activePackage?.name || 'Free Trial Plan'}</h2>
+              <div className="flex items-center gap-1.5 text-xs text-slate-350 font-bold">
                 <Clock className="h-4 w-4 text-violet-300" />
-                <span>Next billing date: <strong>{new Date(subscription.end_date).toLocaleDateString('en-GB')}</strong></span>
+                <span>Next renewal date: <strong className="text-white">{new Date(subscription.end_date).toLocaleDateString('en-GB')}</strong></span>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 relative z-10 shrink-0">
-              <div className="text-right hidden sm:block">
-                <span className="text-[10px] text-violet-200 font-black uppercase block tracking-wider">Plan Cost</span>
-                <span className="text-xl font-black text-white font-mono">
+            <div className="flex items-center gap-3 relative z-10 shrink-0 self-start sm:self-auto flex-wrap sm:flex-nowrap">
+              {/* Cost Capsule */}
+              <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-xl px-4.5 py-2.5 flex flex-col items-start sm:items-end justify-center min-h-[58px]">
+                <span className="text-[8px] text-violet-250 font-black uppercase tracking-wider block font-sans">Plan Cost</span>
+                <span className="text-lg font-black text-white font-mono leading-none mt-1">
                   ₹{activePackage?.price?.toLocaleString('en-IN') || '0'}
-                  <span className="text-xs text-violet-200 font-semibold">/{activePackage?.billing_cycle || 'month'}</span>
+                  <span className="text-[10px] text-violet-300 font-bold lowercase">/{activePackage?.billing_cycle === 'yearly' ? 'yr' : 'mo'}</span>
                 </span>
               </div>
-              <div className="h-16 w-16 bg-white/10 border border-white/20 rounded-2xl flex flex-col items-center justify-center p-2 text-center">
-                <span className="text-lg font-black text-violet-300 font-mono leading-none">{daysRemaining}</span>
-                <span className="text-[8px] text-slate-350 font-black uppercase mt-1">Days Left</span>
+
+              {/* Days Left Capsule */}
+              <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-xl px-4.5 py-2.5 flex flex-col items-center justify-center text-center shadow-inner min-w-[76px] min-h-[58px]">
+                <span className="text-xl font-black text-amber-400 font-mono tracking-tight leading-none">
+                  {daysRemaining}
+                </span>
+                <span className="text-[8px] text-slate-300 font-black uppercase tracking-wider mt-1.5 font-sans">
+                  Days Left
+                </span>
               </div>
             </div>
           </div>

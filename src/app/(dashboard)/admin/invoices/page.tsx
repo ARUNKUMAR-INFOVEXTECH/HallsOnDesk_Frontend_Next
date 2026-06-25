@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAdminHalls, useAdminGenerateCustomInvoice } from '@/hooks/useAdmin';
+import { useAdminHalls, useAdminGenerateCustomInvoice, useAdminSetupFeePayments } from '@/hooks/useAdmin';
 import {
   FileText,
   Plus,
@@ -14,7 +14,8 @@ import {
   Mail,
   Phone,
   MapPin,
-  Percent
+  Percent,
+  Sliders
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatCurrency } from '@/utils/formatters';
@@ -38,11 +39,16 @@ interface InvoiceFormData {
   taxEnabled: boolean;
   taxPercentage: number;
   notes: string;
+  amountPaid: string;
+  balanceDue: string;
 }
 
 export default function AdminInvoicesPage() {
   const { halls = [], isLoading: hallsLoading } = useAdminHalls();
+  const { data: setupPayments = [] } = useAdminSetupFeePayments();
   const generateCustomInvoiceMutation = useAdminGenerateCustomInvoice();
+
+  const [invoiceType, setInvoiceType] = useState<'subscription' | 'setup' | 'custom'>('subscription');
 
   // Get current date and 7-days-out date
   const getTodayStr = () => new Date().toISOString().split('T')[0];
@@ -64,13 +70,81 @@ export default function AdminInvoicesPage() {
     invoiceNo: '',
     taxEnabled: true,
     taxPercentage: 18,
-    notes: 'Thank you for choosing Infovex Halls. Please remit payment by the due date.'
+    notes: 'Thank you for choosing Infovex Halls. Please remit payment by the due date.',
+    amountPaid: '0',
+    balanceDue: '',
   });
 
   // Line Items State
   const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([
     { id: '1', description: 'Setup & Installation Fee', quantity: 1, rate: 4999 }
   ]);
+
+  // Combined helper to prefill line items & totals based on invoice purpose
+  const prefillInvoiceDetails = (selectedId: string, type: 'subscription' | 'setup' | 'custom') => {
+    const hall = halls.find((h) => h.id === selectedId);
+    if (!hall) return;
+
+    const activeSub = hall.hall_subscriptions?.[0];
+    const packagePrice = activeSub?.packages?.price || 0;
+    const packageName = activeSub?.packages?.name || 'SaaS Plan';
+
+    const setupPayment = setupPayments.find(p => p.hall_id === selectedId);
+    const setupAmount = setupPayment?.setup_fee_amount || 0;
+    const setupPaid = setupPayment?.amount_paid || 0;
+    const setupRemaining = Math.max(0, setupAmount - setupPaid);
+
+    if (type === 'subscription') {
+      setLineItems([
+        {
+          id: '1',
+          description: `${packageName} - Monthly SaaS Subscription`,
+          quantity: 1,
+          rate: packagePrice
+        }
+      ]);
+      setFormData(prev => ({
+        ...prev,
+        amountPaid: '0',
+        balanceDue: ''
+      }));
+    } else if (type === 'setup') {
+      setLineItems([
+        {
+          id: '1',
+          description: 'SaaS Platform Setup & Onboarding Fees',
+          quantity: 1,
+          rate: setupAmount
+        }
+      ]);
+      setFormData(prev => ({
+        ...prev,
+        amountPaid: setupPaid.toString(),
+        balanceDue: setupRemaining.toString()
+      }));
+    } else {
+      setLineItems([
+        {
+          id: '1',
+          description: '',
+          quantity: 1,
+          rate: 0
+        }
+      ]);
+      setFormData(prev => ({
+        ...prev,
+        amountPaid: '0',
+        balanceDue: ''
+      }));
+    }
+  };
+
+  const handleInvoiceTypeChange = (type: 'subscription' | 'setup' | 'custom') => {
+    setInvoiceType(type);
+    if (formData.hallId) {
+      prefillInvoiceDetails(formData.hallId, type);
+    }
+  };
 
   // Autofill when a hall is selected
   const handleHallChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -86,6 +160,7 @@ export default function AdminInvoicesPage() {
         billToEmail: hall.email || '',
         billToAddress: hall.address || hall.city || ''
       }));
+      prefillInvoiceDetails(selectedId, invoiceType);
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -93,8 +168,11 @@ export default function AdminInvoicesPage() {
         billToName: '',
         billToPhone: '',
         billToEmail: '',
-        billToAddress: ''
+        billToAddress: '',
+        amountPaid: '',
+        balanceDue: ''
       }));
+      setLineItems([{ id: '1', description: '', quantity: 1, rate: 0 }]);
     }
   };
 
@@ -157,6 +235,9 @@ export default function AdminInvoicesPage() {
       return;
     }
 
+    const finalAmountPaid = formData.amountPaid ? parseFloat(formData.amountPaid) : 0;
+    const finalBalanceDue = formData.balanceDue !== '' ? parseFloat(formData.balanceDue) : Math.max(0, grandTotal - finalAmountPaid);
+
     try {
       const resultHtml = await generateCustomInvoiceMutation.mutateAsync({
         hallId: formData.hallId,
@@ -170,7 +251,9 @@ export default function AdminInvoicesPage() {
         taxEnabled: formData.taxEnabled,
         taxPercentage: formData.taxPercentage,
         items: lineItems.map(({ description, quantity, rate }) => ({ description, quantity, rate })),
-        notes: formData.notes.trim() || undefined
+        notes: formData.notes.trim() || undefined,
+        amountPaid: finalAmountPaid,
+        balanceDue: finalBalanceDue
       });
 
       // Print invoice via new window
@@ -210,6 +293,29 @@ export default function AdminInvoicesPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               
+              {/* Invoice Type Selector */}
+              <div className="space-y-1.5 col-span-1 md:col-span-2">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  Invoice Purpose / Type
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(['subscription', 'setup', 'custom'] as const).map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => handleInvoiceTypeChange(type)}
+                      className={`py-2 px-3 rounded-xl text-xs font-bold capitalize transition-all border cursor-pointer ${
+                        invoiceType === type
+                          ? 'bg-[#062089] text-white border-[#062089] shadow-sm font-bold'
+                          : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      {type === 'subscription' ? 'Monthly SaaS Renewal' : type === 'setup' ? 'SaaS Setup Fees' : 'Custom Services'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Hall Selector */}
               <div className="space-y-1.5 col-span-1 md:col-span-2">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
@@ -523,6 +629,37 @@ export default function AdminInvoicesPage() {
               <div className="flex justify-between items-center text-sm font-black text-slate-800 pt-1.5 border-t border-dashed border-slate-200">
                 <span>Total Due</span>
                 <span className="font-mono text-indigo-700 text-base">{formatCurrency(grandTotal)}</span>
+              </div>
+
+              {/* Amount Paid & Balance Due inputs inside details list */}
+              <div className="space-y-3 pt-3 border-t border-dashed border-slate-200">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
+                    Amount Received / Paid (₹)
+                  </label>
+                  <input
+                    type="number"
+                    name="amountPaid"
+                    value={formData.amountPaid}
+                    onChange={handleInputChange}
+                    placeholder="e.g. 1000"
+                    className="px-2.5 py-1.5 w-full rounded-lg border border-slate-200 text-xs font-bold text-right focus:outline-none focus:ring-1 focus:ring-[#062089] text-slate-800 bg-white font-mono"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
+                    Pending Balance Due (₹)
+                  </label>
+                  <input
+                    type="number"
+                    name="balanceDue"
+                    value={formData.balanceDue !== '' ? formData.balanceDue : Math.max(0, grandTotal - (parseFloat(formData.amountPaid) || 0)).toString()}
+                    onChange={handleInputChange}
+                    placeholder="e.g. 3999"
+                    className="px-2.5 py-1.5 w-full rounded-lg border border-slate-200 text-xs font-bold text-right focus:outline-none focus:ring-1 focus:ring-[#062089] text-slate-800 bg-white font-mono"
+                  />
+                </div>
               </div>
             </div>
 

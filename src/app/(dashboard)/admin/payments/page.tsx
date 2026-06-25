@@ -84,14 +84,18 @@ export default function AdminPaymentsPage() {
       }
     }
 
+    const cumulativePaid = selectedPayment.amount_paid + formData.amountPaid;
+    const defaultNotes = `Recorded payment installment of ${formatCurrency(formData.amountPaid)}. Total paid: ${formatCurrency(cumulativePaid)}.`;
+    const finalNotes = formData.notes.trim() ? `${formData.notes.trim()} (${defaultNotes})` : defaultNotes;
+
     try {
       await updateSetupFeeMutation.mutateAsync({
         id: selectedPayment.id,
         data: {
-          amount_paid: formData.amountPaid,
+          amount_paid: cumulativePaid,
           payment_method: formData.paymentMethod,
           transaction_ref_no: formData.transactionRefNo.trim() || undefined,
-          notes: formData.notes.trim() || undefined
+          notes: finalNotes
         }
       });
       handleCloseModal();
@@ -354,9 +358,8 @@ export default function AdminPaymentsPage() {
             {/* Modal Form */}
             <form onSubmit={handleSubmit}>
               <div className="p-6 space-y-4">
-                
-                {/* Outstanding Details */}
-                <div className="grid grid-cols-2 gap-4 bg-[#062089]/5 border border-[#062089]/10 rounded-xl p-4.5">
+                              {/* Outstanding Details */}
+                <div className="grid grid-cols-3 gap-3 bg-[#062089]/5 border border-[#062089]/10 rounded-xl p-4">
                   <div>
                     <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Billed Fee</span>
                     <span className="text-xs font-black text-slate-800 font-mono mt-0.5 block">
@@ -364,7 +367,13 @@ export default function AdminPaymentsPage() {
                     </span>
                   </div>
                   <div>
-                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Remaining Balance</span>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Previously Paid</span>
+                    <span className="text-xs font-black text-slate-800 font-mono mt-0.5 block text-emerald-600">
+                      {formatCurrency(selectedPayment.amount_paid)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Remaining</span>
                     <span className="text-xs font-black text-amber-600 font-mono mt-0.5 block">
                       {formatCurrency(Math.max(0, selectedPayment.setup_fee_amount - selectedPayment.amount_paid))}
                     </span>
@@ -374,7 +383,7 @@ export default function AdminPaymentsPage() {
                 {/* Amount Paid Input */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                    Amount Received (INR)
+                    New Installment Received (INR) *
                   </label>
                   <div className="relative">
                     <span className="absolute left-3.5 top-2.5 font-bold text-slate-400 text-xs">₹</span>

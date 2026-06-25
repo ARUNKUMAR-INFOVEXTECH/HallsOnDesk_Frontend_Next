@@ -82,6 +82,12 @@ export async function createHall(data: {
   city: string;
   address: string;
   package_id: string;
+  setup_fee_amount?: number;
+  amount_paid?: number;
+  setup_fee_status?: 'unpaid' | 'partially_paid' | 'paid';
+  payment_method?: 'upi' | 'bank_transfer' | 'cash' | 'offline' | 'none';
+  transaction_ref_no?: string;
+  notes?: string;
 }): Promise<{ message: string; hall_id: string; owner_email: string }> {
   const res = await apiClient.post<{ message: string; hall_id: string; owner_email: string }>(
     '/admin/halls',
@@ -344,6 +350,8 @@ export interface CustomInvoiceData {
     rate: number;
   }>;
   notes?: string;
+  amountPaid?: number;
+  balanceDue?: number;
 }
 
 export async function getSetupFeePayments(): Promise<SetupFeePayment[]> {

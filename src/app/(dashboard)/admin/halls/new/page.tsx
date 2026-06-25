@@ -22,7 +22,38 @@ export default function RegisterHallPage() {
     package_id: '',
     password: '',
     confirm_password: '',
+    // Setup fee fields
+    setup_fee_amount: '',
+    amount_paid: '',
+    setup_fee_status: 'unpaid' as 'unpaid' | 'partially_paid' | 'paid',
+    payment_method: 'none' as 'upi' | 'bank_transfer' | 'cash' | 'offline' | 'none',
+    transaction_ref_no: '',
+    notes: '',
   });
+
+  // Automatically select default package and prefill setup fee
+  React.useEffect(() => {
+    if (packages.length > 0 && !formData.package_id) {
+      const defaultPkg = packages[0];
+      setFormData((prev) => ({
+        ...prev,
+        package_id: defaultPkg.id,
+        setup_fee_amount: defaultPkg.setup_fee ? defaultPkg.setup_fee.toString() : '0',
+        setup_fee_status: (defaultPkg.setup_fee && defaultPkg.setup_fee > 0) ? 'unpaid' : 'paid',
+      }));
+    }
+  }, [packages, formData.package_id]);
+
+  const handlePackageSelect = (pkgId: string) => {
+    const pkg = packages.find(p => p.id === pkgId);
+    setFormData((prev) => ({
+      ...prev,
+      package_id: pkgId,
+      setup_fee_amount: pkg?.setup_fee ? pkg.setup_fee.toString() : '0',
+      setup_fee_status: (pkg?.setup_fee && pkg.setup_fee > 0) ? prev.setup_fee_status : 'paid',
+      amount_paid: (pkg?.setup_fee && pkg.setup_fee > 0) ? prev.amount_paid : '0',
+    }));
+  };
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
@@ -91,6 +122,13 @@ export default function RegisterHallPage() {
         address: formData.address,
         package_id: formData.package_id,
         password: formData.password,
+        // Setup fee fields
+        setup_fee_amount: formData.setup_fee_amount ? parseFloat(formData.setup_fee_amount) : undefined,
+        amount_paid: formData.setup_fee_status === 'unpaid' ? 0 : (formData.amount_paid ? parseFloat(formData.amount_paid) : 0),
+        setup_fee_status: formData.setup_fee_status,
+        payment_method: formData.setup_fee_status === 'unpaid' ? 'none' : formData.payment_method,
+        transaction_ref_no: formData.setup_fee_status === 'unpaid' ? '' : formData.transaction_ref_no,
+        notes: formData.notes,
       };
 
       await createHall(payload);
@@ -102,7 +140,26 @@ export default function RegisterHallPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    setFormData((prev) => {
+      const next = { ...prev, [name]: value };
+      
+      // Auto-handling setup fee fields based on status change
+      if (name === 'setup_fee_status') {
+        if (value === 'paid') {
+          next.amount_paid = prev.setup_fee_amount;
+        } else if (value === 'unpaid') {
+          next.amount_paid = '0';
+          next.payment_method = 'none';
+          next.transaction_ref_no = '';
+        } else if (value === 'partially_paid') {
+          next.amount_paid = '';
+        }
+      }
+      
+      return next;
+    });
+
     // Clear validation error on change
     if (validationErrors[name]) {
       setValidationErrors((prev) => {
@@ -341,15 +398,11 @@ export default function RegisterHallPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {packages.map((pkg) => {
-                    const isSelected = formData.package_id === pkg.id || (!formData.package_id && packages[0]?.id === pkg.id);
-                    if (isSelected && !formData.package_id) {
-                      // Seed package_id state dynamically if not set
-                      setFormData((prev) => ({ ...prev, package_id: pkg.id }));
-                    }
+                    const isSelected = formData.package_id === pkg.id;
                     return (
                       <div
                         key={pkg.id}
-                        onClick={() => handleInputChange({ target: { name: 'package_id', value: pkg.id } } as any)}
+                        onClick={() => handlePackageSelect(pkg.id)}
                         className={`border rounded-xl p-4 flex flex-col justify-between cursor-pointer transition-all hover:shadow-sm ${
                           isSelected
                             ? 'border-violet-600 bg-violet-50/30 ring-1 ring-violet-600 shadow-xs'
@@ -390,6 +443,105 @@ export default function RegisterHallPage() {
               )}
             </div>
           </div>
+
+          {/* Section 4: Onboarding Setup Fee Details */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold text-violet-600 uppercase tracking-wider border-b border-gray-50 pb-2">4. Onboarding Setup Fee Details</h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              
+              {/* Setup Fee Amount */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Setup Fee Amount (INR)</label>
+                <input
+                  type="number"
+                  name="setup_fee_amount"
+                  min="0"
+                  value={formData.setup_fee_amount}
+                  onChange={handleInputChange}
+                  placeholder="e.g. 4999"
+                  className="px-3.5 py-2.5 w-full text-xs font-semibold bg-gray-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all text-slate-800"
+                />
+              </div>
+
+              {/* Setup Fee Status */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Payment Status</label>
+                <select
+                  name="setup_fee_status"
+                  value={formData.setup_fee_status}
+                  onChange={handleInputChange}
+                  className="px-3.5 py-2.5 w-full text-xs font-semibold bg-gray-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all text-slate-800 cursor-pointer"
+                >
+                  <option value="unpaid">Unpaid / Pending</option>
+                  <option value="partially_paid">Partially Paid</option>
+                  <option value="paid">Fully Paid</option>
+                </select>
+              </div>
+
+              {/* Amount Paid */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Amount Paid (INR)</label>
+                <input
+                  type="number"
+                  name="amount_paid"
+                  min="0"
+                  disabled={formData.setup_fee_status === 'unpaid'}
+                  value={formData.setup_fee_status === 'unpaid' ? '0' : formData.amount_paid}
+                  onChange={handleInputChange}
+                  placeholder="e.g. 2000"
+                  className="px-3.5 py-2.5 w-full text-xs font-semibold bg-gray-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all text-slate-800 disabled:opacity-50 disabled:cursor-not-allowed font-mono font-bold"
+                />
+              </div>
+
+              {/* Payment Method - Show only if not unpaid */}
+              {formData.setup_fee_status !== 'unpaid' && (
+                <>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Payment Channel</label>
+                    <select
+                      name="payment_method"
+                      value={formData.payment_method}
+                      onChange={handleInputChange}
+                      className="px-3.5 py-2.5 w-full text-xs font-semibold bg-gray-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all text-slate-800 cursor-pointer font-bold"
+                    >
+                      <option value="none">-- Select Payment Channel --</option>
+                      <option value="upi">UPI / QR Code Scan</option>
+                      <option value="bank_transfer">Net Banking / NEFT</option>
+                      <option value="cash">Cash Payment</option>
+                      <option value="offline">Other Offline Mode</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Transaction Ref No / UTR</label>
+                    <input
+                      type="text"
+                      name="transaction_ref_no"
+                      value={formData.transaction_ref_no}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 12-digit UTR reference"
+                      className="px-3.5 py-2.5 w-full text-xs font-semibold bg-gray-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all text-slate-800 font-mono font-bold"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Notes */}
+              <div className="col-span-1 md:col-span-3 space-y-1.5">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Internal Setup Payment Remarks</label>
+                <textarea
+                  name="notes"
+                  rows={2}
+                  value={formData.notes}
+                  onChange={handleInputChange}
+                  placeholder="Record any comments, discounts, or installment details..."
+                  className="px-4 py-2.5 w-full text-xs font-semibold bg-gray-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all text-slate-800"
+                />
+              </div>
+
+            </div>
+          </div>
         </div>
 
         {/* Form Actions Footer */}
@@ -403,7 +555,7 @@ export default function RegisterHallPage() {
           <button
             type="submit"
             disabled={isCreating || packagesLoading}
-            className="flex items-center gap-2 px-5 py-2.5 text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-lg shadow-sm transition-colors cursor-pointer disabled:bg-violet-400 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-5 py-2.5 text-xs font-semibold text-white bg-[#062089] hover:bg-[#062089]/95 rounded-lg shadow-sm transition-colors cursor-pointer disabled:bg-violet-400 disabled:cursor-not-allowed font-bold"
           >
             {isCreating ? (
               <>

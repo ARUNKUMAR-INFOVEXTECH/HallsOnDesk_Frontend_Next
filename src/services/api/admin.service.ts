@@ -294,6 +294,7 @@ export async function recordManualSubscriptionPayment(
     payment_method?: string;
     transaction_ref_no?: string;
     notes?: string;
+    tax_enabled?: boolean;
   }
 ): Promise<{ message: string; data: SubscriptionPayment }> {
   const res = await apiClient.post<{ message: string; data: SubscriptionPayment }>(`/admin/halls/${id}/payments`, data);

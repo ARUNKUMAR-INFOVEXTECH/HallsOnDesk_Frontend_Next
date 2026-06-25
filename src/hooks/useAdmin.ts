@@ -493,7 +493,7 @@ export function useAdminRecordManualPayment(id: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { package_id: string; amount: number; payment_method?: string; transaction_ref_no?: string; notes?: string }) =>
+    mutationFn: (data: { package_id: string; amount: number; payment_method?: string; transaction_ref_no?: string; notes?: string; tax_enabled?: boolean }) =>
       adminService.recordManualSubscriptionPayment(id, data),
     onSuccess: (res) => {
       toast.success(res.message || 'Manual payment recorded successfully!');

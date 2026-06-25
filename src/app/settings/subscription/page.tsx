@@ -137,6 +137,20 @@ export default function SubscriptionSettingsPage() {
             </p>
           </div>
         </div>
+      )}
+
+      {subscription.status === 'trial' && (
+        <div className="flex items-start gap-3 bg-indigo-50 border border-indigo-200 rounded-xl p-4 text-indigo-950">
+          <Clock className="h-5 w-5 text-[#062089] shrink-0 mt-0.5 animate-pulse" />
+          <div>
+            <h4 className="font-bold text-xs text-[#062089]">Free Onboarding & Maintenance Active</h4>
+            <p className="text-[11px] text-indigo-805 mt-1">
+              Your venue is currently on the <strong>{activePackage?.name.toLowerCase().includes('basic') ? '30-day' : '60-day'}</strong> Free Onboarding & Maintenance period. 
+              You have <strong>{daysRemaining} days left</strong> of complimentary operations and priority assistance. 
+              Your regular billing will begin on <strong>{new Date(subscription.end_date).toLocaleDateString('en-GB')}</strong>.
+            </p>
+          </div>
+        </div>
       )}      {/* Unified Billing Overview Card */}
       <div className="bg-white border border-gray-150 rounded-2xl p-6 shadow-sm space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -146,9 +160,15 @@ export default function SubscriptionSettingsPage() {
                 <span className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
                 Active Workspace
               </span>
-              <span className="bg-slate-50 border border-slate-200 text-slate-600 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
-                {activePackage?.billing_cycle || 'monthly'} plan
-              </span>
+              {subscription.status === 'trial' ? (
+                <span className="bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
+                  Free Onboarding
+                </span>
+              ) : (
+                <span className="bg-slate-50 border border-slate-200 text-slate-600 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
+                  {activePackage?.billing_cycle || 'monthly'} plan
+                </span>
+              )}
               <span className="bg-violet-50 border border-violet-100 text-violet-700 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
                 ₹{activePackage?.price?.toLocaleString('en-IN') || '0'}/{activePackage?.billing_cycle === 'yearly' ? 'yr' : 'mo'}
               </span>
@@ -156,7 +176,10 @@ export default function SubscriptionSettingsPage() {
             <h2 className="text-xl font-bold text-gray-900 font-sans">{activePackage?.name || 'Free Trial Plan'}</h2>
             <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
               <Clock className="h-4 w-4 text-slate-400" />
-              <span>Next renewal: <strong className="text-slate-700 font-semibold">{new Date(subscription.end_date).toLocaleDateString('en-GB')}</strong> ({daysRemaining} days left)</span>
+              <span>
+                {subscription.status === 'trial' ? 'First billing starts: ' : 'Next renewal: '}
+                <strong className="text-slate-700 font-semibold">{new Date(subscription.end_date).toLocaleDateString('en-GB')}</strong> ({daysRemaining} days left)
+              </span>
             </div>
           </div>
 

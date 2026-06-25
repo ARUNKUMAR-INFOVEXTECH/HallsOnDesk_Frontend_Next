@@ -17,60 +17,68 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
   // Compute pricing values dynamically based on billing cycle
   const plans = [
     {
-      name: 'Infovex Halls SaaS Only',
-      tagline: 'Ideal for venues with existing websites looking for advanced back-office operations.',
+      name: 'Basic SaaS',
+      tagline: 'Core back-office software for venue booking & payment logging.',
       setupFee: '₹4,999',
       monthlyPrice: billingCycle === 'monthly' ? '₹1,999' : '₹1,599',
       savings: billingCycle === 'annual' ? 'Save ₹4,800/yr' : null,
       features: [
-        'Infovex Halls Core Software',
-        'Booking Management Console',
-        'Customer Directory & History',
-        'Payment Logging & Receipts',
-        'Hall Availability Calendar Log',
-        'Interactive Staff Training',
-        'Lifetime Software Updates',
-        'Priority Technical Support',
+        'HallsOnDesk Software',
+        'Booking Management',
+        'Payment Tracking',
+        'Priority Support',
+        '30 Days Free Onboarding & Maintenance',
       ],
-      ctaText: 'Secure SaaS Only Slot',
+      ctaText: 'Secure Basic Slot',
       popular: false,
     },
     {
       name: 'Digital Transformation',
-      tagline: 'Complete digital setup including a premium, high-conversion customer website.',
-      setupFee: '₹17,999',
-      monthlyPrice: billingCycle === 'monthly' ? '₹2,299' : '₹1,839',
-      savings: billingCycle === 'annual' ? 'Save ₹5,520/yr' : null,
+      tagline: 'Complete digital platform with premium hall website & staff training.',
+      setupFee: '₹18,999',
+      monthlyPrice: billingCycle === 'monthly' ? '₹2,999' : '₹2,399',
+      savings: billingCycle === 'annual' ? 'Save ₹7,200/yr' : null,
       features: [
-        'Premium Hall Customer Website',
-        'Infovex Halls Software Engine',
-        'Online Booking Requests Integration',
-        'Payment Records & Ledger Sync',
-        'Public-Facing Availability Calendar',
-        'Complete Website Maintenance',
-        'WhatsApp Alerts Integration',
-        'Manager & Staff Training Session',
-        'Priority Support with 2h SLA',
-        'Direct Feature Request Influence',
+        'Premium Hall Website',
+        'HallsOnDesk Software',
+        'Booking Management',
+        'Staff Training',
+        'Website Maintenance',
+        'Priority Support',
+        '60 Days Free Onboarding & Maintenance',
       ],
       ctaText: 'Claim Transformation Slot',
       popular: true,
     },
     {
-      name: 'Premium Hall Package',
-      tagline: 'Bespoke custom branding, website design, and dedicated hands-on setup support.',
-      setupFee: '₹29,999',
+      name: 'Premium SaaS',
+      tagline: 'Advanced software with higher user capacity & priority support.',
+      setupFee: '₹8,999',
       monthlyPrice: billingCycle === 'monthly' ? '₹3,999' : '₹3,199',
       savings: billingCycle === 'annual' ? 'Save ₹9,600/yr' : null,
       features: [
-        'Bespoke Premium Custom Website',
-        'Infovex Halls Software Suite',
-        'Complete Concierge Data Onboarding',
-        'Advanced Brand Identity Assistance',
-        'Unlimited Staff & Operator Training',
-        'Continuous Website Maintenance',
-        'Direct SLA Priority Hotline',
-        'Dedicated Customer Success Manager',
+        'HallsOnDesk Software',
+        'Booking Management',
+        'Staff Training',
+        'Priority Support',
+        '60 Days Free Onboarding & Maintenance',
+      ],
+      ctaText: 'Secure Premium SaaS Slot',
+      popular: false,
+    },
+    {
+      name: 'Premium Digital Transformation',
+      tagline: 'Bespoke branding, premium website, and complete concierge assistance.',
+      setupFee: '₹29,999',
+      monthlyPrice: billingCycle === 'monthly' ? '₹4,999' : '₹3,999',
+      savings: billingCycle === 'annual' ? 'Save ₹12,000/yr' : null,
+      features: [
+        'Custom Premium Website',
+        'HallsOnDesk Software',
+        'Complete Setup Assistance',
+        'Staff Training',
+        'Priority Support',
+        '60 Days Free Onboarding & Maintenance',
       ],
       ctaText: 'Secure Premium Slot',
       popular: false,
@@ -198,13 +206,13 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
         </div>
 
         {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto mb-28">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch max-w-7xl mx-auto mb-28">
           {plans.map((plan, idx) => (
             <div
               key={idx}
               className={`relative rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 border backdrop-blur-sm ${
                 plan.popular
-                  ? 'border-[#159DFC] bg-white ring-4 ring-[#159DFC]/5 shadow-2xl lg:scale-[1.04] z-10 hover:shadow-[0_15px_40px_-15px_rgba(238,155,0,0.12)]'
+                  ? 'border-[#159DFC] bg-white ring-4 ring-[#159DFC]/5 shadow-2xl lg:scale-[1.02] z-10 hover:shadow-[0_15px_40px_-15px_rgba(238,155,0,0.12)]'
                   : 'border-slate-200/80 bg-[#F8FAFC]/50 hover:border-slate-300 hover:bg-white hover:shadow-lg'
               }`}
             >

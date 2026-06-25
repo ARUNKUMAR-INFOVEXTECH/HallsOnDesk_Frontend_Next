@@ -54,6 +54,7 @@ export default function AdminSubscriptionDetailPage() {
   const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
   const [transactionRefNo, setTransactionRefNo] = useState('');
   const [notes, setNotes] = useState('');
+  const [taxEnabled, setTaxEnabled] = useState(false);
 
   // Update amount automatically when package changes
   useEffect(() => {
@@ -127,7 +128,8 @@ export default function AdminSubscriptionDetailPage() {
         amount,
         payment_method: paymentMethod,
         transaction_ref_no: transactionRefNo.trim() || undefined,
-        notes: notes.trim() || undefined
+        notes: notes.trim() || undefined,
+        tax_enabled: taxEnabled
       });
       setIsModalOpen(false);
       // Reset form
@@ -136,6 +138,7 @@ export default function AdminSubscriptionDetailPage() {
       setPaymentMethod('bank_transfer');
       setTransactionRefNo('');
       setNotes('');
+      setTaxEnabled(false);
     } catch {
       // Handled by hook onError toast
     }
@@ -377,7 +380,7 @@ export default function AdminSubscriptionDetailPage() {
                   type="number"
                   value={amount || ''}
                   onChange={(e) => setAmount(Number(e.target.value))}
-                  placeholder="e.g. 2299"
+                  placeholder="e.g. 2999"
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs font-medium focus:outline-none focus:ring-1 focus:ring-violet-500"
                   required
                 />
@@ -420,6 +423,20 @@ export default function AdminSubscriptionDetailPage() {
                   rows={2}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs font-medium focus:outline-none focus:ring-1 focus:ring-violet-500 resize-none"
                 />
+              </div>
+
+              {/* GST Toggle */}
+              <div className="flex items-center gap-2 py-1">
+                <input
+                  type="checkbox"
+                  id="taxEnabled"
+                  checked={taxEnabled}
+                  onChange={(e) => setTaxEnabled(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-violet-650 focus:ring-violet-500 cursor-pointer"
+                />
+                <label htmlFor="taxEnabled" className="text-xs font-bold text-gray-750 cursor-pointer">
+                  Apply GST (18% tax breakdown) on invoice
+                </label>
               </div>
 
               {/* Submit Buttons */}

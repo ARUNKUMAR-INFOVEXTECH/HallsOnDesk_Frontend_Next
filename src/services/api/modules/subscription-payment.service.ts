@@ -18,3 +18,8 @@ export async function getSubscriptionPaymentsHistory(): Promise<SubscriptionPaym
   const res = await apiClient.get<SubscriptionPayment[]>('/subscriptions/payments/history');
   return res.data;
 }
+
+export async function getSubscriptionPaymentInvoiceHtml(id: string): Promise<string> {
+  const res = await apiClient.get<string>(`/subscriptions/payments/${id}/html`);
+  return res.data;
+}

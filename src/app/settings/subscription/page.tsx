@@ -22,10 +22,12 @@ import {
   CheckCircle2,
   XCircle,
   QrCode,
-  FileText
+  FileText,
+  Printer
 } from 'lucide-react';
 import { differenceInDays } from 'date-fns';
 import { useRouter } from 'next/navigation';
+import { getSubscriptionPaymentInvoiceHtml } from '@/services/api/modules/subscription-payment.service';
 
 export default function SubscriptionSettingsPage() {
   const router = useRouter();
@@ -80,6 +82,23 @@ export default function SubscriptionSettingsPage() {
 
   const handleCheckoutRedirect = (pkgId: string) => {
     router.push(`/settings/subscription/checkout?packageId=${pkgId}`);
+  };
+
+  const handlePrintSaaSInvoice = async (paymentId: string) => {
+    try {
+      const html = await getSubscriptionPaymentInvoiceHtml(paymentId);
+      const win = window.open('', '_blank');
+      if (win) {
+        win.document.write(html);
+        win.document.close();
+        setTimeout(() => {
+          win.print();
+        }, 500);
+      }
+    } catch (err) {
+      console.error('Print SaaS invoice failed:', err);
+      alert('Failed to load invoice layout.');
+    }
   };
 
   return (
@@ -356,6 +375,7 @@ export default function SubscriptionSettingsPage() {
                   <th className="py-2.5">Method</th>
                   <th className="py-2.5 text-center">Status</th>
                   <th className="py-2.5">Admin Comments</th>
+                  <th className="py-2.5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-105 font-semibold text-slate-705">
@@ -394,6 +414,20 @@ export default function SubscriptionSettingsPage() {
                         </span>
                       ) : (
                         pmt.notes || '-'
+                      )}
+                    </td>
+                    <td className="py-3 text-right">
+                      {pmt.status === 'approved' ? (
+                        <button
+                          type="button"
+                          onClick={() => handlePrintSaaSInvoice(pmt.id)}
+                          className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-violet-600 transition-colors cursor-pointer inline-block"
+                          title="Print Invoice"
+                        >
+                          <Printer className="h-4 w-4" />
+                        </button>
+                      ) : (
+                        <span className="text-slate-350 font-semibold text-[10px] pr-2">-</span>
                       )}
                     </td>
                   </tr>

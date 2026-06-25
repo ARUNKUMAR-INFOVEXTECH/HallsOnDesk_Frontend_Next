@@ -300,3 +300,8 @@ export async function recordManualSubscriptionPayment(
   return res.data;
 }
 
+export async function getAdminSubscriptionInvoiceHtml(id: string): Promise<string> {
+  const res = await apiClient.get<string>(`/admin/billing/payments/${id}/html`);
+  return res.data;
+}
+

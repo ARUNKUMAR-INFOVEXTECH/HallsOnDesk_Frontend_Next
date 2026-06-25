@@ -19,11 +19,13 @@ import {
   Plus,
   X,
   Landmark,
-  CheckCircle
+  CheckCircle,
+  Printer
 } from 'lucide-react';
 import Link from 'next/link';
 import { deobfuscateId } from '@/utils/obfuscate';
 import { toast } from 'sonner';
+import { getAdminSubscriptionInvoiceHtml } from '@/services/api/admin.service';
 
 export default function AdminSubscriptionDetailPage() {
   const params = useParams();
@@ -90,6 +92,23 @@ export default function AdminSubscriptionDetailPage() {
   }
 
   const subStyle = STATUS_STYLES.subscription[activeSub.status as 'active' | 'trial' | 'suspended' | 'expired'];
+
+  const handlePrintSaaSInvoice = async (paymentId: string) => {
+    try {
+      const html = await getAdminSubscriptionInvoiceHtml(paymentId);
+      const win = window.open('', '_blank');
+      if (win) {
+        win.document.write(html);
+        win.document.close();
+        setTimeout(() => {
+          win.print();
+        }, 500);
+      }
+    } catch (err) {
+      console.error('Print SaaS invoice failed:', err);
+      toast.error('Failed to load invoice layout.');
+    }
+  };
 
   const handleRecordPaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -283,14 +302,24 @@ export default function AdminSubscriptionDetailPage() {
                       className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       <div className="space-y-0.5">
-                        <span className="font-bold text-xs text-gray-950 block">{invoice.transaction_ref_no}</span>
+                        <span className="font-bold text-xs text-gray-955 block">{invoice.transaction_ref_no}</span>
                         <span className="text-[10px] text-gray-500 font-semibold">{dateLabel}</span>
                       </div>
-                      <div className="text-right">
-                        <span className="font-bold text-xs text-gray-900 block">₹{invoice.amount.toLocaleString('en-IN')}</span>
-                        <span className={`inline-block px-1.5 py-0.2 text-[8px] font-bold rounded border ${style.bg} mt-0.5`}>
-                          {style.label}
-                        </span>
+                      <div className="flex items-center gap-2">
+                        <div className="text-right">
+                          <span className="font-bold text-xs text-gray-900 block">₹{invoice.amount.toLocaleString('en-IN')}</span>
+                          <span className={`inline-block px-1.5 py-0.2 text-[8px] font-bold rounded border ${style.bg} mt-0.5`}>
+                            {style.label}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handlePrintSaaSInvoice(invoice.id)}
+                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-violet-600 transition-colors cursor-pointer shrink-0"
+                          title="Print SaaS Invoice"
+                        >
+                          <Printer className="h-4 w-4" />
+                        </button>
                       </div>
                     </div>
                   );

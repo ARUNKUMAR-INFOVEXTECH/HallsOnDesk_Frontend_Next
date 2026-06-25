@@ -188,7 +188,7 @@ export const STATUS_STYLES = {
   },
   subscription: {
     active: { label: 'Active', bg: 'bg-green-50 text-green-700 border-green-200' },
-    trial: { label: 'Trial', bg: 'bg-blue-50 text-blue-700 border-blue-200' },
+    trial: { label: 'Setup Mode', bg: 'bg-blue-50 text-blue-700 border-blue-200' },
     suspended: { label: 'Suspended', bg: 'bg-red-50 text-red-700 border-red-200' },
     expired: { label: 'Expired', bg: 'bg-gray-50 text-gray-700 border-gray-200' },
   },

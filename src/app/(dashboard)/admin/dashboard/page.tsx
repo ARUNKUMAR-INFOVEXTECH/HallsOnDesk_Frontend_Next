@@ -94,9 +94,9 @@ export default function AdminDashboardPage() {
   const kpiList = [
     { label: 'Total Halls', value: kpis.totalHalls.value, growth: kpis.totalHalls.growth, trend: kpis.totalHalls.trend, icon: Building2, color: 'text-violet-600 bg-violet-50 border-violet-100' },
     { label: 'Active Halls', value: kpis.activeHalls.value, growth: kpis.activeHalls.growth, trend: kpis.activeHalls.trend, icon: CheckCircle2, color: 'text-green-600 bg-green-50 border-green-100' },
-    { label: 'Trial Halls', value: kpis.trialHalls.value, growth: kpis.trialHalls.growth, trend: kpis.trialHalls.trend, icon: Clock, color: 'text-blue-600 bg-blue-50 border-blue-100' },
+    { label: 'Setup Phase', value: kpis.trialHalls.value, growth: kpis.trialHalls.growth, trend: kpis.trialHalls.trend, icon: Clock, color: 'text-blue-600 bg-blue-50 border-blue-100' },
     { label: 'Expired Subs', value: kpis.expiredSubscriptions.value, growth: kpis.expiredSubscriptions.growth, trend: kpis.expiredSubscriptions.trend, icon: AlertTriangle, color: 'text-red-600 bg-red-50 border-red-100' },
-    { label: 'Monthly Revenue', value: formatCurrency(kpis.monthlyRevenue.value), growth: kpis.monthlyRevenue.growth, trend: kpis.monthlyRevenue.trend, icon: IndianRupee, color: 'text-emerald-600 bg-emerald-50 border-emerald-100' },
+    {label: 'Monthly Revenue', value: formatCurrency(kpis.monthlyRevenue.value), growth: kpis.monthlyRevenue.growth, trend: kpis.monthlyRevenue.trend, icon: IndianRupee, color: 'text-emerald-600 bg-emerald-50 border-emerald-100' },
     { label: 'Annual Revenue', value: formatCurrency(kpis.annualRevenue.value), growth: kpis.annualRevenue.growth, trend: kpis.annualRevenue.trend, icon: TrendingUp, color: 'text-amber-600 bg-amber-50 border-amber-100' },
     { label: 'New Signups', value: kpis.newSignups.value, growth: kpis.newSignups.growth, trend: kpis.newSignups.trend, icon: UserPlus, color: 'text-cyan-600 bg-cyan-50 border-cyan-100' },
     { label: 'Total Users', value: kpis.totalUsers.value, growth: kpis.totalUsers.growth, trend: kpis.totalUsers.trend, icon: Users, color: 'text-indigo-600 bg-indigo-50 border-indigo-100' },

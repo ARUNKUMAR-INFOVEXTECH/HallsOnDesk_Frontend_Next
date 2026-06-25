@@ -144,7 +144,7 @@ export default function AdminHallsPage() {
             className="px-3 py-2 text-xs font-medium bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 cursor-pointer"
           >
             <option value="">All Packages</option>
-            <option value="Free Trial">Free Trial</option>
+            <option value="Onboarding Setup">Onboarding Setup</option>
             {packages.map((p) => (
               <option key={p.id} value={p.name}>
                 {p.name}
@@ -171,7 +171,7 @@ export default function AdminHallsPage() {
           >
             <option value="">All Subscriptions</option>
             <option value="active">Active Sub</option>
-            <option value="trial">Trial Sub</option>
+            <option value="trial">Setup Mode</option>
             <option value="suspended">Suspended Sub</option>
             <option value="expired">Expired Sub</option>
           </select>
@@ -214,7 +214,7 @@ export default function AdminHallsPage() {
                   if (activeSub && (subStatus === 'active' || subStatus === 'trial') && activeSub.end_date && activeSub.end_date < todayStr) {
                     subStatus = 'expired';
                   }
-                  const packageName = activeSub?.packages?.name || 'Free Trial';
+                  const packageName = activeSub?.packages?.name || 'Onboarding Setup';
                   const statusStyle = STATUS_STYLES.hall[hall.status === 'active' ? 'active' : 'inactive'];
                   const subStyle = STATUS_STYLES.subscription[subStatus as 'active' | 'trial' | 'suspended' | 'expired'];
 

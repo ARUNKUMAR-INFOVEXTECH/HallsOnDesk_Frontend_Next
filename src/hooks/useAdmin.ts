@@ -264,7 +264,7 @@ export function useAdminSubscriptions() {
       id: activeSub?.id || `sub-${hall.id}`,
       hallId: hall.id,
       hallName: hall.hall_name,
-      packageName: activeSub?.packages?.name || 'Free Trial',
+      packageName: activeSub?.packages?.name || 'Onboarding Setup',
       price: activeSub?.packages?.price || 0,
       startDate: activeSub?.start_date || hall.created_at || new Date().toISOString(),
       endDate: activeSub?.end_date || new Date(Date.now() + 14 * 86400 * 1000).toISOString(),

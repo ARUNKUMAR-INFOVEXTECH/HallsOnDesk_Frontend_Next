@@ -156,7 +156,7 @@ export default function AdminSubscriptionsPage() {
         >
           <option value="">All Billing States</option>
           <option value="active">Active Plan</option>
-          <option value="trial">Free Trial</option>
+          <option value="trial">Setup Mode</option>
           <option value="suspended">Suspended</option>
           <option value="expired">Expired</option>
         </select>
@@ -411,7 +411,7 @@ export default function AdminSubscriptionsPage() {
                   required
                 >
                   <option value="active">Active Plan</option>
-                  <option value="trial">Free Trial</option>
+                  <option value="trial">Setup Mode</option>
                   <option value="suspended">Suspended</option>
                   <option value="expired">Expired</option>
                 </select>

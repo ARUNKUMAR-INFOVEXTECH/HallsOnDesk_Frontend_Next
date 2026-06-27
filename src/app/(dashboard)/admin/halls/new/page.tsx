@@ -170,6 +170,10 @@ export default function RegisterHallPage() {
     }
   };
 
+  const setupFeeAmt = parseFloat(formData.setup_fee_amount) || 0;
+  const amtPaid = formData.setup_fee_status === 'unpaid' ? 0 : (parseFloat(formData.amount_paid) || 0);
+  const pendingSetupFee = Math.max(0, setupFeeAmt - amtPaid);
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header with Back button */}
@@ -538,6 +542,25 @@ export default function RegisterHallPage() {
                   placeholder="Record any comments, discounts, or installment details..."
                   className="px-4 py-2.5 w-full text-xs font-semibold bg-gray-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all text-slate-800"
                 />
+              </div>
+
+              {/* Dynamic Pending Balance Display */}
+              <div className="col-span-1 md:col-span-3 bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex items-center justify-between mt-2">
+                <div className="space-y-0.5">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Reconciliation Summary</span>
+                  <span className="text-xs font-bold text-slate-700 block">
+                    Setup Fee: <span className="font-mono text-slate-900">₹{setupFeeAmt.toLocaleString('en-IN')}</span> 
+                    {formData.setup_fee_status !== 'unpaid' && (
+                      <> | Paid: <span className="font-mono text-emerald-600">₹{amtPaid.toLocaleString('en-IN')}</span></>
+                    )}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Pending Setup Fee</span>
+                  <span className={`text-sm font-black font-mono block ${pendingSetupFee > 0 ? 'text-amber-600' : 'text-slate-400'}`}>
+                    ₹{pendingSetupFee.toLocaleString('en-IN')}
+                  </span>
+                </div>
               </div>
 
             </div>

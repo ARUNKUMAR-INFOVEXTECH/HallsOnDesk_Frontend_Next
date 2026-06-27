@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useAdminHallDetails, useAdminHalls, useAdminHallStats, useAdminHallActivity } from '@/hooks/useAdmin';
+import { useAdminHallDetails, useAdminHalls, useAdminHallStats, useAdminHallActivity, useAdminHallSubscriptionPayments } from '@/hooks/useAdmin';
 import { STATUS_STYLES } from '@/constants';
 import {
   Building2,
@@ -24,10 +24,16 @@ import {
   AlertTriangle,
   BadgeAlert,
   Eye,
-  EyeOff
+  EyeOff,
+  Banknote,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  Info
 } from 'lucide-react';
 import Link from 'next/link';
 import { deobfuscateId } from '@/utils/obfuscate';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 
 export default function AdminHallDetailPage() {
   const params = useParams();
@@ -37,6 +43,7 @@ export default function AdminHallDetailPage() {
   const { data: hall, isLoading, isError } = useAdminHallDetails(id);
   const { data: hallStats, isLoading: statsLoading } = useAdminHallStats(id);
   const { data: hallActivity = [], isLoading: activityLoading } = useAdminHallActivity(id);
+  const { data: subscriptionPayments = [] } = useAdminHallSubscriptionPayments(id);
   const { suspendHall, activateHall } = useAdminHalls();
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'billing' | 'activity'>('overview');
   const [visiblePasswords, setVisiblePasswords] = useState<Record<string, boolean>>({});
@@ -393,6 +400,155 @@ export default function AdminHallDetailPage() {
                       {activeSub?.payment_status || 'Paid / Current'}
                     </span>
                   </div>
+                </div>
+              </div>
+
+              {/* Setup Fee Payment Status */}
+              {hall.setup_fee_payments && hall.setup_fee_payments.length > 0 && (() => {
+                const setupPayment = hall.setup_fee_payments[0];
+                const setupBalance = Math.max(0, setupPayment.setup_fee_amount - setupPayment.amount_paid);
+                
+                let badgeColor = '';
+                let statusLabel = '';
+                if (setupPayment.status === 'paid') {
+                  badgeColor = 'bg-green-50 text-green-700 border-green-200';
+                  statusLabel = 'Fully Paid';
+                } else if (setupPayment.status === 'partially_paid') {
+                  badgeColor = 'bg-yellow-50 text-yellow-700 border-yellow-200';
+                  statusLabel = 'Partially Paid';
+                } else {
+                  badgeColor = 'bg-rose-50 text-rose-700 border-rose-200';
+                  statusLabel = 'Unpaid';
+                }
+
+                return (
+                  <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm space-y-4">
+                    <div className="flex items-center justify-between border-b border-gray-50 pb-3">
+                      <div className="flex items-center gap-2">
+                        <Banknote className="h-4.5 w-4.5 text-violet-600" />
+                        <h3 className="font-bold text-gray-900 text-sm">Onboarding Setup Fee Ledger</h3>
+                      </div>
+                      <span className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wide border ${badgeColor}`}>
+                        {statusLabel}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-semibold text-gray-700">
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase block font-mono">Billed Amount</span>
+                        <span className="text-gray-900 font-bold text-sm block font-mono">
+                          {formatCurrency(setupPayment.setup_fee_amount)}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase block font-mono">Amount Paid</span>
+                        <span className="text-emerald-600 font-bold text-sm block font-mono">
+                          {formatCurrency(setupPayment.amount_paid)}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase block font-mono">Outstanding Balance</span>
+                        <span className={`font-bold text-sm block font-mono ${setupBalance > 0 ? 'text-amber-600' : 'text-gray-400'}`}>
+                          {formatCurrency(setupBalance)}
+                        </span>
+                      </div>
+
+                      <hr className="col-span-1 sm:col-span-3 border-gray-50 my-1" />
+
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase block">Payment Channel</span>
+                        <span className="text-gray-900 block capitalize">
+                          {setupPayment.payment_method === 'none' ? 'N/A' : setupPayment.payment_method.replace('_', ' ')}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase block font-mono">UTR / Transaction Ref</span>
+                        <span className="text-gray-900 font-mono block">
+                          {setupPayment.transaction_ref_no || 'N/A'}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase block">Payment / Last Updated Date</span>
+                        <span className="text-gray-900 block">
+                          {setupPayment.updated_at ? new Date(setupPayment.updated_at).toLocaleDateString('en-GB') : (setupPayment.due_date ? new Date(setupPayment.due_date).toLocaleDateString('en-GB') : 'N/A')}
+                        </span>
+                      </div>
+
+                      {setupPayment.notes && (
+                        <div className="col-span-1 sm:col-span-3 bg-slate-50 border border-slate-100 rounded-lg p-2.5 text-[11px] text-slate-500 italic mt-1">
+                          <span className="font-bold text-[9px] text-slate-400 uppercase tracking-wider block not-italic mb-0.5">Payment Remarks</span>
+                          "{setupPayment.notes}"
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Monthly Subscription Payments Log */}
+              <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm space-y-4">
+                <div className="border-b border-gray-50 pb-3">
+                  <h3 className="font-bold text-gray-900 text-sm">Monthly Subscription Payments Log</h3>
+                  <p className="text-[10px] text-gray-400 font-medium mt-0.5">Audit log of all subscription payments submitted by this hall owner.</p>
+                </div>
+
+                <div className="overflow-x-auto">
+                  {subscriptionPayments.length === 0 ? (
+                    <div className="py-8 text-center text-gray-400 text-xs font-semibold flex flex-col items-center justify-center gap-1">
+                      <Info className="h-5 w-5 text-slate-400" />
+                      <span>No subscription payments recorded yet.</span>
+                    </div>
+                  ) : (
+                    <table className="w-full text-left border-collapse text-xs font-semibold">
+                      <thead>
+                        <tr className="bg-slate-50/50 border-b border-slate-100">
+                          <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-wider">Submitted On</th>
+                          <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-wider font-mono">Amount</th>
+                          <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-wider font-mono">UTR Ref No</th>
+                          <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-wider">Method</th>
+                          <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {subscriptionPayments.map((p) => {
+                          let badgeColor = '';
+                          let statusText = '';
+                          if (p.status === 'approved') {
+                            badgeColor = 'bg-green-50 text-green-700 border-green-200';
+                            statusText = 'Approved';
+                          } else if (p.status === 'rejected') {
+                            badgeColor = 'bg-rose-50 text-rose-700 border-rose-200';
+                            statusText = 'Rejected';
+                          } else {
+                            badgeColor = 'bg-amber-50 text-amber-700 border-amber-200';
+                            statusText = 'Pending';
+                          }
+
+                          return (
+                            <tr key={p.id} className="hover:bg-slate-50/20">
+                              <td className="px-5 py-3 text-slate-500 font-medium">
+                                {p.created_at ? new Date(p.created_at).toLocaleDateString('en-GB') : 'N/A'}
+                              </td>
+                              <td className="px-5 py-3 font-mono font-bold text-slate-800">
+                                {formatCurrency(p.amount)}
+                              </td>
+                              <td className="px-5 py-3 font-mono text-slate-650">
+                                {p.transaction_ref_no}
+                              </td>
+                              <td className="px-5 py-3 text-slate-500 uppercase">
+                                {p.payment_method}
+                              </td>
+                              <td className="px-5 py-3 text-center">
+                                <span className={`inline-block px-2 py-0.5 border rounded text-[9px] font-bold uppercase tracking-wider ${badgeColor}`}>
+                                  {statusText}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               </div>
 

@@ -49,6 +49,8 @@ export interface AdminSettings {
   defaultTrialDays: number;
   invoicePrefix: string;
   nextInvoiceNumber: number;
+  subscriptionQrEnabled?: boolean;
+  subscriptionQrUpiId?: string;
   emailTemplates: {
     welcome: string;
     trialExpiring: string;

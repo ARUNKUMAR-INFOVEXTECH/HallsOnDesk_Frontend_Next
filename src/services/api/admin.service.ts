@@ -54,6 +54,17 @@ export interface HallDetails extends Hall {
   users?: User[];
   bookings_count?: number;
   staff_count?: number;
+  setup_fee_payments?: Array<{
+    id: string;
+    setup_fee_amount: number;
+    amount_paid: number;
+    status: 'unpaid' | 'partially_paid' | 'paid';
+    payment_method: string;
+    transaction_ref_no?: string;
+    notes?: string;
+    due_date?: string;
+    updated_at?: string;
+  }>;
 }
 
 // 1. Overview Stats

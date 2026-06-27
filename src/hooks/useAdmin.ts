@@ -421,6 +421,8 @@ export function useAdminSettings() {
     defaultTrialDays: 14,
     invoicePrefix: 'INF-HOD-',
     nextInvoiceNumber: 1048,
+    subscriptionQrEnabled: true,
+    subscriptionQrUpiId: 'billing@infovex.com',
     emailTemplates: {
       welcome: '',
       trialExpiring: '',

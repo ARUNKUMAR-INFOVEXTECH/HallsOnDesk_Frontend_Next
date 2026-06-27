@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useActiveSubscription, useAllPackages, useSubmitSubscriptionPayment } from '@/hooks/useSettings';
 import {
@@ -27,7 +27,16 @@ export default function CheckoutPage() {
   const submitPaymentMutation = useSubmitSubscriptionPayment();
 
   // Selected payment method state
-  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'bank_transfer'>('upi');
+  const qrEnabled = subscription?.subscription_qr_enabled !== false;
+  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'bank_transfer'>('bank_transfer');
+
+  // Sync default selection based on settings once loaded
+  useEffect(() => {
+    if (subscription) {
+      setPaymentMethod(subscription.subscription_qr_enabled !== false ? 'upi' : 'bank_transfer');
+    }
+  }, [subscription]);
+
   const [utrNumber, setUtrNumber] = useState('');
   const [notes, setNotes] = useState('');
   const [validationError, setValidationError] = useState('');
@@ -78,7 +87,8 @@ export default function CheckoutPage() {
   };
 
   // Generate UPI pay URI
-  const upiString = `upi://pay?pa=billing@infovex.com&pn=Infovex%20Technologies&am=${totalAmount.toFixed(2)}&tn=INF-${selectedPkg.name.toUpperCase().replace(/\s+/g, '-')}`;
+  const upiId = subscription?.subscription_qr_upi_id || 'billing@infovex.com';
+  const upiString = `upi://pay?pa=${upiId}&pn=Infovex%20Technologies&am=${totalAmount.toFixed(2)}&tn=INF-${selectedPkg.name.toUpperCase().replace(/\s+/g, '-')}`;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiString)}`;
 
   // Handle UTR submission
@@ -133,43 +143,45 @@ export default function CheckoutPage() {
           </div>
 
           {/* Payment Method Selector */}
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => setPaymentMethod('upi')}
-              className={`p-4 border rounded-2xl text-left transition-all cursor-pointer flex items-center justify-between ${
-                paymentMethod === 'upi'
-                  ? 'border-[#062089] bg-indigo-50/20 ring-1 ring-indigo-500/20'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
-            >
-              <div className="space-y-1">
-                <span className="font-extrabold text-xs text-slate-800 block">Scan & Pay (UPI)</span>
-                <span className="text-[10px] text-slate-400 font-semibold block">GPay, PhonePe, Paytm</span>
-              </div>
-              <QrCode className={`h-6 w-6 ${paymentMethod === 'upi' ? 'text-[#062089]' : 'text-slate-400'}`} />
-            </button>
+          {qrEnabled && (
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('upi')}
+                className={`p-4 border rounded-2xl text-left transition-all cursor-pointer flex items-center justify-between ${
+                  paymentMethod === 'upi'
+                    ? 'border-[#062089] bg-indigo-50/20 ring-1 ring-indigo-500/20'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                <div className="space-y-1">
+                  <span className="font-extrabold text-xs text-slate-800 block">Scan & Pay (UPI)</span>
+                  <span className="text-[10px] text-slate-400 font-semibold block">GPay, PhonePe, Paytm</span>
+                </div>
+                <QrCode className={`h-6 w-6 ${paymentMethod === 'upi' ? 'text-[#062089]' : 'text-slate-400'}`} />
+              </button>
 
-            <button
-              type="button"
-              onClick={() => setPaymentMethod('bank_transfer')}
-              className={`p-4 border rounded-2xl text-left transition-all cursor-pointer flex items-center justify-between ${
-                paymentMethod === 'bank_transfer'
-                  ? 'border-[#062089] bg-indigo-50/20 ring-1 ring-indigo-500/20'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
-            >
-              <div className="space-y-1">
-                <span className="font-extrabold text-xs text-slate-800 block">Bank Remittance</span>
-                <span className="text-[10px] text-slate-400 font-semibold block">NEFT / IMPS Transfer</span>
-              </div>
-              <Building className={`h-6 w-6 ${paymentMethod === 'bank_transfer' ? 'text-[#062089]' : 'text-slate-400'}`} />
-            </button>
-          </div>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('bank_transfer')}
+                className={`p-4 border rounded-2xl text-left transition-all cursor-pointer flex items-center justify-between ${
+                  paymentMethod === 'bank_transfer'
+                    ? 'border-[#062089] bg-indigo-50/20 ring-1 ring-indigo-500/20'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                <div className="space-y-1">
+                  <span className="font-extrabold text-xs text-slate-800 block">Bank Remittance</span>
+                  <span className="text-[10px] text-slate-400 font-semibold block">NEFT / IMPS Transfer</span>
+                </div>
+                <Building className={`h-6 w-6 ${paymentMethod === 'bank_transfer' ? 'text-[#062089]' : 'text-slate-400'}`} />
+              </button>
+            </div>
+          )}
 
           {/* Payment Method Details */}
           <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5">
-            {paymentMethod === 'upi' ? (
+            {paymentMethod === 'upi' && qrEnabled ? (
               <div className="flex flex-col sm:flex-row items-center gap-6 justify-center">
                 <div className="bg-white p-3.5 border border-slate-200 rounded-2xl shadow-sm shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -186,7 +198,7 @@ export default function CheckoutPage() {
                     Open your standard UPI application (Google Pay, PhonePe, Paytm, or BHIM) and scan the QR code to auto-populate the exact amount.
                   </p>
                   <div className="text-[11px] font-semibold text-slate-800 bg-white/70 p-2 rounded-lg border border-slate-150 inline-block font-mono">
-                    UPI: <span className="font-extrabold">billing@infovex.com</span>
+                    UPI: <span className="font-extrabold">{upiId}</span>
                   </div>
                 </div>
               </div>
@@ -211,7 +223,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className="space-y-0.5">
                     <span className="text-[10px] text-slate-400 block uppercase">IFSC Code</span>
-                    <span className="text-slate-805 font-mono font-extrabold text-sm">ICIC0000021</span>
+                    <span className="text-slate-850 font-mono font-extrabold text-sm">ICIC0000021</span>
                   </div>
                 </div>
                 <div className="bg-indigo-50/40 border border-indigo-100 rounded-xl p-3 text-[10px] text-indigo-850 font-semibold leading-relaxed">

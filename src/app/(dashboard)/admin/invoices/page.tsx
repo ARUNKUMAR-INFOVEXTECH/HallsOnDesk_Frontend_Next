@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAdminHalls, useAdminGenerateCustomInvoice, useAdminSetupFeePayments } from '@/hooks/useAdmin';
+import { useAdminHalls, useAdminGenerateCustomInvoice, useAdminSetupFeePayments, useAdminSettings } from '@/hooks/useAdmin';
 import {
   FileText,
   Plus,
@@ -15,7 +15,8 @@ import {
   Phone,
   MapPin,
   Percent,
-  Sliders
+  Sliders,
+  Info
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatCurrency } from '@/utils/formatters';
@@ -46,6 +47,7 @@ interface InvoiceFormData {
 export default function AdminInvoicesPage() {
   const { halls = [], isLoading: hallsLoading } = useAdminHalls();
   const { data: setupPayments = [] } = useAdminSetupFeePayments();
+  const { settings: adminSettings } = useAdminSettings();
   const generateCustomInvoiceMutation = useAdminGenerateCustomInvoice();
 
   const [invoiceType, setInvoiceType] = useState<'subscription' | 'setup' | 'custom'>('subscription');
@@ -74,6 +76,16 @@ export default function AdminInvoicesPage() {
     amountPaid: '0',
     balanceDue: '',
   });
+
+  // Auto-prefill invoice number once settings are loaded
+  useEffect(() => {
+    if (adminSettings && !formData.invoiceNo) {
+      setFormData(prev => ({
+        ...prev,
+        invoiceNo: `${adminSettings.invoicePrefix}${adminSettings.nextInvoiceNumber}`
+      }));
+    }
+  }, [adminSettings, formData.invoiceNo]);
 
   // Line Items State
   const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([
@@ -158,7 +170,8 @@ export default function AdminInvoicesPage() {
         billToName: hall.owner_name || hall.hall_name || '',
         billToPhone: hall.phone || '',
         billToEmail: hall.email || '',
-        billToAddress: hall.address || hall.city || ''
+        billToAddress: hall.address || hall.city || '',
+        invoiceNo: prev.invoiceNo || (adminSettings ? `${adminSettings.invoicePrefix}${adminSettings.nextInvoiceNumber}` : '')
       }));
       prefillInvoiceDetails(selectedId, invoiceType);
     } else {
@@ -169,6 +182,7 @@ export default function AdminInvoicesPage() {
         billToPhone: '',
         billToEmail: '',
         billToAddress: '',
+        invoiceNo: '',
         amountPaid: '',
         balanceDue: ''
       }));
@@ -335,6 +349,69 @@ export default function AdminInvoicesPage() {
                   ))}
                 </select>
               </div>
+
+              {formData.hallId && (() => {
+                const hall = halls.find(h => h.id === formData.hallId);
+                if (!hall) return null;
+                const activeSub = hall.hall_subscriptions?.[0];
+                const packagePrice = activeSub?.packages?.price || 0;
+                const packageName = activeSub?.packages?.name || 'SaaS Plan';
+                const setupPayment = setupPayments.find(p => p.hall_id === formData.hallId);
+                const setupAmount = setupPayment?.setup_fee_amount || 0;
+                const setupPaid = setupPayment?.amount_paid || 0;
+                const setupRemaining = Math.max(0, setupAmount - setupPaid);
+
+                return (
+                  <div className="col-span-1 md:col-span-2 bg-[#062089]/5 border border-[#062089]/10 rounded-2xl p-4 space-y-3.5 mt-1">
+                    <div className="flex items-center justify-between border-b border-[#062089]/15 pb-2">
+                      <div className="flex items-center gap-1.5 text-slate-800">
+                        <Info className="h-4 w-4 text-[#062089]" />
+                        <span className="text-xs font-bold">Selected Venue Billing Context</span>
+                      </div>
+                      <span className="text-[9px] font-black text-[#062089] bg-blue-50 border border-blue-150 px-2 py-0.5 rounded-full uppercase tracking-wider">Database Pulled</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-semibold text-slate-700">
+                      <div className="space-y-1">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Active Plan Tier</span>
+                        <span className="text-slate-800 block">
+                          {packageName} <span className="font-mono text-indigo-700 font-bold">(₹{packagePrice.toLocaleString('en-IN')}/mo)</span>
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block font-mono">Setup Fee Status</span>
+                        <span className="text-slate-800 block">
+                          ₹{setupAmount.toLocaleString('en-IN')} 
+                          {setupPayment ? (
+                            <span className={`ml-1.5 px-2 py-0.5 text-[9px] font-bold rounded border capitalize ${
+                              setupPayment.status === 'paid' ? 'bg-green-50 text-green-700 border-green-150' : 
+                              setupPayment.status === 'partially_paid' ? 'bg-yellow-50 text-yellow-700 border-yellow-150' : 
+                              'bg-rose-50 text-rose-700 border-rose-150'
+                            }`}>
+                              {setupPayment.status.replace('_', ' ')}
+                            </span>
+                          ) : (
+                            <span className="ml-1.5 px-2 py-0.5 text-[9px] font-bold bg-slate-50 text-slate-500 border border-slate-150 rounded">None</span>
+                          )}
+                        </span>
+                      </div>
+
+                      <div className="space-y-1">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Onboarding Date</span>
+                        <span className="text-slate-800 block">
+                          {hall.created_at ? new Date(hall.created_at).toLocaleDateString('en-GB') : 'N/A'}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block font-mono">Setup Fee Pending Balance</span>
+                        <span className={`font-black font-mono block ${setupRemaining > 0 ? 'text-amber-600' : 'text-slate-400'}`}>
+                          ₹{setupRemaining.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Bill To Name */}
               <div className="space-y-1.5">

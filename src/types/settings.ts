@@ -117,6 +117,8 @@ export interface HallSubscription {
   payment_status: 'pending' | 'paid' | string;
   created_at: string;
   packages?: SubscriptionPackage;
+  subscription_qr_enabled?: boolean;
+  subscription_qr_upi_id?: string;
 }
 
 export interface SubscriptionPayment {

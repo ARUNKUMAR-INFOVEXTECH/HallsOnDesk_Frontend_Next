@@ -13,7 +13,8 @@ import {
   Clock,
   CheckCircle,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  QrCode
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -25,6 +26,8 @@ const settingsFormSchema = z.object({
   defaultTrialDays: z.preprocess((val) => Number(val), z.number().min(1, 'Minimum 1 day')),
   invoicePrefix: z.string().min(2, 'Invoice prefix is required'),
   nextInvoiceNumber: z.preprocess((val) => Number(val), z.number().min(1, 'Minimum invoice number 1')),
+  subscriptionQrEnabled: z.boolean().default(true),
+  subscriptionQrUpiId: z.string().min(3, 'UPI ID is required'),
   emailTemplates: z.object({
     welcome: z.string().min(10, 'Welcome template too short'),
     trialExpiring: z.string().min(10, 'Trial alert template too short'),
@@ -197,6 +200,49 @@ export default function AdminSettingsPage() {
                 }`}
               />
               {errors.nextInvoiceNumber && <p className="text-[10px] text-red-500 font-semibold">{errors.nextInvoiceNumber.message}</p>}
+            </div>
+          </div>
+        </div>
+
+        {/* Subscription UPI QR Code Payments */}
+        <div className="bg-white border border-gray-150 rounded-xl p-5 shadow-sm space-y-4">
+          <div className="flex items-center gap-2 border-b border-gray-50 pb-3">
+            <QrCode className="h-4.5 w-4.5 text-violet-600" />
+            <span className="font-bold text-gray-900 text-sm">SaaS Subscription Payments (UPI QR)</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-semibold text-gray-700">
+            {/* Toggle Enable/Disable */}
+            <div className="space-y-1.5 flex flex-col justify-center">
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Enable UPI QR payments for owners</label>
+              <div className="flex items-center gap-3 mt-1">
+                <input
+                  type="checkbox"
+                  id="subscriptionQrEnabled"
+                  {...register('subscriptionQrEnabled')}
+                  className="h-4.5 w-4.5 text-violet-600 focus:ring-violet-500 border-gray-300 rounded cursor-pointer"
+                />
+                <label htmlFor="subscriptionQrEnabled" className="text-xs text-gray-650 cursor-pointer select-none">
+                  Allow hall owners to pay subscriptions via dynamic UPI QR code
+                </label>
+              </div>
+            </div>
+
+            {/* UPI ID input */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Target Merchant UPI ID</label>
+              <input
+                type="text"
+                placeholder="e.g. billing@okaxis"
+                {...register('subscriptionQrUpiId')}
+                className={`px-3 py-2 w-full text-xs font-medium border rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 ${
+                  errors.subscriptionQrUpiId ? 'border-red-450' : 'border-gray-200'
+                }`}
+              />
+              {errors.subscriptionQrUpiId && <p className="text-[10px] text-red-500 font-semibold">{errors.subscriptionQrUpiId.message}</p>}
+              <p className="text-[9px] text-gray-400 font-semibold leading-normal mt-1">
+                UPI payments made by venue owners will be routed to this VPA. Example: billing@infovex.com
+              </p>
             </div>
           </div>
         </div>

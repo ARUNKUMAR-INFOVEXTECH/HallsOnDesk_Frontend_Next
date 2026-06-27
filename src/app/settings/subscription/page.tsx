@@ -70,6 +70,7 @@ export default function SubscriptionSettingsPage() {
   }
 
   const activePackage = subscription.packages;
+  const qrEnabled = subscription.subscription_qr_enabled !== false;
 
   // Calculate days remaining
   const today = new Date();
@@ -188,8 +189,17 @@ export default function SubscriptionSettingsPage() {
               onClick={() => handleCheckoutRedirect(subscription.package_id)}
               className="h-9 px-4 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 cursor-pointer shadow-md shadow-violet-600/10 hover:shadow-violet-600/20 hover:scale-[1.01] active:scale-[0.99] transition-all duration-150"
             >
-              <QrCode className="h-4 w-4" />
-              <span>Scan & Pay</span>
+              {qrEnabled ? (
+                <>
+                  <QrCode className="h-4 w-4" />
+                  <span>Scan & Pay</span>
+                </>
+              ) : (
+                <>
+                  <CreditCard className="h-4 w-4" />
+                  <span>Pay Subscription</span>
+                </>
+              )}
             </button>
             <a
               href="mailto:billing@infovex.com"

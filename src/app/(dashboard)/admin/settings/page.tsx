@@ -29,10 +29,10 @@ const settingsFormSchema = z.object({
   subscriptionQrEnabled: z.boolean().default(true),
   subscriptionQrUpiId: z.string().min(3, 'UPI ID is required'),
   emailTemplates: z.object({
-    welcome: z.string().min(10, 'Welcome template too short'),
-    trialExpiring: z.string().min(10, 'Trial alert template too short'),
-    paymentSuccess: z.string().min(10, 'Payment receipt template too short'),
-    subscriptionSuspended: z.string().min(10, 'Suspension notice template too short'),
+    welcome: z.string().default(''),
+    trialExpiring: z.string().default(''),
+    paymentSuccess: z.string().default(''),
+    subscriptionSuspended: z.string().default(''),
   }),
 });
 

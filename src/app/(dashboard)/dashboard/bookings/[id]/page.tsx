@@ -49,6 +49,8 @@ import {
   getReceiptHtml,
 } from '@/services/api/modules/invoices.service';
 import { useAuthStore } from '@/store/authStore';
+import { useActiveSubscription } from '@/hooks/useSettings';
+import { hasFeature } from '@/utils/subscription';
 
 // Vendor Allocation Imports
 import {
@@ -97,6 +99,9 @@ function BookingDetailPage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'vendors'>('overview');
   const [isVendorDrawerOpen, setIsVendorDrawerOpen] = useState(false);
   const [editingVendorAllocation, setEditingVendorAllocation] = useState<BookingVendor | null>(null);
+
+  const { data: activeSub } = useActiveSubscription();
+  const isVendorAllowed = activeSub ? hasFeature(activeSub, 'vendors') : true;
 
   // Modal form states
   const [payAmount, setPayAmount] = useState('');
@@ -842,6 +847,27 @@ function BookingDetailPage() {
 
       {activeTab === 'vendors' && (
         <div className="space-y-6 animate-fadeIn">
+          {!isVendorAllowed && (
+            <div className="flex items-start md:items-center justify-between gap-4 bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-900 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200 print:hidden">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-amber-650 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-bold text-xs">Vendor Allocation Restricted</h4>
+                  <p className="text-[11px] text-amber-705 mt-1 leading-relaxed font-semibold">
+                    Your current plan does not support vendor management. To allocate new partners or manage decorator/catering balances, please upgrade your subscription plan.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => router.push('/settings/subscription')}
+                className="shrink-0 bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold px-3 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Upgrade Plan
+              </button>
+            </div>
+          )}
+
           {/* Expenses summary metrics cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex items-center justify-between text-xs font-semibold">
@@ -882,7 +908,7 @@ function BookingDetailPage() {
                 <h3 className="text-sm font-semibold text-slate-800">Allocated Vendor Partners</h3>
                 <p className="text-[11px] text-slate-400 font-medium mt-0.5">Manage decorators, caterers, photographers, and payment balances for this event</p>
               </div>
-              {canManageVendors && (
+              {canManageVendors && isVendorAllowed && (
                 <button
                   onClick={() => {
                     setEditingVendorAllocation(null);
@@ -962,7 +988,7 @@ function BookingDetailPage() {
                             {vendorAlloc.notes || '-'}
                           </td>
                           <td className="px-6 py-3.5 text-right space-x-2 shrink-0">
-                            {canManageVendors && (
+                            {canManageVendors && isVendorAllowed && (
                               <>
                                 <button
                                   onClick={() => {
@@ -990,6 +1016,23 @@ function BookingDetailPage() {
                     })}
                   </tbody>
                 </table>
+              </div>
+            ) : !isVendorAllowed ? (
+              <div className="text-center py-10 border border-slate-150 border-dashed rounded-xl bg-slate-50/50 space-y-3.5 font-medium">
+                <div className="h-10 w-10 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center mx-auto text-amber-500">
+                  <AlertCircle className="h-5 w-5" />
+                </div>
+                <h4 className="font-bold text-xs text-slate-800">Vendor Management Restricted</h4>
+                <p className="text-[11px] text-slate-450 leading-relaxed max-w-[280px] mx-auto">
+                  Vendor allocation is not allowed on your current plan. Upgrade your plan to manage decorators, caterers, and other event partners.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => router.push('/settings/subscription')}
+                  className="inline-flex items-center gap-1.5 py-2 px-4 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-extrabold shadow-sm transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  Upgrade Plan
+                </button>
               </div>
             ) : (
               <div className="text-center py-12 border border-slate-150 border-dashed rounded-xl bg-slate-50/50 space-y-4 font-medium">

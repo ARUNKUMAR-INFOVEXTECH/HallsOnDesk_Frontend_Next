@@ -31,6 +31,19 @@ export default function NotificationMatrix({
   isWhatsappPremium = false,
 }: NotificationMatrixProps) {
 
+  const safeValues = values || {
+    emailEnabled: true,
+    smsEnabled: true,
+    whatsappEnabled: false,
+    newBookingAlert: true,
+    paymentReceivedAlert: true,
+    enquiryAlert: true,
+    followupReminder: true,
+    bookingReminderDaysBefore: 2,
+    dailySummaryEnabled: true,
+    dailySummaryTime: '08:00',
+  };
+
   const channelsList = [
     {
       key: 'emailEnabled' as const,
@@ -83,11 +96,11 @@ export default function NotificationMatrix({
   ];
 
   const handleToggleChannel = (key: keyof NotificationSettings) => {
-    onChange({ [key]: !values[key] });
+    onChange({ [key]: !safeValues[key] });
   };
 
   const handleToggleAlert = (key: keyof NotificationSettings) => {
-    onChange({ [key]: !values[key] });
+    onChange({ [key]: !safeValues[key] });
   };
 
   return (
@@ -97,7 +110,7 @@ export default function NotificationMatrix({
         {channelsList.map((chan) => {
           const Icon = chan.icon;
           const isLocked = chan.key === 'whatsappEnabled' && !isWhatsappPremium;
-          const isEnabled = values[chan.key] && !isLocked;
+          const isEnabled = safeValues[chan.key] && !isLocked;
           return (
             <div
               key={chan.key}
@@ -154,7 +167,7 @@ export default function NotificationMatrix({
         <div className="divide-y divide-gray-100">
           {alertsList.map((alert) => {
             const AlertIcon = alert.icon;
-            const isAlertEnabled = values[alert.key];
+            const isAlertEnabled = safeValues[alert.key];
 
             return (
               <div key={alert.key} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors">
@@ -184,9 +197,9 @@ export default function NotificationMatrix({
                   
                   {/* Visual Status Indicator Indicators */}
                   <div className="hidden sm:flex items-center gap-2.5">
-                    <span className={`h-2 w-2 rounded-full ${isAlertEnabled && values.emailEnabled ? 'bg-violet-600' : 'bg-gray-200'}`} title="Email Channel Status" />
-                    <span className={`h-2 w-2 rounded-full ${isAlertEnabled && values.smsEnabled ? 'bg-blue-500' : 'bg-gray-200'}`} title="SMS Channel Status" />
-                    <span className={`h-2 w-2 rounded-full ${isAlertEnabled && values.whatsappEnabled ? 'bg-green-500' : 'bg-gray-200'}`} title="WhatsApp Channel Status" />
+                    <span className={`h-2 w-2 rounded-full ${isAlertEnabled && safeValues.emailEnabled ? 'bg-violet-600' : 'bg-gray-200'}`} title="Email Channel Status" />
+                    <span className={`h-2 w-2 rounded-full ${isAlertEnabled && safeValues.smsEnabled ? 'bg-blue-500' : 'bg-gray-200'}`} title="SMS Channel Status" />
+                    <span className={`h-2 w-2 rounded-full ${isAlertEnabled && safeValues.whatsappEnabled ? 'bg-green-500' : 'bg-gray-200'}`} title="WhatsApp Channel Status" />
                   </div>
                 </div>
               </div>

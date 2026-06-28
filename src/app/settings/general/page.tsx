@@ -344,6 +344,47 @@ export default function GeneralSettingsPage() {
     formState: { errors, isDirty }
   } = useForm<SettingsFormValues>({
     resolver: zodResolver(fullSettingsSchema),
+    defaultValues: {
+      invoicePrefix: 'INV',
+      bookingPrefix: 'BK',
+      receiptPrefix: 'RCP',
+      invoiceStartNumber: 1,
+      bookingStartNumber: 1,
+      currency: 'INR',
+      currencySymbol: '₹',
+      dateFormat: 'DD/MM/YYYY',
+      timeFormat: '12h',
+      timezone: 'Asia/Kolkata',
+      taxEnabled: false,
+      gstRate: 18,
+      gstApplicableOn: 'all',
+      autoInvoice: false,
+      invoiceFooterNote: '',
+      termsAndConditions: '',
+      invoiceTemplate: 'classic',
+      notifications: {
+        emailEnabled: true,
+        smsEnabled: true,
+        whatsappEnabled: false,
+        newBookingAlert: true,
+        paymentReceivedAlert: true,
+        enquiryAlert: true,
+        followupReminder: true,
+        bookingReminderDaysBefore: 2,
+        dailySummaryEnabled: true,
+        dailySummaryTime: '08:00',
+      },
+      bookingSettings: {
+        requireAdvancePayment: true,
+        minimumAdvancePercent: 25,
+        allowDoubleBooking: false,
+        bookingCancellationHours: 48,
+        defaultBookingDurationHours: 12,
+        workingHoursStart: '08:00',
+        workingHoursEnd: '23:00',
+        workingDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+      },
+    }
   });
 
   const watchedValues = watch();

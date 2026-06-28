@@ -312,58 +312,41 @@ export function PaymentTable({
         id: 'actions',
         cell: ({ row }) => {
           const item = row.original;
-          const isDropdownActive = activeDropdownId === item.id;
           
           return (
-            <div className="relative print:hidden payment-actions-container">
+            <div className="flex items-center gap-1.5 print:hidden">
+              <Link
+                href={`/dashboard/bookings/${obfuscateId(item.bookingId)}`}
+                title="View Booking"
+                className="p-1.5 rounded-md hover:bg-slate-50 text-slate-450 hover:text-violet-650 transition-colors cursor-pointer border border-slate-100 bg-white shadow-sm"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+              </Link>
               <button
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveDropdownId(isDropdownActive ? null : item.id);
-                }}
-                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-extrabold bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-700 rounded-md shadow-sm transition-colors cursor-pointer"
+                onClick={() => onViewReceipt(item)}
+                title="View Receipt"
+                className="p-1.5 rounded-md hover:bg-slate-50 text-slate-450 hover:text-violet-650 transition-colors cursor-pointer border border-slate-100 bg-white shadow-sm"
               >
-                <span>Actions</span>
-                <ChevronDown className="h-3 w-3 text-slate-400" />
+                <Receipt className="h-3.5 w-3.5" />
               </button>
-
-              {isDropdownActive && (
-                <div className="absolute right-0 mt-1.5 w-36 bg-white border border-slate-200 rounded-xl shadow-premium z-10 py-1.5 text-xs text-slate-650 font-bold animate-fadeIn">
-                  <Link
-                    href={`/dashboard/bookings/${obfuscateId(item.bookingId)}`}
-                    className="flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 text-slate-700 transition-colors"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5 text-slate-400" />
-                    View Booking
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => onViewReceipt(item)}
-                    className="w-full text-left flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer"
-                  >
-                    <Receipt className="h-3.5 w-3.5 text-slate-400" />
-                    View Receipt
-                  </button>
-                  {canDelete && (
-                    <button
-                      type="button"
-                      onClick={() => onDeletePayment(item.id, item.amount)}
-                      disabled={isDeleting}
-                      className="w-full text-left flex items-center gap-2 px-3 py-1.5 hover:bg-rose-50 text-rose-605 border-t border-slate-50 mt-1 pt-1.5 transition-colors cursor-pointer disabled:opacity-50"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Delete Ledger
-                    </button>
-                  )}
-                </div>
+              {canDelete && (
+                <button
+                  type="button"
+                  onClick={() => onDeletePayment(item.id, item.amount)}
+                  disabled={isDeleting}
+                  title="Delete Ledger"
+                  className="p-1.5 rounded-md hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer border border-slate-100 bg-white shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
               )}
             </div>
           );
         },
       },
     ],
-    [activeDropdownId, isDeleting, onDeletePayment, onViewReceipt]
+    [isDeleting, onDeletePayment, onViewReceipt]
   );
 
   const visibleColumns = canDelete ? columns : columns.filter((col) => col.id !== 'select');

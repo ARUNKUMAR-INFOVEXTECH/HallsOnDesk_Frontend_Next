@@ -19,7 +19,6 @@ import {
   Trash2,
   ExternalLink,
   Receipt,
-  MoreHorizontal,
   ArrowUpDown,
   CheckCircle,
   HelpCircle,
@@ -323,9 +322,10 @@ export function PaymentTable({
                   e.stopPropagation();
                   setActiveDropdownId(isDropdownActive ? null : item.id);
                 }}
-                className="p-1 rounded-md hover:bg-slate-50 text-slate-400 hover:text-slate-650 cursor-pointer"
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-extrabold bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-700 rounded-md shadow-sm transition-colors cursor-pointer"
               >
-                <MoreHorizontal className="h-4 w-4" />
+                <span>Actions</span>
+                <ChevronDown className="h-3 w-3 text-slate-400" />
               </button>
 
               {isDropdownActive && (

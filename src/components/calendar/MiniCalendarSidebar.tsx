@@ -12,7 +12,7 @@ interface MiniCalendarSidebarProps {
   onSelectEvent: (event: CalendarEvent) => void;
 }
 
-export function MiniCalendarSidebar({
+export const MiniCalendarSidebar = React.memo(function MiniCalendarSidebar({
   selectedDate,
   onDateSelect,
   onSelectEvent,
@@ -256,4 +256,4 @@ export function MiniCalendarSidebar({
       </div>
     </div>
   );
-}
+});

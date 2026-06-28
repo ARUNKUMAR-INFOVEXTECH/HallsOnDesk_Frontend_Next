@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function CalendarLegend() {
+export const CalendarLegend = React.memo(function CalendarLegend() {
   const legendItems = [
     { label: 'Booking (Confirmed)', color: 'bg-[#159DFC]' },
     { label: 'Booking (Pending)', color: 'bg-[#F59E0B]' },
@@ -23,4 +23,4 @@ export function CalendarLegend() {
       </div>
     </div>
   );
-}
+});

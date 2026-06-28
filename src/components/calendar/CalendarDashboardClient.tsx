@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -8,6 +8,8 @@ import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import { X, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
+import { useMuhurthamDates } from '@/hooks/useMuhurtham';
 
 import { CalendarHeader } from './CalendarHeader';
 import { MiniCalendarSidebar } from './MiniCalendarSidebar';
@@ -59,6 +61,9 @@ export function CalendarDashboardClient() {
     {}, // Fetch full range caching handled by fullcalendar
     filters
   );
+
+  // Fetch Muhurtham dates list
+  const { data: muhurthamDates = [] } = useMuhurthamDates();
 
   // Fetch reservations to sync client-side
   const { data: syncedBookings = [], isLoading: bookingsLoading } = useBookingsForCalendar();
@@ -161,38 +166,63 @@ export function CalendarDashboardClient() {
   }, [mergedEvents]);
 
   // Map merged events to FullCalendar event format (with optional colorBy hall section)
-  const fcEvents = searchedEvents.map((e) => {
-    const color = e.color;
+  const fcEvents = [
+    ...searchedEvents.map((e) => {
+      const color = e.color;
 
-    return {
-      id: e.id,
-      title: e.title,
-      start: e.start,
-      end: e.end,
-      allDay: e.allDay,
-      backgroundColor: color,
-      borderColor: color,
-      textColor: '#FFFFFF',
+      return {
+        id: e.id,
+        title: e.title,
+        start: e.start,
+        end: e.end,
+        allDay: e.allDay,
+        backgroundColor: color,
+        borderColor: color,
+        textColor: '#FFFFFF',
+        extendedProps: {
+          type: e.type,
+          bookingId: e.bookingId,
+          customerId: e.customerId,
+          customerName: e.customerName,
+          customerPhone: e.customerPhone,
+          customerEmail: e.customerEmail,
+          hallName: e.hallName,
+          hallSection: e.hallSection,
+          guestCount: e.guestCount,
+          bookingAmount: e.bookingAmount,
+          advanceAmount: e.advanceAmount,
+          pendingAmount: e.pendingAmount,
+          discountAmount: e.discountAmount,
+          status: e.status,
+          paymentStatus: e.paymentStatus,
+          notes: e.notes,
+        },
+      };
+    }),
+    ...muhurthamDates.map((m) => ({
+      id: `muhurtham-bg-${m.id}`,
+      title: '',
+      start: m.date,
+      end: m.date,
+      allDay: true,
+      display: 'background',
+      backgroundColor: 'rgba(251, 191, 36, 0.12)', // soft gold amber
+    })),
+    ...muhurthamDates.map((m) => ({
+      id: `muhurtham-label-${m.id}`,
+      title: `🌟 ${m.title}`,
+      start: m.date,
+      end: m.date,
+      allDay: true,
+      backgroundColor: '#FEF3C7',
+      borderColor: '#F59E0B',
+      textColor: '#B45309',
       extendedProps: {
-        type: e.type,
-        bookingId: e.bookingId,
-        customerId: e.customerId,
-        customerName: e.customerName,
-        customerPhone: e.customerPhone,
-        customerEmail: e.customerEmail,
-        hallName: e.hallName,
-        hallSection: e.hallSection,
-        guestCount: e.guestCount,
-        bookingAmount: e.bookingAmount,
-        advanceAmount: e.advanceAmount,
-        pendingAmount: e.pendingAmount,
-        discountAmount: e.discountAmount,
-        status: e.status,
-        paymentStatus: e.paymentStatus,
-        notes: e.notes,
+        type: 'muhurtham',
+        notes: m.notes,
       },
-    };
-  });
+    })),
+  ];
 
   // 6. Navigation and View Switch Helpers
   const handleNavigate = (action: 'prev' | 'next' | 'today') => {
@@ -215,14 +245,20 @@ export function CalendarDashboardClient() {
     }
   };
 
-  const handleDateSelectFromSidebar = (date: Date) => {
+  const handleDateSelectFromSidebar = useCallback((date: Date) => {
     setCurrentDate(date);
     const api = calendarRef.current?.getApi();
     if (api) {
       api.gotoDate(date);
       setCalendarTitle(api.view.title);
     }
-  };
+  }, []);
+
+  const handleSelectEvent = useCallback((event: CalendarEvent) => {
+    setSelectedEvent(event);
+    setDrawerMode('view');
+    setDrawerOpen(true);
+  }, []);
 
   // 7. Interactive Click Handlers
   const handleDateSelect = (selectInfo: any) => {
@@ -240,15 +276,25 @@ export function CalendarDashboardClient() {
     setDrawerOpen(true);
   };
 
-  const handleEventClick = (clickInfo: any) => {
+  const handleEventClick = useCallback((clickInfo: any) => {
     const eventId = clickInfo.event.id;
+    if (eventId.startsWith('muhurtham-')) {
+      const dbId = eventId.replace('muhurtham-label-', '').replace('muhurtham-bg-', '');
+      const mDate = muhurthamDates.find((m) => m.id === dbId);
+      if (mDate) {
+        toast.info(`Auspicious Date: ${mDate.title}`, {
+          description: mDate.notes || 'This is a premium high-demand astrological date.',
+        });
+      }
+      return;
+    }
     const clickedEvent = mergedEvents.find((e) => e.id === eventId);
     if (clickedEvent) {
       setSelectedEvent(clickedEvent);
       setDrawerMode('view');
       setDrawerOpen(true);
     }
-  };
+  }, [muhurthamDates, mergedEvents]);
 
   // Drag and drop or Resize event rescheduling
   const handleEventChange = async (changeInfo: any) => {
@@ -527,11 +573,7 @@ export function CalendarDashboardClient() {
       <MiniCalendarSidebar
         selectedDate={currentDate}
         onDateSelect={handleDateSelectFromSidebar}
-        onSelectEvent={(event) => {
-          setSelectedEvent(event);
-          setDrawerMode('view');
-          setDrawerOpen(true);
-        }}
+        onSelectEvent={handleSelectEvent}
       />
 
       {/* Main Calendar Space */}

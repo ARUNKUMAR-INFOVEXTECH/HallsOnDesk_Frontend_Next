@@ -10,7 +10,8 @@ import { CustomerCombobox } from './CustomerCombobox';
 import { AvailabilityChecker } from './AvailabilityChecker';
 import { BookingPaymentSummary } from './BookingPaymentSummary';
 import { useHallSettings } from '@/hooks/useSettings';
-import { Calendar, Users, Percent, HelpCircle } from 'lucide-react';
+import { Calendar, Users, Percent, HelpCircle, Sparkles } from 'lucide-react';
+import { useMuhurthamDates } from '@/hooks/useMuhurtham';
 
 interface BookingFormProps {
   initialValues?: Partial<BookingFormValues>;
@@ -120,6 +121,9 @@ export function BookingForm({
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isDirty]);
 
+  // Fetch Muhurtham dates to check against booking slot
+  const { data: muhurthamDates = [] } = useMuhurthamDates();
+
   // Watch form inputs for payment summary and overlap check
   const watchCustomerId = watch('customerId') || '';
   const watchEventDate = watch('eventDate') || '';
@@ -130,6 +134,23 @@ export function BookingForm({
   const watchTaxEnabled = watch('taxEnabled') || false;
   const watchTaxPercentage = watch('taxPercentage') || 0;
 
+  // Astrological Auspicious check helpers
+  const getEventDateOnly = (dateTimeStr?: string) => {
+    if (!dateTimeStr) return '';
+    return dateTimeStr.split('T')[0];
+  };
+
+  const isMuhurthamDate = (dateStr?: string) => {
+    if (!dateStr) return false;
+    const dateOnly = getEventDateOnly(dateStr);
+    return muhurthamDates.some((m) => m.date === dateOnly);
+  };
+
+  const selectedDateIsMuhurtham = isMuhurthamDate(watchEventDate) || isMuhurthamDate(watchEventEndDate);
+  const matchingMuhurtham = selectedDateIsMuhurtham
+    ? muhurthamDates.find((m) => m.date === getEventDateOnly(watchEventDate) || m.date === getEventDateOnly(watchEventEndDate))
+    : null;
+
   return (
     <FormProvider form={form} onSubmit={onSubmit} className="space-y-8">
       {/* Dynamic Overlap Checker Banner */}
@@ -138,6 +159,19 @@ export function BookingForm({
         eventEndDate={watchEventEndDate}
         excludeBookingId={excludeBookingId}
       />
+
+      {/* Astro-Muhurtham Auspicious Alert Banner */}
+      {matchingMuhurtham && (
+        <div className="flex items-start gap-3 px-4 py-3.5 bg-amber-50 border border-amber-250 rounded-xl text-xs font-semibold text-amber-900 animate-fadeIn shadow-sm">
+          <Sparkles className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-bold text-amber-850">🌟 Auspicious Muhurtham Date (Peak Demand)</p>
+            <p className="mt-0.5 text-[11px] text-amber-700 leading-relaxed font-medium">
+              {matchingMuhurtham.title} is marked as a high-demand astrological date. It is highly recommended to apply premium rates and avoid discounts for this slot.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Left Column: Form Cards */}

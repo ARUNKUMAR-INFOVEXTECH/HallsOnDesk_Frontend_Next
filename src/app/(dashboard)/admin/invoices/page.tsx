@@ -697,10 +697,16 @@ export default function AdminInvoicesPage() {
               </div>
               
               {formData.taxEnabled && (
-                <div className="flex justify-between items-center text-xs font-semibold text-slate-500">
-                  <span>GST ({formData.taxPercentage}%)</span>
-                  <span className="font-mono text-slate-700">{formatCurrency(taxAmount)}</span>
-                </div>
+                <>
+                  <div className="flex justify-between items-center text-xs font-semibold text-slate-500">
+                    <span>CGST ({formData.taxPercentage / 2}%)</span>
+                    <span className="font-mono text-slate-700">{formatCurrency(taxAmount / 2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs font-semibold text-slate-500">
+                    <span>SGST ({formData.taxPercentage / 2}%)</span>
+                    <span className="font-mono text-slate-700">{formatCurrency(taxAmount / 2)}</span>
+                  </div>
+                </>
               )}
 
               <div className="flex justify-between items-center text-sm font-black text-slate-800 pt-1.5 border-t border-dashed border-slate-200">

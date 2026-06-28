@@ -421,4 +421,21 @@ export async function adjustSubscription(
   return res.data;
 }
 
+export async function downloadSaaSgstr1Report(fromDate: string, toDate: string): Promise<void> {
+  const res = await apiClient.get(`/admin/export/gstr1`, {
+    params: { from_date: fromDate, to_date: toDate },
+    responseType: 'blob'
+  });
+  
+  const blob = new Blob([res.data], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `SaaS_GSTR1_Report_${fromDate}_to_${toDate}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}
+
 

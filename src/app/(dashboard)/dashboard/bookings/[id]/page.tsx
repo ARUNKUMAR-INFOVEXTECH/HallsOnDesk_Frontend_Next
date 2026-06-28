@@ -611,10 +611,16 @@ function BookingDetailPage() {
               </div>
 
               {booking.taxEnabled && (
-                <div className="flex justify-between items-center text-slate-500 font-medium">
-                  <span>GST ({booking.taxPercentage || 0}%)</span>
-                  <span className="font-mono font-bold text-slate-700">+ {formatCurrency(booking.taxAmount || 0)}</span>
-                </div>
+                <>
+                  <div className="flex justify-between items-center text-slate-500 font-medium">
+                    <span>CGST ({(booking.taxPercentage || 0) / 2}%)</span>
+                    <span className="font-mono font-bold text-slate-700">+ {formatCurrency((booking.taxAmount || 0) / 2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-500 font-medium">
+                    <span>SGST ({(booking.taxPercentage || 0) / 2}%)</span>
+                    <span className="font-mono font-bold text-slate-700">+ {formatCurrency((booking.taxAmount || 0) / 2)}</span>
+                  </div>
+                </>
               )}
 
               <div className="border-t border-slate-100 pt-3 flex justify-between items-center text-slate-800 font-bold">

@@ -43,12 +43,20 @@ export function BookingPaymentSummary({
         </div>
 
         {taxEnabled && (
-          <div className="flex justify-between items-center text-slate-500 font-medium">
-            <span>GST ({taxPercentage}%)</span>
-            <span className="font-mono font-bold text-slate-700">
-              + {formatCurrency(taxAmount)}
-            </span>
-          </div>
+          <>
+            <div className="flex justify-between items-center text-slate-500 font-medium">
+              <span>CGST ({taxPercentage / 2}%)</span>
+              <span className="font-mono font-bold text-slate-700">
+                + {formatCurrency(taxAmount / 2)}
+              </span>
+            </div>
+            <div className="flex justify-between items-center text-slate-500 font-medium">
+              <span>SGST ({taxPercentage / 2}%)</span>
+              <span className="font-mono font-bold text-slate-700">
+                + {formatCurrency(taxAmount / 2)}
+              </span>
+            </div>
+          </>
         )}
 
         <div className="border-t border-slate-200 pt-3 flex justify-between items-center text-sm">

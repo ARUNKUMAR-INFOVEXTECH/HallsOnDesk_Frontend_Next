@@ -83,7 +83,11 @@ export function CalendarDashboardClient() {
     return true;
   });
 
-  const mergedEvents = [...customEvents, ...filteredBookings];
+  // Filter out custom events that are linked to a booking to prevent duplicate rendering and fake conflicts
+  const mergedEvents = [
+    ...customEvents.filter((e) => !e.bookingId),
+    ...filteredBookings
+  ];
 
   // Client-side text search filter
   const searchedEvents = mergedEvents.filter((e) => {
@@ -133,6 +137,11 @@ export function CalendarDashboardClient() {
       for (let j = i + 1; j < active.length; j++) {
         const eA = active[i];
         const eB = active[j];
+
+        // Skip conflict check if they belong to the same booking or are the same event
+        if (eA.id === eB.id || (eA.bookingId && eB.bookingId && eA.bookingId === eB.bookingId)) {
+          continue;
+        }
 
         if (isDatesOverlapping(eA.start, eA.end, eB.start, eB.end)) {
           const dateSpan = eA.start.split('T')[0] === (eA.end || eA.start).split('T')[0]

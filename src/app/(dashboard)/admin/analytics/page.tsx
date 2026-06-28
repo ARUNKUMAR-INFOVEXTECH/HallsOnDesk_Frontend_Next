@@ -14,7 +14,8 @@ import {
   TrendingDown,
   Globe,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Download
 } from 'lucide-react';
 import {
   AreaChart,
@@ -28,10 +29,36 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts';
+import { downloadSaaSgstr1Report } from '@/services/api/admin.service';
+import { toast } from 'sonner';
 
 export default function AdminAnalyticsPage() {
   const [timePeriod, setTimePeriod] = useState<'30d' | '3m' | '6m' | '1y'>('30d');
   const { analyticsData, isLoading } = useAdminAnalytics(timePeriod);
+
+  const [fromDate, setFromDate] = useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
+  });
+  const [toDate, setToDate] = useState(() => {
+    const d = new Date();
+    const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+  });
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportGstr1 = async () => {
+    try {
+      setIsExporting(true);
+      await downloadSaaSgstr1Report(fromDate, toDate);
+      toast.success("SaaS GSTR-1 Tax report downloaded successfully.");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to export GSTR-1 report.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -102,6 +129,46 @@ export default function AdminAnalyticsPage() {
               {p === '30d' ? '30 Days' : p === '3m' ? '3 Months' : p === '6m' ? '6 Months' : '1 Year'}
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* GSTR-1 Exporter Widget */}
+      <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h3 className="font-bold text-gray-900 text-sm">GSTR-1 SaaS Sales Tax Exporter</h3>
+          <p className="text-[11px] text-gray-400 font-medium">Export all approved SaaS subscription billing records formatted for GST filing.</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-gray-400 uppercase">From</span>
+            <input 
+              type="date" 
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="px-2.5 py-1.5 text-xs border border-gray-200 rounded-lg text-gray-700 bg-white focus:outline-none focus:border-violet-500 font-medium font-mono"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-gray-400 uppercase">To</span>
+            <input 
+              type="date" 
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="px-2.5 py-1.5 text-xs border border-gray-200 rounded-lg text-gray-700 bg-white focus:outline-none focus:border-violet-500 font-medium font-mono"
+            />
+          </div>
+          <button
+            onClick={handleExportGstr1}
+            disabled={isExporting}
+            className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 hover:bg-violet-750 text-white rounded-lg text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-sm shadow-violet-100"
+          >
+            {isExporting ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Download className="h-3.5 w-3.5" />
+            )}
+            <span>Export CSV</span>
+          </button>
         </div>
       </div>
 

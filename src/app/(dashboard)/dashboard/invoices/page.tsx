@@ -14,7 +14,8 @@ import {
   TrendingUp,
   Inbox,
   X,
-  Trash2
+  Trash2,
+  Download
 } from 'lucide-react';
 import Link from 'next/link';
 import { useInvoices, useCreateInvoice, useDeleteInvoice } from '@/hooks/useInvoices';
@@ -22,7 +23,7 @@ import { useBookings } from '@/hooks/useBookings';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { obfuscateId } from '@/utils/obfuscate';
 import { toast } from 'sonner';
-import { getInvoiceHtml } from '@/services/api/modules/invoices.service';
+import { getInvoiceHtml, downloadGstr1Report } from '@/services/api/modules/invoices.service';
 import { useAuthStore } from '@/store/authStore';
 import { Invoice } from '@/types';
 
@@ -33,6 +34,30 @@ export default function InvoicesListPage() {
   const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState('');
   const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
+
+  const [fromDate, setFromDate] = useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
+  });
+  const [toDate, setToDate] = useState(() => {
+    const d = new Date();
+    const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+  });
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportGstr1 = async () => {
+    try {
+      setIsExporting(true);
+      await downloadGstr1Report(fromDate, toDate);
+      toast.success("Venue GSTR-1 Tax report downloaded successfully.");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to export GSTR-1 report.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const { role } = useAuthStore();
   const isAllowedToDelete = role === 'owner' || role === 'manager';
@@ -224,6 +249,46 @@ export default function InvoicesListPage() {
             <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider block">Total Invoices</span>
             <span className="text-base font-extrabold text-[#0F172A] font-mono block leading-none">{summary.count} files</span>
           </div>
+        </div>
+      </div>
+
+      {/* GSTR-1 Exporter Card */}
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h3 className="font-bold text-slate-800 text-sm">GSTR-1 Sales & Tax Exporter</h3>
+          <p className="text-[11px] text-slate-450 font-medium">Export this venue's booking invoices and GST details for Indian tax returns filing.</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-slate-400 uppercase">From</span>
+            <input 
+              type="date" 
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg text-slate-700 bg-white focus:outline-none focus:border-primary font-medium font-mono"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-slate-400 uppercase">To</span>
+            <input 
+              type="date" 
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg text-slate-700 bg-white focus:outline-none focus:border-primary font-medium font-mono"
+            />
+          </div>
+          <button
+            onClick={handleExportGstr1}
+            disabled={isExporting}
+            className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-sm shadow-indigo-100"
+          >
+            {isExporting ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Download className="h-3.5 w-3.5" />
+            )}
+            <span>Export CSV</span>
+          </button>
         </div>
       </div>
 

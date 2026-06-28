@@ -423,6 +423,8 @@ export function useAdminSettings() {
     nextInvoiceNumber: 1048,
     subscriptionQrEnabled: true,
     subscriptionQrUpiId: 'billing@infovex.com',
+    founderSlotsClaimed: 14,
+    founderSlotsTotal: 20,
     emailTemplates: {
       welcome: '',
       trialExpiring: '',

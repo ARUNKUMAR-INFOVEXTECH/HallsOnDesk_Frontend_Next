@@ -51,6 +51,8 @@ export interface AdminSettings {
   nextInvoiceNumber: number;
   subscriptionQrEnabled?: boolean;
   subscriptionQrUpiId?: string;
+  founderSlotsClaimed?: number;
+  founderSlotsTotal?: number;
   emailTemplates: {
     welcome: string;
     trialExpiring: string;

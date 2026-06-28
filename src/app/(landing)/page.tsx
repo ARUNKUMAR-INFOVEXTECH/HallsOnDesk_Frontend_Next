@@ -160,7 +160,7 @@ export default function HomePage() {
                   <span className="h-2 w-2 rounded-full bg-red-500/80" />
                   <span className="h-2 w-2 rounded-full bg-amber-500/80" />
                   <span className="h-2 w-2 rounded-full bg-emerald-500/80" />
-                  <span className="ml-2 font-bold">hallsondesk.in/bookings/new</span>
+                  <span className="ml-2 font-bold">infovexhalls.in/bookings/new</span>
                 </div>
 
                 <div className="space-y-4">

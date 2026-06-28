@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, Sparkles, Lock, Crown, Zap, Gift, Shield, MessageSquare } from 'lucide-react';
 
 interface PricingProps {
@@ -9,9 +9,29 @@ interface PricingProps {
 
 export default function Pricing({ onBookDemoClick }: PricingProps) {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
-  
-  const slotsClaimed = 14;
-  const totalSlots = 20;
+  const [slotsClaimed, setSlotsClaimed] = useState<number>(14);
+  const [totalSlots, setTotalSlots] = useState<number>(20);
+
+  useEffect(() => {
+    let active = true;
+    const fetchSlots = async () => {
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hallsondesk-backend.onrender.com';
+        const res = await fetch(`${baseURL}/admin/public/founder-slots`);
+        if (!res.ok) throw new Error('Network error');
+        const data = await res.json();
+        if (active && data) {
+          setSlotsClaimed(data.slotsClaimed ?? 14);
+          setTotalSlots(data.totalSlots ?? 20);
+        }
+      } catch (err) {
+        console.error('Failed to load dynamic founder slots:', err);
+      }
+    };
+    fetchSlots();
+    return () => { active = false; };
+  }, []);
+
   const progressPercent = (slotsClaimed / totalSlots) * 100;
 
   // Compute pricing values dynamically based on billing cycle
@@ -23,7 +43,7 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
       monthlyPrice: billingCycle === 'monthly' ? '₹1,999' : '₹1,599',
       savings: billingCycle === 'annual' ? 'Save ₹4,800/yr' : null,
       features: [
-        'HallsOnDesk Software',
+        'Infovex Halls Software',
         'Booking Management',
         'Payment Tracking',
         'Priority Support',
@@ -40,7 +60,7 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
       savings: billingCycle === 'annual' ? 'Save ₹7,200/yr' : null,
       features: [
         'Premium Hall Website',
-        'HallsOnDesk Software',
+        'Infovex Halls Software',
         'Booking Management',
         'Staff Training',
         'Website Maintenance',
@@ -57,7 +77,7 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
       monthlyPrice: billingCycle === 'monthly' ? '₹3,999' : '₹3,199',
       savings: billingCycle === 'annual' ? 'Save ₹9,600/yr' : null,
       features: [
-        'HallsOnDesk Software',
+        'Infovex Halls Software',
         'Booking Management',
         'Staff Training',
         'Priority Support',
@@ -74,7 +94,7 @@ export default function Pricing({ onBookDemoClick }: PricingProps) {
       savings: billingCycle === 'annual' ? 'Save ₹12,000/yr' : null,
       features: [
         'Custom Premium Website',
-        'HallsOnDesk Software',
+        'Infovex Halls Software',
         'Complete Setup Assistance',
         'Staff Training',
         'Priority Support',

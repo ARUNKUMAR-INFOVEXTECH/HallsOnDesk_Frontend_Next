@@ -28,6 +28,8 @@ const settingsFormSchema = z.object({
   nextInvoiceNumber: z.preprocess((val) => Number(val), z.number().min(1, 'Minimum invoice number 1')),
   subscriptionQrEnabled: z.boolean().default(true),
   subscriptionQrUpiId: z.string().min(3, 'UPI ID is required'),
+  founderSlotsClaimed: z.preprocess((val) => Number(val ?? 14), z.number().min(0, 'Minimum slots claimed 0')),
+  founderSlotsTotal: z.preprocess((val) => Number(val ?? 20), z.number().min(1, 'Minimum slots total 1')),
   emailTemplates: z.object({
     welcome: z.string().default(''),
     trialExpiring: z.string().default(''),
@@ -245,6 +247,43 @@ export default function AdminSettingsPage() {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Founder Partner Program Slots */}
+        <div className="bg-white border border-gray-150 rounded-xl p-5 shadow-sm space-y-4">
+          <div className="flex items-center gap-2 border-b border-gray-50 pb-3">
+            <Building className="h-4.5 w-4.5 text-violet-600" />
+            <span className="font-bold text-gray-900 text-sm">Founder Partner Program Slots (Public Landing Counter)</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-semibold text-gray-700">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Founder Slots Claimed (Sold)</label>
+              <input
+                type="number"
+                {...register('founderSlotsClaimed')}
+                className={`px-3 py-2 w-full text-xs font-medium border rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 ${
+                  errors.founderSlotsClaimed ? 'border-red-450' : 'border-gray-200'
+                }`}
+              />
+              {errors.founderSlotsClaimed && <p className="text-[10px] text-red-500 font-semibold">{errors.founderSlotsClaimed.message}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Total Founder Slots Available</label>
+              <input
+                type="number"
+                {...register('founderSlotsTotal')}
+                className={`px-3 py-2 w-full text-xs font-medium border rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 ${
+                  errors.founderSlotsTotal ? 'border-red-450' : 'border-gray-200'
+                }`}
+              />
+              {errors.founderSlotsTotal && <p className="text-[10px] text-red-500 font-semibold">{errors.founderSlotsTotal.message}</p>}
+            </div>
+          </div>
+          <p className="text-[9px] text-gray-400 font-semibold leading-normal">
+            These values govern the live counter banner and progression bar displayed on the public landing page founder callouts.
+          </p>
         </div>
 
         {/* Email Templates Editors */}

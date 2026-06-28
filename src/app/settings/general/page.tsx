@@ -18,13 +18,11 @@ import {
 import SettingsCard from '@/components/settings/SettingsCard';
 import SettingsToggleRow from '@/components/settings/SettingsToggleRow';
 import NumberingPreview from '@/components/settings/NumberingPreview';
-import GstCalculatorPreview from '@/components/settings/GstCalculatorPreview';
 import SettingsSaveBar from '@/components/settings/SettingsSaveBar';
 import {
   Settings,
   Hash,
   Clock,
-  Percent,
   ChevronDown,
   ChevronUp,
   Globe,
@@ -816,119 +814,7 @@ export default function GeneralSettingsPage() {
           </div>
         </AccordionSection>
 
-        {/* Section 3: GST & Tax Configuration */}
-        <AccordionSection
-          index={2}
-          isOpen={openSections[2]}
-          onToggle={() => toggleSection(2)}
-          title="GST & Tax Configurations"
-          description="Manage automated tax rates and layout terms for printed invoices."
-          icon={Percent}
-          hasError={!!(errors.taxEnabled || errors.gstRate || errors.gstApplicableOn || errors.invoiceFooterNote || errors.termsAndConditions)}
-        >
-          {/* Tax toggle */}
-          <Controller
-            name="taxEnabled"
-            control={control}
-            render={({ field }) => (
-              <SettingsToggleRow
-                title="Enable GST Output Taxes"
-                description="Automatically calculate and attach GST tax values to billing receipts."
-                checked={field.value}
-                onChange={field.onChange}
-              />
-            )}
-          />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-gray-700">
-            {/* GST Rate */}
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">GST Tax Rate (%)</label>
-              <select
-                disabled={!taxEnabled}
-                {...register('gstRate')}
-                className="px-3 py-2 w-full border border-gray-200 rounded-lg text-xs font-semibold focus:ring-1 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              >
-                <option value={0}>0% (Exempt)</option>
-                <option value={5}>5% (Concessional)</option>
-                <option value={12}>12% (Standard Lower)</option>
-                <option value={18}>18% (Standard Rate)</option>
-                <option value={28}>28% (Luxury / Demerit)</option>
-              </select>
-            </div>
-
-            {/* GST Scope */}
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Tax Application Scope</label>
-              <select
-                disabled={!taxEnabled}
-                {...register('gstApplicableOn')}
-                className="px-3 py-2 w-full border border-gray-200 rounded-lg text-xs font-semibold focus:ring-1 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              >
-                <option value="all">Apply to all bills & services</option>
-                <option value="bookings_only">Apply to Booking base charges only</option>
-                <option value="custom">Manual tax overrides only</option>
-              </select>
-            </div>
-
-            {/* Live GST Preview */}
-            <div className="sm:col-span-2 pt-2">
-              <GstCalculatorPreview
-                taxEnabled={taxEnabled}
-                gstRate={gstRate}
-                gstApplicableOn={gstApplicableOn}
-              />
-            </div>
-
-            {/* Automated Invoicing Toggle */}
-            <div className="sm:col-span-2 pt-2">
-              <Controller
-                name="autoInvoice"
-                control={control}
-                render={({ field }) => (
-                  <SettingsToggleRow
-                    title="Auto-Generate Invoices on Booking Confirmation"
-                    description="Instantly email and generate invoice records as soon as a booking turns active."
-                    checked={field.value}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
-            </div>
-
-            {/* Invoice Footer Note */}
-            <div className="space-y-1.5 sm:col-span-2">
-              <div className="flex justify-between items-center">
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Invoice Footer Note</label>
-                <span className="text-[9px] text-gray-400 font-semibold">{watchedValues.invoiceFooterNote?.length || 0} / 200 chars</span>
-              </div>
-              <input
-                type="text"
-                maxLength={200}
-                placeholder="e.g. Thank you for choosing us! We hope to make your event memorable!"
-                {...register('invoiceFooterNote')}
-                className="px-3 py-2 w-full border border-gray-200 rounded-lg text-xs font-medium focus:ring-1 focus:ring-violet-500"
-              />
-              {errors.invoiceFooterNote && <p className="text-[10px] text-red-500 font-semibold">{errors.invoiceFooterNote.message}</p>}
-            </div>
-
-            {/* Terms & Conditions */}
-            <div className="space-y-1.5 sm:col-span-2">
-              <div className="flex justify-between items-center">
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Terms & Conditions</label>
-                <span className="text-[9px] text-gray-400 font-semibold">{watchedValues.termsAndConditions?.length || 0} / 1000 chars</span>
-              </div>
-              <textarea
-                rows={4}
-                maxLength={1000}
-                placeholder="e.g. 1. Advance deposits are non-refundable inside 30 days of the reservation schedule."
-                {...register('termsAndConditions')}
-                className="px-3 py-2 w-full border border-gray-200 rounded-lg text-xs font-medium focus:ring-1 focus:ring-violet-500 leading-relaxed"
-              />
-              {errors.termsAndConditions && <p className="text-[10px] text-red-500 font-semibold">{errors.termsAndConditions.message}</p>}
-            </div>
-          </div>
-        </AccordionSection>
 
         {/* Section 8: Invoice & Receipt Custom Templates */}
         <AccordionSection

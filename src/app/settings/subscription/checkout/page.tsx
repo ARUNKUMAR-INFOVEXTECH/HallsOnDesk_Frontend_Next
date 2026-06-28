@@ -50,6 +50,25 @@ export default function CheckoutPage() {
     );
   }
 
+  if (subscription && subscription.subscription_qr_enabled === false) {
+    return (
+      <div className="bg-white border border-slate-200 rounded-3xl p-10 text-center max-w-md mx-auto my-12 shadow-sm space-y-4 select-none">
+        <AlertCircle className="h-10 w-10 text-amber-500 mx-auto" />
+        <h3 className="font-bold text-slate-800 text-sm mt-3">Payments Suspended</h3>
+        <p className="text-xs text-slate-450 mt-1 leading-relaxed">
+          SaaS subscription payments and renewals are currently disabled by the platform administrator. 
+          Please contact our billing support team at <strong className="text-[#062089]">billing@infovex.com</strong> to process your renewal manually.
+        </p>
+        <button
+          onClick={() => router.push('/settings/subscription')}
+          className="mt-2 px-4 py-2 bg-indigo-650 text-white text-xs font-bold rounded-lg hover:bg-indigo-750 transition-all cursor-pointer inline-flex items-center gap-1.5"
+        >
+          <ArrowLeft className="h-4 w-4" /> Go back
+        </button>
+      </div>
+    );
+  }
+
   // Find the requested package
   const selectedPkg = packages.find(p => p.id === packageId) || (subscription ? subscription.packages : null);
 

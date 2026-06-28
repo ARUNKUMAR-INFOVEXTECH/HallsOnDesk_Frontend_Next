@@ -114,6 +114,19 @@ export default function SubscriptionSettingsPage() {
       </div>
 
       {/* WARNING BANNERS */}
+      {!qrEnabled && (
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-900 shadow-sm select-none">
+          <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="space-y-0.5">
+            <h4 className="font-bold text-xs">SaaS Subscription Renewals Disabled</h4>
+            <p className="text-[11px] text-amber-700 leading-normal">
+              Platform-wide online and remittance subscription payments are temporarily suspended by the administrator. 
+              Please reach out to <a href="mailto:billing@infovex.com" className="font-bold underline hover:text-amber-800">billing@infovex.com</a> to renew your package manually.
+            </p>
+          </div>
+        </div>
+      )}
+
       {isExpired && (
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl p-4 text-red-800">
           <AlertTriangle className="h-5 w-5 text-red-650 shrink-0 mt-0.5" />
@@ -185,22 +198,15 @@ export default function SubscriptionSettingsPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
-            <button
-              onClick={() => handleCheckoutRedirect(subscription.package_id)}
-              className="h-9 px-4 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 cursor-pointer shadow-md shadow-violet-600/10 hover:shadow-violet-600/20 hover:scale-[1.01] active:scale-[0.99] transition-all duration-150"
-            >
-              {qrEnabled ? (
-                <>
-                  <QrCode className="h-4 w-4" />
-                  <span>Scan & Pay</span>
-                </>
-              ) : (
-                <>
-                  <CreditCard className="h-4 w-4" />
-                  <span>Pay Subscription</span>
-                </>
-              )}
-            </button>
+            {qrEnabled && (
+              <button
+                onClick={() => handleCheckoutRedirect(subscription.package_id)}
+                className="h-9 px-4 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 cursor-pointer shadow-md shadow-violet-600/10 hover:shadow-violet-600/20 hover:scale-[1.01] active:scale-[0.99] transition-all duration-150"
+              >
+                <QrCode className="h-4 w-4" />
+                <span>Scan & Pay</span>
+              </button>
+            )}
             <a
               href="mailto:billing@infovex.com"
               className="h-9 px-4 border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-[1.01] active:scale-[0.99] transition-all duration-150"
@@ -364,18 +370,24 @@ export default function SubscriptionSettingsPage() {
                 </div>
 
                 {/* Switch Action button */}
-                <button
-                  onClick={() => handleCheckoutRedirect(pkg.id)}
-                  disabled={isCurrent}
-                  className={`w-full h-9 rounded-lg text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
-                    isCurrent 
-                      ? 'bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed' 
-                      : 'bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/10 hover:shadow-violet-600/20 hover:scale-[1.01] active:scale-[0.99]'
-                  }`}
-                >
-                  <span>{isCurrent ? 'Current Plan' : 'Select Package'}</span>
-                  {!isCurrent && <ArrowRight className="h-3.5 w-3.5" />}
-                </button>
+                {qrEnabled ? (
+                  <button
+                    onClick={() => handleCheckoutRedirect(pkg.id)}
+                    disabled={isCurrent}
+                    className={`w-full h-9 rounded-lg text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                      isCurrent 
+                        ? 'bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed' 
+                        : 'bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/10 hover:shadow-violet-600/20 hover:scale-[1.01] active:scale-[0.99]'
+                    }`}
+                  >
+                    <span>{isCurrent ? 'Current Plan' : 'Select Package'}</span>
+                    {!isCurrent && <ArrowRight className="h-3.5 w-3.5" />}
+                  </button>
+                ) : (
+                  <div className="w-full h-9 rounded-lg border border-slate-200 bg-slate-50 text-slate-400 text-xs font-bold flex items-center justify-center select-none uppercase tracking-wider">
+                    {isCurrent ? 'Current Plan' : 'Unavailable'}
+                  </div>
+                )}
               </div>
             );
           })}

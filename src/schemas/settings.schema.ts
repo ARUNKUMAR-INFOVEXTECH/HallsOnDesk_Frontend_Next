@@ -18,16 +18,16 @@ export const hallSectionSchema = z.object({
 });
 
 export const hallProfileSchema = z.object({
-  hallName: z.string().min(2, 'Hall name must be at least 2 characters'),
-  ownerName: z.string().min(2, 'Owner name must be at least 2 characters'),
-  phone: z.string().regex(phoneRegex, 'Enter a valid 10-digit Indian phone number'),
+  hallName: z.string().min(2, 'Hall name must be at least 2 characters').or(z.literal('')).nullable().optional(),
+  ownerName: z.string().min(2, 'Owner name must be at least 2 characters').or(z.literal('')).nullable().optional(),
+  phone: z.string().regex(phoneRegex, 'Enter a valid 10-digit Indian phone number').or(z.literal('')).nullable().optional(),
   alternatePhone: z.string().regex(phoneRegex, 'Enter a valid 10-digit Indian phone number').or(z.literal('')).nullable().optional(),
-  email: z.string().email('Enter a valid email address'),
+  email: z.string().email('Enter a valid email address').or(z.literal('')).nullable().optional(),
   website: z.string().url('Enter a valid URL (include http:// or https://)').or(z.literal('')).nullable().optional(),
-  address: z.string().min(5, 'Enter a complete address'),
-  city: z.string().min(2, 'City name is required'),
-  state: z.string().min(2, 'State name is required'),
-  pincode: z.string().regex(pincodeRegex, 'Enter a valid 6-digit PIN code'),
+  address: z.string().min(5, 'Enter a complete address').or(z.literal('')).nullable().optional(),
+  city: z.string().min(2, 'City name is required').or(z.literal('')).nullable().optional(),
+  state: z.string().min(2, 'State name is required').or(z.literal('')).nullable().optional(),
+  pincode: z.string().regex(pincodeRegex, 'Enter a valid 6-digit PIN code').or(z.literal('')).nullable().optional(),
   country: z.string().default('India'),
   description: z.string().max(500, 'Description cannot exceed 500 characters').nullable().optional(),
   establishedYear: z.preprocess(

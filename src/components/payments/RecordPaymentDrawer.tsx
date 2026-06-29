@@ -47,6 +47,11 @@ export function RecordPaymentDrawer({
     search: debouncedSearch,
   });
 
+  // Filter bookings to show only those with pending balances, or the preselected one
+  const pendingBookingsList = bookingsList.filter(
+    (b) => b.pendingAmount > 0 || b.id === preselectedBookingId
+  );
+
   // Setup form validation
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentFormSchema),
@@ -211,8 +216,8 @@ export function RecordPaymentDrawer({
                       <Loader2 className="h-4 w-4 animate-spin text-primary-light" />
                       Loading bookings...
                     </div>
-                  ) : bookingsList.length > 0 ? (
-                    bookingsList.map((booking) => {
+                  ) : pendingBookingsList.length > 0 ? (
+                    pendingBookingsList.map((booking) => {
                       const isSelected = booking.id === watchBookingId;
                       return (
                         <button

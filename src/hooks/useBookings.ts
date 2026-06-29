@@ -185,6 +185,10 @@ export function useCreateBooking() {
         description: `Booking #${res.data.id.slice(0, 8).toUpperCase()} has been saved.`,
       });
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      queryClient.invalidateQueries({ queryKey: ['payments'] });
+      queryClient.invalidateQueries({ queryKey: ['payment-summary'] });
     },
     onError: (err: any) => {
       const errMsg = err.response?.data?.message || 'Failed to create booking. Please try again.';
@@ -205,6 +209,10 @@ export function useUpdateBooking() {
       toast.success('Booking updated successfully!');
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
       queryClient.invalidateQueries({ queryKey: ['booking', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      queryClient.invalidateQueries({ queryKey: ['payments'] });
+      queryClient.invalidateQueries({ queryKey: ['payment-summary'] });
     },
     onError: (err: any) => {
       const errMsg = err.response?.data?.message || 'Failed to save updates. Please try again.';
@@ -221,6 +229,10 @@ export function useDeleteBooking() {
     onSuccess: () => {
       toast.success('Booking deleted');
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      queryClient.invalidateQueries({ queryKey: ['payments'] });
+      queryClient.invalidateQueries({ queryKey: ['payment-summary'] });
     },
     onError: (err: any) => {
       const errMsg = err.response?.data?.message || 'Failed to delete booking.';

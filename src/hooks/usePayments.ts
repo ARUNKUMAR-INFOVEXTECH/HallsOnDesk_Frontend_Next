@@ -339,6 +339,8 @@ export function useCreatePayment() {
       queryClient.invalidateQueries({ queryKey: ['revenue-chart'] });
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
       queryClient.invalidateQueries({ queryKey: ['calendar-events'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
       
       if (bId) {
         queryClient.invalidateQueries({ queryKey: ['payments', 'booking', bId] });
@@ -369,6 +371,8 @@ export function useDeletePayment(bookingId?: string) {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
       queryClient.invalidateQueries({ queryKey: ['booking'] });
       queryClient.invalidateQueries({ queryKey: ['calendar-events'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
       
       if (bookingId) {
         queryClient.invalidateQueries({ queryKey: ['payments', 'booking', bookingId] });

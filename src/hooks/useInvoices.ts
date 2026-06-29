@@ -53,6 +53,9 @@ export function useCreateInvoice() {
       queryClient.invalidateQueries({ queryKey: ['invoices', 'booking', bookingId] });
       queryClient.invalidateQueries({ queryKey: ['booking', bookingId] });
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
     },
     onError: (err: any) => {
       const errMsg = err.response?.data?.message || 'Failed to generate invoice.';
@@ -73,6 +76,9 @@ export function useDeleteInvoice() {
       });
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       queryClient.invalidateQueries({ queryKey: ['booking'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
     },
     onError: (err: any) => {
       const errMsg = err.response?.data?.message || 'Failed to delete invoice.';

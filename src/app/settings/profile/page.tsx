@@ -288,7 +288,7 @@ export default function HallProfilePage() {
 
             {/* Owner Name */}
             <div className="space-y-1.5 col-span-2">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Owner / Operator Name</label>
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Registered Owner Name</label>
               <input
                 type="text"
                 readOnly
@@ -300,7 +300,7 @@ export default function HallProfilePage() {
 
             {/* Phone */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Primary Phone</label>
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Primary Contact Phone</label>
               <input
                 type="tel"
                 readOnly
@@ -402,7 +402,7 @@ export default function HallProfilePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-gray-700">
             {/* Address */}
             <div className="space-y-1.5 col-span-2">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Location Address</label>
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Full Venue Location Address</label>
               <textarea
                 rows={2}
                 readOnly
@@ -414,7 +414,7 @@ export default function HallProfilePage() {
 
             {/* City */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">City</label>
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">District / City</label>
               <input
                 type="text"
                 readOnly

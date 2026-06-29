@@ -89,14 +89,31 @@ export default function HallProfilePage() {
         hallSections: profile.hallSections || [],
       });
 
-      // Restore unsaved draft if present
+      // Restore unsaved draft if present and actually different from backend
       const savedDraft = localStorage.getItem(getDraftKey());
       if (savedDraft) {
         try {
           const parsed = JSON.parse(savedDraft);
-          // Only restore if different
-          reset(parsed);
-          toast.info('Restored unsaved draft configurations from local cache');
+          let isDifferent = false;
+          for (const key of Object.keys(parsed)) {
+            const formVal = parsed[key];
+            const profileVal = (profile as any)[key];
+            
+            const normForm = formVal === '' || formVal === null || formVal === undefined ? '' : String(formVal);
+            const normProf = profileVal === '' || profileVal === null || profileVal === undefined ? '' : String(profileVal);
+            
+            if (normForm !== normProf) {
+              isDifferent = true;
+              break;
+            }
+          }
+
+          if (isDifferent) {
+            reset(parsed);
+            toast.info('Restored unsaved draft configurations from local cache');
+          } else {
+            localStorage.removeItem(getDraftKey());
+          }
         } catch {
           // ignore corrupted JSON
         }
@@ -140,6 +157,18 @@ export default function HallProfilePage() {
       reset(values); // clear dirty state
     } catch {
       // handled
+    }
+  };
+
+  const onInvalidSubmit = (formErrors: any) => {
+    console.error("Form validation errors:", formErrors);
+    const firstErrorField = Object.keys(formErrors)[0];
+    if (firstErrorField) {
+      const fieldError = formErrors[firstErrorField];
+      const errMsg = fieldError?.message || 'Please check the highlighted validation errors.';
+      toast.error(`Validation error in ${firstErrorField.replace(/([A-Z])/g, ' $1')}: ${errMsg}`);
+    } else {
+      toast.error('Please fix form validation errors before saving.');
     }
   };
 
@@ -221,7 +250,7 @@ export default function HallProfilePage() {
           )}
           <button
             type="button"
-            onClick={handleSubmit(onSubmitForm)}
+            onClick={handleSubmit(onSubmitForm, onInvalidSubmit)}
             disabled={!isDirty || updateProfileMutation.isPending}
             className="px-4.5 py-2.5 bg-violet-600 hover:bg-violet-750 text-xs font-bold text-white rounded-lg shadow-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
           >
@@ -594,7 +623,7 @@ export default function HallProfilePage() {
 
         {/* Footer save bars */}
         <SettingsSaveBar
-          onSave={handleSubmit(onSubmitForm)}
+          onSave={handleSubmit(onSubmitForm, onInvalidSubmit)}
           onCancel={handleDiscardChanges}
           isDirty={isDirty}
           isSaving={updateProfileMutation.isPending}

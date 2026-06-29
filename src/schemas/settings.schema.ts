@@ -21,29 +21,29 @@ export const hallProfileSchema = z.object({
   hallName: z.string().min(2, 'Hall name must be at least 2 characters'),
   ownerName: z.string().min(2, 'Owner name must be at least 2 characters'),
   phone: z.string().regex(phoneRegex, 'Enter a valid 10-digit Indian phone number'),
-  alternatePhone: z.string().regex(phoneRegex, 'Enter a valid 10-digit Indian phone number').or(z.literal('')).optional(),
+  alternatePhone: z.string().regex(phoneRegex, 'Enter a valid 10-digit Indian phone number').or(z.literal('')).nullable().optional(),
   email: z.string().email('Enter a valid email address'),
-  website: z.string().url('Enter a valid URL (include http:// or https://)').or(z.literal('')).optional(),
+  website: z.string().url('Enter a valid URL (include http:// or https://)').or(z.literal('')).nullable().optional(),
   address: z.string().min(5, 'Enter a complete address'),
   city: z.string().min(2, 'City name is required'),
   state: z.string().min(2, 'State name is required'),
   pincode: z.string().regex(pincodeRegex, 'Enter a valid 6-digit PIN code'),
   country: z.string().default('India'),
-  description: z.string().max(500, 'Description cannot exceed 500 characters').optional(),
+  description: z.string().max(500, 'Description cannot exceed 500 characters').nullable().optional(),
   establishedYear: z.preprocess(
-    (val) => (val === '' || val === undefined ? undefined : Number(val)),
-    z.number().min(1900, 'Year must be after 1900').max(currentYear, 'Year cannot be in the future').optional()
+    (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
+    z.number().min(1900, 'Year must be after 1900').max(currentYear, 'Year cannot be in the future').nullable().optional()
   ),
   totalCapacity: z.preprocess(
-    (val) => (val === '' || val === undefined ? undefined : Number(val)),
-    z.number().min(1, 'Capacity must be at least 1').optional()
+    (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
+    z.number().min(1, 'Capacity must be at least 1').nullable().optional()
   ),
-  gstNumber: z.string().regex(gstRegex, 'Enter a valid 15-digit GST number').or(z.literal('')).optional(),
-  panNumber: z.string().regex(panRegex, 'Enter a valid 10-digit PAN number').or(z.literal('')).optional(),
-  bankName: z.string().optional(),
-  accountNumber: z.string().optional(),
-  ifscCode: z.string().regex(ifscRegex, 'Enter a valid 11-digit IFSC code').or(z.literal('')).optional(),
-  upiId: z.string().optional(),
+  gstNumber: z.string().regex(gstRegex, 'Enter a valid 15-digit GST number').or(z.literal('')).nullable().optional(),
+  panNumber: z.string().regex(panRegex, 'Enter a valid 10-digit PAN number').or(z.literal('')).nullable().optional(),
+  bankName: z.string().nullable().optional(),
+  accountNumber: z.string().nullable().optional(),
+  ifscCode: z.string().regex(ifscRegex, 'Enter a valid 11-digit IFSC code').or(z.literal('')).nullable().optional(),
+  upiId: z.string().nullable().optional(),
 });
 
 export const notificationSettingsSchema = z.object({

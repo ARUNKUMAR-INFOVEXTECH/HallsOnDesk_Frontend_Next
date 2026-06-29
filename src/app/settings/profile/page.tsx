@@ -234,16 +234,25 @@ export default function HallProfilePage() {
 
         {/* Section 2: Basic Info */}
         <SettingsCard title="Basic Information" subtitle="Public specifications and host descriptions." icon={Building2}>
+          <div className="sm:col-span-2 mb-2 bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex items-start gap-3 text-slate-650 print:hidden">
+            <Lock className="h-4.5 w-4.5 text-slate-450 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-extrabold text-[10px] text-slate-800 uppercase block tracking-wider leading-none">Super Admin Managed Profile</span>
+              <p className="text-[10px] text-slate-500 font-semibold mt-1 leading-relaxed">
+                Venue Name, Owner Name, Registered Email, Primary Phone, and Location details are locked. Please contact support if you need to update these parameters.
+              </p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-gray-700">
             {/* Hall Name */}
             <div className="space-y-1.5 col-span-2">
               <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Venue Name</label>
               <input
                 type="text"
+                readOnly
                 {...register('hallName')}
-                className={`px-3 py-2 w-full text-xs font-medium border rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 ${
-                  errors.hallName ? 'border-red-400' : 'border-gray-200'
-                }`}
+                className="px-3 py-2 w-full text-xs font-semibold border border-gray-200 bg-gray-50 text-gray-500 rounded-lg cursor-not-allowed focus:outline-none"
               />
               {errors.hallName && <p className="text-[10px] text-red-500 font-semibold">{errors.hallName.message}</p>}
             </div>
@@ -253,10 +262,9 @@ export default function HallProfilePage() {
               <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Owner / Operator Name</label>
               <input
                 type="text"
+                readOnly
                 {...register('ownerName')}
-                className={`px-3 py-2.5 w-full text-xs font-medium border rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 ${
-                  errors.ownerName ? 'border-red-400' : 'border-gray-200'
-                }`}
+                className="px-3 py-2.5 w-full text-xs font-semibold border border-gray-200 bg-gray-50 text-gray-500 rounded-lg cursor-not-allowed focus:outline-none"
               />
               {errors.ownerName && <p className="text-[10px] text-red-500 font-semibold">{errors.ownerName.message}</p>}
             </div>
@@ -266,11 +274,9 @@ export default function HallProfilePage() {
               <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Primary Phone</label>
               <input
                 type="tel"
-                placeholder="10-digit mobile"
+                readOnly
                 {...register('phone')}
-                className={`px-3 py-2 w-full text-xs font-medium border rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 ${
-                  errors.phone ? 'border-red-400' : 'border-gray-200'
-                }`}
+                className="px-3 py-2 w-full text-xs font-semibold border border-gray-200 bg-gray-50 text-gray-500 rounded-lg cursor-not-allowed focus:outline-none"
               />
               {errors.phone && <p className="text-[10px] text-red-500 font-semibold">{errors.phone.message}</p>}
             </div>
@@ -294,10 +300,9 @@ export default function HallProfilePage() {
               <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Registered Email</label>
               <input
                 type="email"
+                readOnly
                 {...register('email')}
-                className={`px-3 py-2 w-full text-xs font-medium border rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 ${
-                  errors.email ? 'border-red-400' : 'border-gray-200'
-                }`}
+                className="px-3 py-2 w-full text-xs font-semibold border border-gray-200 bg-gray-50 text-gray-500 rounded-lg cursor-not-allowed focus:outline-none"
               />
               {errors.email && <p className="text-[10px] text-red-500 font-semibold">{errors.email.message}</p>}
             </div>
@@ -371,10 +376,9 @@ export default function HallProfilePage() {
               <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Location Address</label>
               <textarea
                 rows={2}
+                readOnly
                 {...register('address')}
-                className={`px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 leading-relaxed ${
-                  errors.address ? 'border-red-400' : ''
-                }`}
+                className="px-3 py-2 w-full text-xs font-semibold border border-gray-200 bg-gray-50 text-gray-500 rounded-lg cursor-not-allowed focus:outline-none leading-relaxed"
               />
               {errors.address && <p className="text-[10px] text-red-500 font-semibold">{errors.address.message}</p>}
             </div>
@@ -384,10 +388,9 @@ export default function HallProfilePage() {
               <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">City</label>
               <input
                 type="text"
+                readOnly
                 {...register('city')}
-                className={`px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 ${
-                  errors.city ? 'border-red-400' : ''
-                }`}
+                className="px-3 py-2 w-full text-xs font-semibold border border-gray-200 bg-gray-50 text-gray-500 rounded-lg cursor-not-allowed focus:outline-none"
               />
             </div>
 
@@ -396,10 +399,9 @@ export default function HallProfilePage() {
               <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">State</label>
               <input
                 type="text"
+                readOnly
                 {...register('state')}
-                className={`px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 ${
-                  errors.state ? 'border-red-400' : ''
-                }`}
+                className="px-3 py-2 w-full text-xs font-semibold border border-gray-200 bg-gray-50 text-gray-500 rounded-lg cursor-not-allowed focus:outline-none"
               />
             </div>
 
@@ -408,11 +410,9 @@ export default function HallProfilePage() {
               <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Pincode</label>
               <input
                 type="text"
-                placeholder="6-digit PIN"
+                readOnly
                 {...register('pincode')}
-                className={`px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 ${
-                  errors.pincode ? 'border-red-400' : ''
-                }`}
+                className="px-3 py-2 w-full text-xs font-semibold border border-gray-200 bg-gray-50 text-gray-500 rounded-lg cursor-not-allowed focus:outline-none"
               />
               {errors.pincode && <p className="text-[10px] text-red-500 font-semibold">{errors.pincode.message}</p>}
             </div>
@@ -421,8 +421,9 @@ export default function HallProfilePage() {
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Country</label>
               <select
+                disabled
                 {...register('country')}
-                className="px-3 py-2 w-full text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 cursor-pointer"
+                className="px-3 py-2 w-full text-xs font-semibold border border-gray-200 bg-gray-50 text-gray-500 rounded-lg cursor-not-allowed focus:outline-none pointer-events-none"
               >
                 <option value="India">India</option>
                 <option value="Sri Lanka">Sri Lanka</option>

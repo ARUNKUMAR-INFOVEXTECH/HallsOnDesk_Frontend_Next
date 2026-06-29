@@ -7,9 +7,26 @@ import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 import { useNotificationStore } from '@/store/notificationStore';
 import * as notificationService from '@/services/api/modules/notification.service';
-import { Menu, Bell, LogOut, User, ChevronRight, Check, Search } from 'lucide-react';
+import { Menu, Bell, LogOut, User, ChevronRight, Check, Search, RotateCw } from 'lucide-react';
+import { useQueryClient, useIsFetching } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 export default function Topbar() {
+  const queryClient = useQueryClient();
+  const isFetching = useIsFetching();
+
+  const handleSync = async () => {
+    try {
+      // Invalidate all query caches to force refetching of active screen queries
+      await queryClient.invalidateQueries();
+      toast.success('Database records synced successfully', {
+        description: 'All dashboard panels and views have been updated in real-time.'
+      });
+    } catch (err) {
+      toast.error('Sync failed. Please try again.');
+    }
+  };
+
   const pathname = usePathname();
   const { toggleSidebar } = useUIStore();
   const logout = useAuthStore((state) => state.logout);
@@ -148,6 +165,16 @@ export default function Topbar() {
           className="p-1.5 rounded-full hover:bg-gray-50 text-gray-400 hover:text-gray-650 transition-colors cursor-pointer"
         >
           <Search className="h-4.5 w-4.5" />
+        </button>
+
+        {/* Real-time sync reload button */}
+        <button
+          onClick={handleSync}
+          disabled={isFetching > 0}
+          title="Sync latest database records"
+          className="p-1.5 rounded-full hover:bg-gray-50 text-gray-400 hover:text-[#159DFC] hover:bg-[#159DFC]/5 transition-all cursor-pointer flex items-center justify-center shrink-0 disabled:opacity-50"
+        >
+          <RotateCw className={`h-4.5 w-4.5 transition-transform ${isFetching > 0 ? 'animate-spin text-[#159DFC]' : ''}`} />
         </button>
 
         {/* Notifications Center */}

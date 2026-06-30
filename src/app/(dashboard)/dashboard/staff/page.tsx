@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useStaffList, useStaffStats, useUpdateStaff, useDeleteStaff } from '@/hooks/useStaff';
 import { useActiveSubscription } from '@/hooks/useSettings';
+import { useOwnerHallsList, useTransferStaff } from '@/hooks/useOwnerHalls';
 import { toast } from 'sonner';
 import { StaffStatsCards } from '@/components/staff/StaffStatsCards';
 import { DepartmentFilterPills } from '@/components/staff/DepartmentFilterPills';
@@ -83,6 +84,11 @@ export default function StaffPage() {
 
   const updateStaffMutation = useUpdateStaff();
   const deleteStaffMutation = useDeleteStaff();
+  const transferStaffMutation = useTransferStaff();
+
+  const { data: ownerHallsData } = useOwnerHallsList();
+  const [transferMember, setTransferMember] = useState<StaffMember | null>(null);
+  const [selectedTargetHallId, setSelectedTargetHallId] = useState('');
 
   // Active subscription for user limits gating
   const { data: subscription } = useActiveSubscription();
@@ -151,6 +157,22 @@ export default function StaffPage() {
         handleRefresh();
       },
     });
+  };
+
+  // Confirm staff transfer
+  const handleConfirmTransfer = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!transferMember || !selectedTargetHallId) return;
+    transferStaffMutation.mutate(
+      { staffId: transferMember.id, targetHallId: selectedTargetHallId },
+      {
+        onSuccess: () => {
+          setTransferMember(null);
+          setSelectedTargetHallId('');
+          handleRefresh();
+        },
+      }
+    );
   };
 
   // 5. CSV Exporter (omitting salary & permissions for privacy reasons)
@@ -465,6 +487,7 @@ export default function StaffPage() {
                   onEdit={(m) => setEditMember(m)}
                   onDelete={(id, name) => setDeleteMember(member)}
                   onStatusChange={handleStatusChange}
+                  onTransfer={(m) => setTransferMember(m)}
                 />
               ))}
             </div>
@@ -474,6 +497,7 @@ export default function StaffPage() {
               onEdit={(m) => setEditMember(m)}
               onDelete={(id, name) => setDeleteMember(staff.find((m) => m.id === id) || null)}
               onStatusChange={handleStatusChange}
+              onTransfer={(m) => setTransferMember(m)}
             />
           )}
         </div>
@@ -496,6 +520,75 @@ export default function StaffPage() {
         onConfirm={handleConfirmDelete}
         isDeleting={deleteStaffMutation.isPending}
       />
+
+      {/* TRANSFER STAFF MODAL */}
+      {transferMember && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-2xl w-full max-w-md animate-scaleIn overflow-hidden">
+            <div className="px-5 py-4 bg-gradient-to-r from-blue-600 to-violet-600 text-white flex items-center justify-between">
+              <span className="font-extrabold text-sm tracking-wide">Transfer Staff Workspace</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setTransferMember(null);
+                  setSelectedTargetHallId('');
+                }}
+                className="text-white/80 hover:text-white cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmTransfer} className="p-5 space-y-4 text-xs font-semibold text-slate-705">
+              <div className="space-y-1.5">
+                <p className="text-[11px] text-gray-500 font-medium leading-relaxed">
+                  Transfer <strong>{transferMember.name}</strong> to another wedding hall profile within your organization.
+                  Their permissions, bookings and data actions will adjust to target the new venue context.
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-slate-600">Select Target Venue *</label>
+                <select
+                  required
+                  value={selectedTargetHallId}
+                  onChange={(e) => setSelectedTargetHallId(e.target.value)}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-violet-600 font-bold text-slate-700 cursor-pointer"
+                >
+                  <option value="">-- Choose Venue --</option>
+                  {(ownerHallsData?.halls || [])
+                    .filter((h: any) => h.id !== (transferMember as any).hallId)
+                    .map((h: any) => (
+                      <option key={h.id} value={h.id}>
+                        {h.hall_name} ({h.role})
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div className="pt-3 border-t border-gray-100 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTransferMember(null);
+                    setSelectedTargetHallId('');
+                  }}
+                  className="px-4 py-2 border border-gray-200 rounded-xl hover:bg-slate-50 cursor-pointer text-slate-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={transferStaffMutation.isPending || !selectedTargetHallId}
+                  className="px-5 py-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-xl hover:shadow-md cursor-pointer disabled:opacity-50"
+                >
+                  {transferStaffMutation.isPending ? 'Transferring...' : 'Confirm Transfer'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

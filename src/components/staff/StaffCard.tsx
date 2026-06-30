@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Phone, Mail, Calendar, Shield, MoreVertical, Pencil, Trash2, RefreshCw, Eye, EyeOff } from 'lucide-react';
+import { Phone, Mail, Calendar, Shield, MoreVertical, Pencil, Trash2, RefreshCw, Eye, EyeOff, Layers } from 'lucide-react';
 import { StaffMember, StaffRole, StaffStatus } from '@/types/staff';
 import { RoleBadge } from './RoleBadge';
 import { StaffStatusBadge } from './StaffStatusBadge';
@@ -14,9 +14,10 @@ interface StaffCardProps {
   onEdit: (member: StaffMember) => void;
   onDelete: (id: string, name: string) => void;
   onStatusChange: (id: string, newStatus: StaffStatus) => void;
+  onTransfer?: (member: StaffMember) => void;
 }
 
-export function StaffCard({ member, onEdit, onDelete, onStatusChange }: StaffCardProps) {
+export function StaffCard({ member, onEdit, onDelete, onStatusChange, onTransfer }: StaffCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [statusOpen, setStatusOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -110,6 +111,16 @@ export function StaffCard({ member, onEdit, onDelete, onStatusChange }: StaffCar
 
           {menuOpen && (
             <div className="absolute right-0 top-7 w-36 bg-white border border-slate-150 rounded-lg shadow-custom-lg py-1 z-20 text-xs font-semibold text-slate-705 animate-in fade-in slide-in-from-top-1 duration-155">
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  onTransfer?.(member);
+                }}
+                className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 text-left transition-colors cursor-pointer"
+              >
+                <Layers className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                Transfer Venue
+              </button>
               <button
                 onClick={() => {
                   setMenuOpen(false);

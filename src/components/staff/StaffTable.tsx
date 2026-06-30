@@ -24,7 +24,8 @@ import {
   Mail,
   Calendar,
   Shield,
-  RefreshCw
+  RefreshCw,
+  Layers
 } from 'lucide-react';
 import { StaffMember, StaffRole, StaffStatus } from '@/types/staff';
 import { RoleBadge } from './RoleBadge';
@@ -38,9 +39,10 @@ interface StaffTableProps {
   onEdit: (member: StaffMember) => void;
   onDelete: (id: string, name: string) => void;
   onStatusChange: (id: string, newStatus: StaffStatus) => void;
+  onTransfer?: (member: StaffMember) => void;
 }
 
-export function StaffTable({ data, onEdit, onDelete, onStatusChange }: StaffTableProps) {
+export function StaffTable({ data, onEdit, onDelete, onStatusChange, onTransfer }: StaffTableProps) {
   const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pageSize, setPageSize] = useState(10);
@@ -341,6 +343,17 @@ export function StaffTable({ data, onEdit, onDelete, onStatusChange }: StaffTabl
                     onClick={(e) => {
                       e.stopPropagation();
                       setActiveMenuId(null);
+                      onTransfer?.(s);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 text-left transition-colors cursor-pointer"
+                  >
+                    <Layers className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                    Transfer Venue
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveMenuId(null);
                       onEdit(s);
                     }}
                     className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 text-left transition-colors cursor-pointer"
@@ -377,7 +390,7 @@ export function StaffTable({ data, onEdit, onDelete, onStatusChange }: StaffTabl
         },
       }),
     ],
-    [activeMenuId, activeStatusChangeId, columnHelper, onEdit, onDelete, onStatusChange]
+    [activeMenuId, activeStatusChangeId, columnHelper, onEdit, onDelete, onStatusChange, onTransfer]
   );
 
   const table = useReactTable({

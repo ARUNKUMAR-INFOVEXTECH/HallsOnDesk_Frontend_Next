@@ -84,6 +84,7 @@ export const mapBackendStaffToFrontend = (s: any): StaffMember => {
     permissions: parsedPermissions,
     backupPassword: s.backupPassword || s.backup_password || '',
     notes: s.notes || '',
+    hallId: s.hall_id || s.hallId || '',
     createdAt: s.created_at || s.createdAt || new Date().toISOString(),
     updatedAt: s.updated_at || s.updatedAt || new Date().toISOString(),
   };

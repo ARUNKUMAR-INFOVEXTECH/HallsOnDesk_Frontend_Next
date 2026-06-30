@@ -58,6 +58,7 @@ export interface StaffMember {
   backupPassword?: string;
   createdAt: string;
   updatedAt: string;
+  hallId?: string;
 }
 
 export interface StaffStats {

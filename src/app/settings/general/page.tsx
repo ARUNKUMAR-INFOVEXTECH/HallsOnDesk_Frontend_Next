@@ -13,8 +13,10 @@ import { HallSettings } from '@/types/settings';
 import {
   useHallSettings,
   useUpdateHallSettings,
-  useHallProfile
+  useHallProfile,
+  useActiveSubscription
 } from '@/hooks/useSettings';
+import { formatDate } from '@/utils/formatters';
 import SettingsCard from '@/components/settings/SettingsCard';
 import SettingsToggleRow from '@/components/settings/SettingsToggleRow';
 import NumberingPreview from '@/components/settings/NumberingPreview';
@@ -219,6 +221,9 @@ export default function GeneralSettingsPage() {
   const setUser = useAuthStore((state) => state.setUser);
   const activeHallId = useAuthStore((state) => state.activeHallId);
   const setActiveHall = useAuthStore((state) => state.setActiveHall);
+
+  const { data: subscription } = useActiveSubscription();
+  const activePackage = subscription?.packages;
 
   // Multi-hall state
   const [isPremium, setIsPremium] = useState(false);
@@ -962,32 +967,56 @@ export default function GeneralSettingsPage() {
                     {/* 3. List current halls */}
                     <div className="space-y-3">
                       <h4 className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Your Managed Halls</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-semibold">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold">
                         {user.accessible_halls?.map((hall: any, index: number) => {
                           const isActive = hall.id === activeHallId || (!activeHallId && hall.id === user.hall_id);
                           return (
-                            <div key={hall.id} className="p-3 border border-gray-150 bg-gray-50/50 rounded-lg flex flex-col gap-1">
+                            <div key={hall.id} className="p-4 border border-gray-150 bg-gray-50/50 rounded-xl flex flex-col gap-3">
                               <div className="flex items-center justify-between">
-                                <span className="text-gray-800 font-bold">{hall.hall_name}</span>
+                                <div className="flex flex-col">
+                                  <span className="text-gray-800 font-extrabold text-sm">{hall.hall_name}</span>
+                                  <span className="text-[9px] font-bold text-slate-450 uppercase tracking-wider mt-0.5">
+                                    {hall.id === user.hall_id
+                                      ? "Venue #1 (Primary - Admin Created)"
+                                      : "Venue #2 (Secondary - Owner Created)"}
+                                  </span>
+                                </div>
                                 {isActive ? (
-                                  <span className="text-[9px] font-extrabold text-green-700 bg-green-50 border border-green-150 px-1.5 py-0.5 rounded uppercase">
+                                  <span className="text-[9px] font-black text-green-700 bg-green-50 border border-green-150 px-2.5 py-1 rounded uppercase tracking-wider">
                                     Active
                                   </span>
                                 ) : (
                                   <button
                                     type="button"
                                     onClick={() => setActiveHall(hall.id)}
-                                    className="text-[9px] font-extrabold text-violet-750 bg-violet-50 hover:bg-violet-100 border border-violet-200 px-2 py-0.5 rounded uppercase cursor-pointer transition-all"
+                                    className="text-[9px] font-black text-violet-750 bg-violet-50 hover:bg-violet-100 border border-violet-200 px-3 py-1 rounded uppercase cursor-pointer transition-all tracking-wider shadow-sm hover:scale-[1.02] active:scale-[0.98]"
                                   >
                                     Switch Hall
                                   </button>
                                 )}
                               </div>
-                              <span className="text-[9px] font-bold text-gray-450 uppercase tracking-wider">
-                                {hall.id === user.hall_id
-                                  ? "Venue #1 (Primary - Admin Created)"
-                                  : "Venue #2 (Secondary - Owner Created)"}
-                              </span>
+
+                              {/* Owner & Package Metadata Details */}
+                              <div className="border-t border-gray-200/60 pt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[10px] text-gray-550 font-semibold leading-relaxed">
+                                <div>
+                                  <span className="block text-[8px] font-black text-gray-400 uppercase tracking-wide">Owner Name</span>
+                                  <span className="text-gray-750 font-extrabold">{user.name}</span>
+                                </div>
+                                <div>
+                                  <span className="block text-[8px] font-black text-gray-400 uppercase tracking-wide">Owner Email</span>
+                                  <span className="text-gray-750 font-extrabold truncate block max-w-[130px]">{user.email}</span>
+                                </div>
+                                <div>
+                                  <span className="block text-[8px] font-black text-gray-400 uppercase tracking-wide">Active Plan</span>
+                                  <span className="text-primary-light font-extrabold">{activePackage?.name || 'Premium Plan'}</span>
+                                </div>
+                                <div>
+                                  <span className="block text-[8px] font-black text-gray-400 uppercase tracking-wide">Expires On</span>
+                                  <span className="text-gray-750 font-extrabold font-mono">
+                                    {subscription?.end_date ? formatDate(subscription.end_date) : 'Unlimited'}
+                                  </span>
+                                </div>
+                              </div>
                             </div>
                           );
                         })}

@@ -963,24 +963,29 @@ export default function GeneralSettingsPage() {
                     <div className="space-y-3">
                       <h4 className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Your Managed Halls</h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-semibold">
-                        {user.accessible_halls?.map((hall: any) => {
+                        {user.accessible_halls?.map((hall: any, index: number) => {
                           const isActive = hall.id === activeHallId || (!activeHallId && hall.id === user.hall_id);
                           return (
-                            <div key={hall.id} className="p-3 border border-gray-150 bg-gray-50/50 rounded-lg flex items-center justify-between">
-                              <span className="text-gray-800 font-bold">{hall.hall_name}</span>
-                              {isActive ? (
-                                <span className="text-[9px] font-extrabold text-green-700 bg-green-50 border border-green-150 px-1.5 py-0.5 rounded uppercase">
-                                  Current
-                                </span>
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => setActiveHall(hall.id)}
-                                  className="text-[9px] font-extrabold text-violet-750 bg-violet-50 hover:bg-violet-100 border border-violet-200 px-2 py-0.5 rounded uppercase cursor-pointer transition-all"
-                                >
-                                  Switch Context
-                                </button>
-                              )}
+                            <div key={hall.id} className="p-3 border border-gray-150 bg-gray-50/50 rounded-lg flex flex-col gap-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-gray-800 font-bold">{hall.hall_name}</span>
+                                {isActive ? (
+                                  <span className="text-[9px] font-extrabold text-green-700 bg-green-50 border border-green-150 px-1.5 py-0.5 rounded uppercase">
+                                    Active
+                                  </span>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => setActiveHall(hall.id)}
+                                    className="text-[9px] font-extrabold text-violet-750 bg-violet-50 hover:bg-violet-100 border border-violet-200 px-2 py-0.5 rounded uppercase cursor-pointer transition-all"
+                                  >
+                                    Switch Hall
+                                  </button>
+                                )}
+                              </div>
+                              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+                                {index === 0 ? "Venue #1 (Primary)" : "Venue #2 (Secondary)"}
+                              </span>
                             </div>
                           );
                         })}

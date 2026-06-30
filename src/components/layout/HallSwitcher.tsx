@@ -94,6 +94,7 @@ export default function HallSwitcher() {
 
             {halls.map((hall) => {
               const isActive = !isConsolidated && hall.id === activeHall.id;
+              const isPrimary = hall.id === user.hall_id;
               return (
                 <button
                   key={hall.id}
@@ -110,7 +111,12 @@ export default function HallSwitcher() {
                       : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border-l-2 border-transparent'
                   }`}
                 >
-                  <span className="text-xs truncate">{hall.hall_name}</span>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xs font-bold text-slate-800 truncate">{hall.hall_name}</span>
+                    <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-wider mt-0.5">
+                      {isPrimary ? 'Primary Venue (Venue #1)' : 'Secondary Venue (Venue #2)'}
+                    </span>
+                  </div>
                   {isActive && <Check className="h-3.5 w-3.5 text-[#159DFC] shrink-0 font-bold" />}
                 </button>
               );

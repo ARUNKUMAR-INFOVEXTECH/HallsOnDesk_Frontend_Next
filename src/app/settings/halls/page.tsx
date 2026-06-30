@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import {
   useOwnerHallsList,
@@ -28,6 +29,7 @@ import { formatDate } from '@/utils/formatters';
 import { toast } from 'sonner';
 
 export default function MultiHallManagementPage() {
+  const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const activeHallId = useAuthStore((state) => state.activeHallId);
   const setActiveHall = useAuthStore((state) => state.setActiveHall);
@@ -125,6 +127,59 @@ export default function MultiHallManagementPage() {
       <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-400">
         <Loader2 className="h-8 w-8 animate-spin text-violet-650" />
         <span className="text-xs font-semibold uppercase tracking-wider">Loading Organizations...</span>
+      </div>
+    );
+  }
+
+  if (user && !user.multi_hall_enabled) {
+    return (
+      <div className="space-y-8 animate-fadeIn">
+        {/* Page Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-100 pb-5">
+          <div>
+            <h2 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+              <Layers className="h-5 w-5 text-violet-600" />
+              Multi-Hall Workspace Manager
+            </h2>
+            <p className="text-xs text-gray-500 font-semibold mt-1">
+              Organize multiple wedding halls under a single owner login with absolute data isolation.
+            </p>
+          </div>
+        </div>
+
+        {/* Informative placeholder state */}
+        <div className="bg-white border border-gray-150 rounded-2xl shadow-sm p-8 text-center max-w-2xl mx-auto space-y-6 my-10">
+          <div className="h-16 w-16 rounded-full bg-violet-55 border border-violet-100 flex items-center justify-center text-violet-600 mx-auto shadow-inner animate-pulse">
+            <Layers className="h-8 w-8 text-violet-750" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-black text-slate-900">Multi-Hall Workspace is Disabled</h3>
+            <p className="text-xs text-gray-500 font-semibold leading-relaxed max-w-md mx-auto">
+              Your account supports multi-venue capabilities, but the Multi-Hall Workspace feature is currently turned off in your system settings.
+            </p>
+          </div>
+
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-left text-xs font-semibold text-slate-600 space-y-2 max-w-md mx-auto">
+            <div className="flex items-center gap-2 text-violet-750 font-black">
+              <Sparkles className="h-4 w-4" />
+              <span>How to Enable:</span>
+            </div>
+            <ol className="list-decimal list-inside space-y-1.5 pl-1 text-[11px] leading-relaxed text-slate-500">
+              <li>Navigate to the <span className="font-extrabold text-slate-700">General Settings</span> tab on the left sidebar.</li>
+              <li>Expand the <span className="font-extrabold text-slate-700">Multi-Hall Workspace Settings</span> accordion.</li>
+              <li>Toggle <span className="font-extrabold text-slate-700">"Enable Multi-Hall Workspace"</span> to turn on organization-wide workspaces.</li>
+            </ol>
+          </div>
+
+          <div className="pt-2">
+            <button
+              onClick={() => router.push('/settings/general')}
+              className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white rounded-xl text-xs font-black shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+            >
+              Go to General Settings
+            </button>
+          </div>
+        </div>
       </div>
     );
   }

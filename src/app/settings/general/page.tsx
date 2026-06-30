@@ -947,12 +947,31 @@ export default function GeneralSettingsPage() {
             ) : (
               <div className="space-y-6">
                 {/* 1. Toggle Multi-Hall */}
-                <SettingsToggleRow
-                  title="Enable Multi-Hall Workspace"
-                  description="Allows you to add a secondary hall and switch between them seamlessly from your dashboard switcher."
-                  checked={multiHallEnabled}
-                  onChange={handleToggleMultiHall}
-                />
+                <div className="p-4.5 bg-gradient-to-br from-violet-50/70 to-blue-50/40 border border-violet-200 rounded-2xl shadow-sm hover:shadow-md transition-all">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <span className="inline-flex items-center gap-1 text-[9px] font-black text-violet-700 bg-violet-100 border border-violet-200 px-1.5 py-0.5 rounded uppercase tracking-wider mb-1">
+                        Premium SaaS Tool
+                      </span>
+                      <h4 className="text-xs font-black text-slate-800">
+                        Enable Multi-Hall Workspace
+                      </h4>
+                      <p className="text-[10px] text-gray-500 font-semibold leading-relaxed max-w-md">
+                        Allows you to add a secondary hall and switch between them seamlessly from your dashboard switcher dropdown.
+                      </p>
+                    </div>
+
+                    <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-2 scale-110">
+                      <input
+                        type="checkbox"
+                        checked={multiHallEnabled}
+                        onChange={(e) => handleToggleMultiHall(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-8 h-4.5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-emerald-500 peer-checked:to-teal-600 shadow-inner" />
+                    </label>
+                  </div>
+                </div>
 
                 {multiHallEnabled && (
                   <div className="pt-4 border-t border-gray-100 space-y-6">

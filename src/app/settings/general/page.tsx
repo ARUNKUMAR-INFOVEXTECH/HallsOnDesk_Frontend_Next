@@ -983,8 +983,10 @@ export default function GeneralSettingsPage() {
                                   </button>
                                 )}
                               </div>
-                              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
-                                {index === 0 ? "Venue #1 (Primary)" : "Venue #2 (Secondary)"}
+                              <span className="text-[9px] font-bold text-gray-450 uppercase tracking-wider">
+                                {hall.id === user.hall_id
+                                  ? "Venue #1 (Primary - Admin Created)"
+                                  : "Venue #2 (Secondary - Owner Created)"}
                               </span>
                             </div>
                           );

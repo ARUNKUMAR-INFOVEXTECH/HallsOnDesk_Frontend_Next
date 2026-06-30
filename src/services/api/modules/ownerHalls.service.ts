@@ -25,6 +25,7 @@ export interface OwnerSubscriptionDetails {
   maxHalls: number;
   currentHalls: number;
   remainingHalls: number;
+  totalOrganizationUsers?: number;
 }
 
 export interface OwnerHallsResponse {

@@ -108,7 +108,7 @@ export default function StaffPage() {
   const totalCount = staffRes?.total || 0;
 
   const totalStaffCount = stats?.totalStaff ?? totalCount;
-  const totalUsersCount = totalStaffCount + 1; // Owner + Staff
+  const totalUsersCount = ownerHallsData?.subscription?.totalOrganizationUsers ?? (totalStaffCount + 1);
   const maxUsers = activePackage?.max_users ?? null;
   const isLimitReached = maxUsers !== null && totalUsersCount >= maxUsers;
 

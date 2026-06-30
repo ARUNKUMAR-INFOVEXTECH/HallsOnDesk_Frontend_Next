@@ -41,7 +41,7 @@ export default function BookingPaymentsPage() {
     refetch: refetchPayments,
   } = usePaymentsByBooking(bookingId);
 
-  const deletePaymentMutation = useDeletePayment();
+  const deletePaymentMutation = useDeletePayment(bookingId);
 
   // 1. Calculate live balance figures
   const bookingAmount = booking ? booking.bookingAmount : 0;

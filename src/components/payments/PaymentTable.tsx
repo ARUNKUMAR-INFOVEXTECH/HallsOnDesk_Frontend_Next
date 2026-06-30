@@ -35,7 +35,7 @@ import { useAuthStore } from '@/store/authStore';
 interface PaymentTableProps {
   payments: Payment[];
   onViewReceipt: (payment: Payment) => void;
-  onDeletePayment: (id: string, amount: number) => void;
+  onDeletePayment: (id: string, amount: number, bookingId?: string) => void;
   onBulkDelete: (ids: string[]) => void;
   isDeleting?: boolean;
 }
@@ -333,7 +333,7 @@ export function PaymentTable({
               {canDelete && (
                 <button
                   type="button"
-                  onClick={() => onDeletePayment(item.id, item.amount)}
+                  onClick={() => onDeletePayment(item.id, item.amount, item.bookingId)}
                   disabled={isDeleting}
                   title="Delete Ledger"
                   className="p-1.5 rounded-md hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer border border-slate-100 bg-white shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"

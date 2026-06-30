@@ -111,9 +111,9 @@ export default function PaymentsListPage() {
     document.body.removeChild(link);
   };
 
-  const handleDeletePayment = (paymentId: string, amount: number) => {
+  const handleDeletePayment = (paymentId: string, amount: number, bookingId?: string) => {
     if (confirm(`Are you sure you want to reverse this payment transaction of ₹${amount.toLocaleString('en-IN')}?`)) {
-      deletePaymentMutation.mutate(paymentId);
+      deletePaymentMutation.mutate({ paymentId, bookingId });
     }
   };
 

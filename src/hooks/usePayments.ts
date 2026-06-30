@@ -359,12 +359,18 @@ export function useDeletePayment(bookingId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deletePayment,
-    onSuccess: () => {
+    mutationFn: async (payload: string | { paymentId: string; bookingId?: string }) => {
+      const id = typeof payload === 'string' ? payload : payload.paymentId;
+      return deletePayment(id);
+    },
+    onSuccess: (res, variables) => {
+      const bId = bookingId || (typeof variables === 'object' ? variables.bookingId : undefined);
+
       toast.success('Payment deleted successfully.');
       
       // Invalidate target caches
       queryClient.invalidateQueries({ queryKey: ['payments'] });
+      queryClient.invalidateQueries({ queryKey: ['payments', 'booking'] });
       queryClient.invalidateQueries({ queryKey: ['payment-summary'] });
       queryClient.invalidateQueries({ queryKey: ['payment-method-stats'] });
       queryClient.invalidateQueries({ queryKey: ['revenue-chart'] });
@@ -374,9 +380,9 @@ export function useDeletePayment(bookingId?: string) {
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['customers'] });
       
-      if (bookingId) {
-        queryClient.invalidateQueries({ queryKey: ['payments', 'booking', bookingId] });
-        queryClient.invalidateQueries({ queryKey: ['booking', bookingId] });
+      if (bId) {
+        queryClient.invalidateQueries({ queryKey: ['payments', 'booking', bId] });
+        queryClient.invalidateQueries({ queryKey: ['booking', bId] });
       }
     },
     onError: (err: any) => {

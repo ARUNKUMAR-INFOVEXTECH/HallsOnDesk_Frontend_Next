@@ -64,6 +64,7 @@ export default function CustomerDetailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = deobfuscateId(params.id as string);
+  const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [showEditModal, setShowEditModal] = useState(false);
@@ -116,6 +117,8 @@ export default function CustomerDetailPage() {
 
   const handleRefresh = () => {
     refetch();
+    queryClient.invalidateQueries({ queryKey: ['payments', 'booking'] });
+    queryClient.invalidateQueries({ queryKey: ['invoices', 'booking'] });
   };
 
   if (isCustomerLoading) {

@@ -9,165 +9,203 @@ import {
 } from '@react-pdf/renderer';
 import { Invoice } from '@/types';
 
-// Define styles using standard PDF primitives
-const styles = StyleSheet.create({
-  page: {
-    padding: 40,
-    fontFamily: 'Helvetica',
-    fontSize: 10,
-    color: '#1e293b',
-    lineHeight: 1.5,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderBottomWidth: 2,
-    borderBottomColor: '#4f46e5',
-    paddingBottom: 15,
-    marginBottom: 20,
-  },
-  titleBlock: {
-    flexDirection: 'column',
-  },
-  hallName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#0f172a',
-  },
-  hallInfo: {
-    fontSize: 9,
-    color: '#64748b',
-    marginTop: 2,
-  },
-  gstin: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: '#475569',
-    marginTop: 4,
-  },
-  logo: {
-    width: 60,
-    height: 60,
-    objectFit: 'contain',
-  },
-  metaGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-    gap: 15,
-  },
-  card: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 8,
-    padding: 12,
-  },
-  cardTitle: {
-    fontSize: 8,
-    fontWeight: 'bold',
-    color: '#64748b',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: '#cbd5e1',
-    paddingBottom: 3,
-  },
-  boldText: {
-    fontWeight: 'bold',
-    color: '#0f172a',
-  },
-  table: {
-    width: '100%',
-    marginBottom: 20,
-  },
-  tableHeader: {
-    flexDirection: 'row',
-    backgroundColor: '#f1f5f9',
-    borderBottomWidth: 1,
-    borderBottomColor: '#cbd5e1',
-    padding: 8,
-  },
-  tableRow: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
-    padding: 8,
-  },
-  colDesc: { flex: 3 },
-  colQty: { flex: 1, textAlign: 'center' },
-  colPrice: { flex: 1, textAlign: 'right' },
-  colTotal: { flex: 1, textAlign: 'right' },
-  thText: {
-    fontWeight: 'bold',
-    color: '#475569',
-    fontSize: 8,
-    textTransform: 'uppercase',
-  },
-  summaryBlock: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-    gap: 20,
-  },
-  paymentCard: {
-    flex: 3,
-    backgroundColor: '#f8fafc',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 8,
-    padding: 12,
-    flexDirection: 'row',
-    gap: 12,
-  },
-  qrCode: {
-    width: 75,
-    height: 75,
-  },
-  bankInfo: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  totalsCard: {
-    flex: 2,
-    backgroundColor: '#f8fafc',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 8,
-    padding: 12,
-  },
-  totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 3,
-    color: '#475569',
-  },
-  grandTotalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderTopWidth: 1,
-    borderTopColor: '#cbd5e1',
-    paddingTop: 6,
-    marginTop: 6,
-    fontWeight: 'bold',
-    fontSize: 12,
-    color: '#4f46e5',
-  },
-  footer: {
-    marginTop: 30,
-    borderTopWidth: 1,
-    borderTopColor: '#e2e8f0',
-    paddingTop: 10,
-    textAlign: 'center',
-    color: '#94a3b8',
-    fontSize: 8,
-  },
-});
+// Helper to get styling configurations based on the owner's selected template
+const getTemplateStyles = (templateName: string) => {
+  const template = (templateName || 'classic').toLowerCase();
+
+  const primaryColor = 
+    template === 'modern' ? '#4f46e5' : 
+    template === 'elegant' ? '#b45309' : 
+    template === 'minimalist' ? '#0f172a' : 
+    '#475569'; // classic default
+
+  const cardBg = 
+    template === 'minimalist' ? '#ffffff' : 
+    template === 'elegant' ? '#fffbeb' : 
+    template === 'modern' ? '#f0f3ff' : 
+    '#f8fafc'; // classic
+
+  const cardBorderColor = 
+    template === 'elegant' ? '#f59e0b' : 
+    template === 'minimalist' ? '#cbd5e1' : 
+    '#e2e8f0';
+
+  return StyleSheet.create({
+    page: {
+      padding: 40,
+      fontFamily: 'Helvetica',
+      fontSize: 10,
+      color: '#1e293b',
+      lineHeight: 1.5,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      borderBottomWidth: template === 'minimalist' ? 1 : 2,
+      borderBottomColor: primaryColor,
+      paddingBottom: 15,
+      marginBottom: 20,
+    },
+    titleBlock: {
+      flexDirection: 'column',
+    },
+    hallName: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: template === 'elegant' ? '#78350f' : '#0f172a',
+    },
+    hallInfo: {
+      fontSize: 9,
+      color: '#64748b',
+      marginTop: 2,
+    },
+    gstin: {
+      fontSize: 9,
+      fontWeight: 'bold',
+      color: primaryColor,
+      marginTop: 4,
+    },
+    logo: {
+      width: 60,
+      height: 60,
+      objectFit: 'contain',
+    },
+    metaGrid: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 20,
+      gap: 12,
+    },
+    card: {
+      flex: 1,
+      backgroundColor: cardBg,
+      borderWidth: template === 'minimalist' ? 0 : 1,
+      borderBottomWidth: template === 'minimalist' ? 1 : 1,
+      borderColor: cardBorderColor,
+      borderRadius: template === 'modern' ? 10 : template === 'minimalist' ? 0 : 6,
+      padding: 12,
+    },
+    cardTitle: {
+      fontSize: 8,
+      fontWeight: 'bold',
+      color: primaryColor,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      marginBottom: 6,
+      borderBottomWidth: 1,
+      borderBottomColor: template === 'minimalist' ? '#e2e8f0' : '#cbd5e1',
+      paddingBottom: 3,
+    },
+    boldText: {
+      fontWeight: 'bold',
+      color: '#0f172a',
+    },
+    table: {
+      width: '100%',
+      marginBottom: 20,
+    },
+    tableHeader: {
+      flexDirection: 'row',
+      backgroundColor: template === 'minimalist' ? '#ffffff' : '#f1f5f9',
+      borderBottomWidth: 2,
+      borderBottomColor: primaryColor,
+      padding: 8,
+    },
+    tableRow: {
+      flexDirection: 'row',
+      borderBottomWidth: 1,
+      borderBottomColor: '#e2e8f0',
+      padding: 8,
+    },
+    colDesc: { flex: 3 },
+    colQty: { flex: 1, textAlign: 'center' },
+    colPrice: { flex: 1, textAlign: 'right' },
+    colTotal: { flex: 1, textAlign: 'right' },
+    thText: {
+      fontWeight: 'bold',
+      color: template === 'minimalist' ? '#0f172a' : '#475569',
+      fontSize: 8,
+      textTransform: 'uppercase',
+    },
+    summaryBlock: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 10,
+      gap: 20,
+    },
+    paymentCard: {
+      flex: 3,
+      backgroundColor: cardBg,
+      borderWidth: template === 'minimalist' ? 0 : 1,
+      borderColor: cardBorderColor,
+      borderRadius: template === 'modern' ? 10 : 6,
+      padding: 12,
+      flexDirection: 'row',
+      gap: 12,
+    },
+    qrCode: {
+      width: 75,
+      height: 75,
+    },
+    bankInfo: {
+      flex: 1,
+      justifyContent: 'center',
+    },
+    totalsCard: {
+      flex: 2,
+      backgroundColor: cardBg,
+      borderWidth: template === 'minimalist' ? 0 : 1,
+      borderColor: cardBorderColor,
+      borderRadius: template === 'modern' ? 10 : 6,
+      padding: 12,
+    },
+    totalRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: 3,
+      color: '#475569',
+    },
+    grandTotalRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      borderTopWidth: 1,
+      borderTopColor: '#cbd5e1',
+      paddingTop: 6,
+      marginTop: 6,
+      fontWeight: 'bold',
+      fontSize: 12,
+      color: primaryColor,
+    },
+    footer: {
+      marginTop: 30,
+      borderTopWidth: 1,
+      borderTopColor: '#e2e8f0',
+      paddingTop: 10,
+      textAlign: 'center',
+      color: '#94a3b8',
+      fontSize: 8,
+    },
+    elegantSignatures: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 30,
+      paddingHorizontal: 20,
+    },
+    signatureLine: {
+      width: 120,
+      borderTopWidth: 1,
+      borderTopColor: '#94a3b8',
+      paddingTop: 4,
+      textAlign: 'center',
+      fontSize: 8,
+      color: '#64748b',
+    }
+  });
+};
 
 interface InvoiceDocumentProps {
   invoice: Invoice;
+  template?: string; // e.g. classic, modern, elegant, minimalist
   logoBase64?: string;
   qrBase64?: string;
   bankDetails?: {
@@ -180,18 +218,18 @@ interface InvoiceDocumentProps {
 
 export function InvoiceDocument({ 
   invoice, 
+  template = 'classic',
   logoBase64, 
   qrBase64, 
   bankDetails 
 }: InvoiceDocumentProps) {
+  const styles = getTemplateStyles(template);
   const symbol = invoice.currency_symbol || '₹';
   const formatVal = (v: number) => `${symbol}${Number(v || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 
-  // Determine tax splits (CGST/SGST vs IGST)
   const renderTaxBreakdown = () => {
     if (!invoice.tax_enabled || !invoice.tax_amount) return null;
     
-    // Check if it is local (CGST + SGST) or interstate (IGST)
     const isLocal = !invoice.customer_address || 
                     invoice.customer_address.toLowerCase().includes(invoice.hall_address.slice(0, 10).toLowerCase());
 
@@ -240,7 +278,6 @@ export function InvoiceDocument({
 
         {/* Invoice Metadata & Customer Grid */}
         <View style={styles.metaGrid}>
-          {/* Invoice Info */}
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Invoice Details</Text>
             <Text><Text style={styles.boldText}>Invoice No:</Text> #{invoice.invoice_number}</Text>
@@ -249,7 +286,6 @@ export function InvoiceDocument({
             <Text><Text style={styles.boldText}>Status:</Text> {invoice.status.toUpperCase()}</Text>
           </View>
 
-          {/* Billed To */}
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Billed To</Text>
             <Text style={styles.boldText}>{invoice.customer_name}</Text>
@@ -258,7 +294,6 @@ export function InvoiceDocument({
             {invoice.customer_address && <Text>Address: {invoice.customer_address}</Text>}
           </View>
 
-          {/* Event Details */}
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Event Info</Text>
             <Text><Text style={styles.boldText}>Event Name:</Text> {invoice.event_name}</Text>
@@ -288,7 +323,6 @@ export function InvoiceDocument({
 
         {/* Footer Dues and QR Section */}
         <View style={styles.summaryBlock}>
-          {/* Payment & Bank info */}
           <View style={styles.paymentCard}>
             {qrBase64 && (
               <Image style={styles.qrCode} src={qrBase64} />
@@ -312,7 +346,6 @@ export function InvoiceDocument({
             </View>
           </View>
 
-          {/* Totals Box */}
           <View style={styles.totalsCard}>
             <View style={styles.totalRow}>
               <Text>Subtotal</Text>
@@ -348,6 +381,14 @@ export function InvoiceDocument({
           </View>
         )}
 
+        {/* Elegant Signatures Block */}
+        {template.toLowerCase() === 'elegant' && (
+          <View style={styles.elegantSignatures}>
+            <Text style={styles.signatureLine}>Customer Signature</Text>
+            <Text style={styles.signatureLine}>Authorized Signatory</Text>
+          </View>
+        )}
+
         {/* Brand Footer */}
         <Text style={styles.footer}>
           Thank you for your business! | Powered by Infovex Halls SaaS
@@ -372,6 +413,7 @@ export interface ReceiptDocumentProps {
   hallPhone: string;
   hallEmail: string;
   logoBase64?: string;
+  template?: string;
 }
 
 export function ReceiptDocument({
@@ -388,8 +430,10 @@ export function ReceiptDocument({
   hallAddress,
   hallPhone,
   hallEmail,
-  logoBase64
+  logoBase64,
+  template = 'classic'
 }: ReceiptDocumentProps) {
+  const styles = getTemplateStyles(template);
   const formatVal = (v: number) => `₹${Number(v || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 
   return (
@@ -409,7 +453,7 @@ export function ReceiptDocument({
 
         {/* Receipt Title */}
         <View style={{ alignItems: 'center', marginBottom: 20 }}>
-          <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#4f46e5', textTransform: 'uppercase', letterSpacing: 1.5 }}>
+          <Text style={{ fontSize: 16, fontWeight: 'bold', color: template === 'elegant' ? '#78350f' : template === 'modern' ? '#4f46e5' : '#0f172a', textTransform: 'uppercase', letterSpacing: 1.5 }}>
             Payment Receipt
           </Text>
           <Text style={{ fontSize: 9, color: '#64748b', marginTop: 4 }}>
@@ -419,14 +463,12 @@ export function ReceiptDocument({
 
         {/* Info Grid */}
         <View style={styles.metaGrid}>
-          {/* Billed To */}
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Received From</Text>
             <Text style={styles.boldText}>{customerName}</Text>
             <Text>Phone: {customerPhone}</Text>
           </View>
 
-          {/* Payment Details */}
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Payment Details</Text>
             <Text><Text style={styles.boldText}>Payment Date:</Text> {paymentDate}</Text>
@@ -434,7 +476,6 @@ export function ReceiptDocument({
             <Text><Text style={styles.boldText}>Amount Paid:</Text> {formatVal(amount)}</Text>
           </View>
 
-          {/* Booking Info */}
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Booking Context</Text>
             <Text><Text style={styles.boldText}>Booking No:</Text> {bookingNumber}</Text>
@@ -444,10 +485,10 @@ export function ReceiptDocument({
         </View>
 
         {/* Receipt Statement Card */}
-        <View style={{ backgroundColor: '#f8fafc', borderStyle: 'dashed', borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 8, padding: 20, marginBottom: 20, alignItems: 'center' }}>
+        <View style={{ backgroundColor: template === 'minimalist' ? '#ffffff' : '#f8fafc', borderStyle: 'dashed', borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 8, padding: 20, marginBottom: 20, alignItems: 'center' }}>
           <Text style={{ fontSize: 11, textAlign: 'center', color: '#334155', lineHeight: 1.8 }}>
             Received with thanks from <Text style={styles.boldText}>{customerName}</Text> the sum of{' '}
-            <Text style={[styles.boldText, { color: '#4f46e5' }]}>{formatVal(amount)}</Text> towards the booking reservation{' '}
+            <Text style={[styles.boldText, { color: template === 'modern' ? '#4f46e5' : '#0f172a' }]}>{formatVal(amount)}</Text> towards the booking reservation{' '}
             <Text style={styles.boldText}>#{bookingNumber}</Text> for the event scheduled on{' '}
             <Text style={styles.boldText}>{eventDate}</Text>.
           </Text>

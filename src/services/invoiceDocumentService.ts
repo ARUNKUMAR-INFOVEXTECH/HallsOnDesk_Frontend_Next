@@ -1,7 +1,7 @@
 import { pdf } from '@react-pdf/renderer';
 import React from 'react';
 import apiClient from './api/client';
-import { getHallProfile } from './api/modules/settings.service';
+import { getHallProfile, getHallSettings } from './api/modules/settings.service';
 import { Invoice } from '@/types';
 import { InvoiceDocument, ReceiptDocument } from '@/components/payments/InvoiceDocument';
 import { toast } from 'sonner';
@@ -34,12 +34,14 @@ export class DocumentService {
    */
   static async generateInvoice(invoiceId: string): Promise<Blob> {
     try {
-      // 1. Fetch raw JSON Invoice and Hall Profile data
-      const [invoiceRes, profile] = await Promise.all([
+      // 1. Fetch raw JSON Invoice, Profile, and General Settings
+      const [invoiceRes, profile, settings] = await Promise.all([
         apiClient.get<Invoice>(`/invoices/${invoiceId}`),
-        getHallProfile()
+        getHallProfile(),
+        getHallSettings()
       ]);
       const invoice = invoiceRes.data;
+      const template = settings.invoiceTemplate || 'classic';
 
       // 2. Pre-fetch and convert logo image to Base64 (if configured)
       let logoBase64 = '';
@@ -67,6 +69,7 @@ export class DocumentService {
       // 4. Instantiate the InvoiceDocument React component
       const docElement = React.createElement(InvoiceDocument, {
         invoice,
+        template,
         logoBase64: logoBase64 || undefined,
         qrBase64: qrBase64 || undefined,
         bankDetails: {
@@ -112,7 +115,11 @@ export class DocumentService {
     logoUrl?: string;
   }): Promise<Blob> {
     try {
-      // 1. Pre-fetch and convert logo image to Base64 (if configured)
+      // 1. Fetch general settings to get chosen template layout style
+      const settings = await getHallSettings();
+      const template = settings.invoiceTemplate || 'classic';
+
+      // 2. Pre-fetch and convert logo image to Base64 (if configured)
       let logoBase64 = '';
       if (receiptData.logoUrl) {
         try {
@@ -122,7 +129,7 @@ export class DocumentService {
         }
       }
 
-      // 2. Instantiate the ReceiptDocument React component
+      // 3. Instantiate the ReceiptDocument React component
       const docElement = React.createElement(ReceiptDocument, {
         receiptNumber: receiptData.receiptNumber,
         customerName: receiptData.customerName,
@@ -137,10 +144,11 @@ export class DocumentService {
         hallAddress: receiptData.hallAddress,
         hallPhone: receiptData.hallPhone,
         hallEmail: receiptData.hallEmail,
-        logoBase64: logoBase64 || undefined
+        logoBase64: logoBase64 || undefined,
+        template
       });
 
-      // 3. Compile vector PDF Blob on the client-side
+      // 4. Compile vector PDF Blob on the client-side
       const pdfInstance = pdf(docElement as any);
       const blob = await pdfInstance.toBlob();
       

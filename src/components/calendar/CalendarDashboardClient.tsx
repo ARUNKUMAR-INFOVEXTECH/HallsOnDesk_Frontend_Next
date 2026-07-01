@@ -41,6 +41,24 @@ export function CalendarDashboardClient() {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [calendarTitle, setCalendarTitle] = useState('');
 
+  // Responsive mobile agenda switcher
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.innerWidth < 768;
+      if (isMobile) {
+        const api = calendarRef.current?.getApi();
+        if (api && api.view.type !== 'listMonth') {
+          api.changeView('listMonth');
+          setActiveView('listMonth');
+        }
+      }
+    };
+
+    handleResize(); // run on mount
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // 2. Filters State
   const [filters, setFilters] = useState<CalendarFilters>({
     eventTypes: [],
@@ -166,7 +184,7 @@ export function CalendarDashboardClient() {
   }, [mergedEvents]);
 
   // Map merged events to FullCalendar event format (with optional colorBy hall section)
-  const fcEvents = [
+  const allFcEvents = [
     ...searchedEvents.map((e) => {
       const color = e.color;
 
@@ -205,7 +223,7 @@ export function CalendarDashboardClient() {
       start: m.date,
       end: m.date,
       allDay: true,
-      display: 'background',
+      display: 'background' as const,
       backgroundColor: 'rgba(251, 191, 36, 0.12)', // soft gold amber
     })),
     ...muhurthamDates.map((m) => ({
@@ -223,6 +241,37 @@ export function CalendarDashboardClient() {
       },
     })),
   ];
+
+  const fcEvents = React.useMemo(() => {
+    if (filters.showOnlyMuhurtham) {
+      return [
+        ...muhurthamDates.map((m) => ({
+          id: `muhurtham-bg-${m.id}`,
+          title: '',
+          start: m.date,
+          end: m.date,
+          allDay: true,
+          display: 'background' as const,
+          backgroundColor: 'rgba(251, 191, 36, 0.12)',
+        })),
+        ...muhurthamDates.map((m) => ({
+          id: `muhurtham-label-${m.id}`,
+          title: `🌟 ${m.title}`,
+          start: m.date,
+          end: m.date,
+          allDay: true,
+          backgroundColor: '#FEF3C7',
+          borderColor: '#F59E0B',
+          textColor: '#B45309',
+          extendedProps: {
+            type: 'muhurtham',
+            notes: m.notes,
+          },
+        })),
+      ];
+    }
+    return allFcEvents;
+  }, [allFcEvents, muhurthamDates, filters.showOnlyMuhurtham]);
 
   // 6. Navigation and View Switch Helpers
   const handleNavigate = (action: 'prev' | 'next' | 'today') => {

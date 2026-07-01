@@ -167,3 +167,19 @@
   font-family: monospace;
   color: #6B7280 !important;
 }
+
+/* Weekend cell background styling */
+.hod-calendar .fc-day-sat,
+.hod-calendar .fc-day-sun {
+  background-color: #F8FAFC !important; /* light slate background to distinguish weekends */
+}
+
+/* Touch target sizes (44px min) on small devices */
+@media (max-width: 767px) {
+  .hod-calendar .fc-list-event td {
+    padding: 12px 10px !important; /* height ensures touch target is >= 44px */
+  }
+  .hod-calendar .fc-daygrid-day-number {
+    padding: 10px 12px !important;
+  }
+}

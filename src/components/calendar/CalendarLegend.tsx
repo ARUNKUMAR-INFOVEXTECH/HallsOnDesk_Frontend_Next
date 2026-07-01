@@ -8,6 +8,7 @@ export const CalendarLegend = React.memo(function CalendarLegend() {
     { label: 'Blocked Out', color: 'bg-[#6B7280]' },
     { label: 'Personal Schedule', color: 'bg-[#3B82F6]' },
     { label: 'Public Holiday', color: 'bg-[#10B981]' },
+    { label: 'Auspicious Date (Muhurtham)', color: 'bg-[#FEF3C7] border border-[#F59E0B]' },
   ];
 
   return (

@@ -20,12 +20,14 @@ export function CalendarFilterPanel({
   const [localEventTypes, setLocalEventTypes] = useState<CalendarEventType[]>(filters.eventTypes);
   const [localStatus, setLocalStatus] = useState<EventStatus[]>(filters.status);
   const [localSearch, setLocalSearch] = useState<string>(filters.search || '');
+  const [localShowOnlyMuhurtham, setLocalShowOnlyMuhurtham] = useState<boolean>(filters.showOnlyMuhurtham || false);
 
   // Sync state when filters prop updates
   useEffect(() => {
     setLocalEventTypes(filters.eventTypes);
     setLocalStatus(filters.status);
     setLocalSearch(filters.search || '');
+    setLocalShowOnlyMuhurtham(filters.showOnlyMuhurtham || false);
   }, [filters, isOpen]);
 
   if (!isOpen) return null;
@@ -62,6 +64,7 @@ export function CalendarFilterPanel({
     setLocalEventTypes([]);
     setLocalStatus([]);
     setLocalSearch('');
+    setLocalShowOnlyMuhurtham(false);
   };
 
   const handleApply = () => {
@@ -69,6 +72,7 @@ export function CalendarFilterPanel({
       eventTypes: localEventTypes,
       status: localStatus,
       search: localSearch,
+      showOnlyMuhurtham: localShowOnlyMuhurtham,
     });
     onClose();
   };
@@ -162,7 +166,19 @@ export function CalendarFilterPanel({
           </div>
         </div>
 
-
+        {/* Section C: Muhurtham Only Toggle */}
+        <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+          <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">Muhurtham Dates Only</span>
+          <label className="relative inline-flex items-center cursor-pointer shrink-0 scale-95">
+            <input
+              type="checkbox"
+              checked={localShowOnlyMuhurtham}
+              onChange={(e) => setLocalShowOnlyMuhurtham(e.target.checked)}
+              className="sr-only peer"
+            />
+            <div className="w-8 h-4.5 bg-gray-250 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-amber-500 shadow-inner" />
+          </label>
+        </div>
 
         {/* Footer Actions */}
         <div className="flex items-center justify-between pt-3.5 border-t border-slate-100">

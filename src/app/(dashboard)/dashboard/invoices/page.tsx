@@ -26,6 +26,7 @@ import { toast } from 'sonner';
 import { getInvoiceHtml, downloadGstr1Report } from '@/services/api/modules/invoices.service';
 import { useAuthStore } from '@/store/authStore';
 import { Invoice } from '@/types';
+import DocumentShareButton from '@/components/common/DocumentShareButton';
 
 export default function InvoicesListPage() {
   const [search, setSearch] = useState('');
@@ -388,13 +389,17 @@ export default function InvoicesListPage() {
                   {/* Actions */}
                   <td className="px-4 py-3 text-center">
                     <div className="flex items-center justify-center gap-1.5">
-                      <button
-                        onClick={() => handlePrintInvoice(inv.id)}
-                        title="Print/Download PDF"
-                        className="h-7 w-7 inline-flex items-center justify-center text-slate-450 hover:text-slate-700 border border-slate-200 hover:border-slate-350 bg-white rounded-md transition-all cursor-pointer shadow-sm"
-                      >
-                        <Printer className="h-3.5 w-3.5" />
-                      </button>
+                      <DocumentShareButton
+                        documentType="invoice"
+                        htmlContentFetcher={() => getInvoiceHtml(inv.id)}
+                        customerName={inv.customer_name || 'Guest Payer'}
+                        customerPhone={inv.customer_phone || ''}
+                        documentTitle={`Invoice_${inv.invoice_number}`}
+                        documentNumber={inv.invoice_number}
+                        eventDate={formatDate(inv.event_date)}
+                        amount={inv.balance_due}
+                        hallName={inv.hall_name || 'Our Wedding Venue'}
+                      />
                       <Link
                         href={`/dashboard/bookings/${obfuscateId(inv.booking_id)}`}
                         title="Go to Booking details"

@@ -9,6 +9,7 @@ import { SelectField } from '@/components/forms/SelectField';
 import { paymentFormSchema, PaymentFormValues } from '@/schemas/payment.schema';
 import { useBookings } from '@/hooks/useBookings';
 import { useCreatePayment } from '@/hooks/usePayments';
+import { useHallProfile } from '@/hooks/useSettings';
 import { CalendarEventDrawer } from '../calendar/CalendarEventDrawer';
 import { Search, ChevronDown, Check, Loader2, Calendar, AlertTriangle, Hash, HelpCircle } from 'lucide-react';
 import { formatCurrency } from '@/utils/currency';
@@ -32,6 +33,7 @@ export function RecordPaymentDrawer({
   const [comboboxOpen, setComboboxOpen] = useState(false);
   const comboboxRef = useRef<HTMLDivElement>(null);
 
+  const { data: profile } = useHallProfile();
   const createPaymentMutation = useCreatePayment();
 
   // Search debounce
@@ -368,6 +370,34 @@ export function RecordPaymentDrawer({
               options={paymentMethodOptions}
               disabled={createPaymentMutation.isPending}
             />
+
+            {/* UPI QR Code generator block */}
+            {watchMethod === 'upi' && selectedBooking && watchAmount > 0 && (
+              <div className="flex flex-col items-center justify-center p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5 animate-slideDown shadow-inner">
+                {profile?.upiId ? (
+                  <>
+                    <div className="bg-white p-2.5 rounded-lg border border-slate-100 shadow-sm flex items-center justify-center">
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
+                          `upi://pay?pa=${profile.upiId}&pn=${encodeURIComponent(profile.hallName || 'Marriage Hall')}&am=${watchAmount}&tn=${encodeURIComponent(selectedBooking.bookingNumber)}`
+                        )}`}
+                        alt="UPI Payment QR Code"
+                        className="w-40 h-40 object-contain shrink-0"
+                      />
+                    </div>
+                    <div className="text-center space-y-0.5">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Scan to Pay with Any UPI App</span>
+                      <span className="font-mono text-[10px] font-bold text-slate-700 block">{profile.upiId}</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-2 text-slate-450">
+                    <span className="text-[10px] font-bold block uppercase text-amber-600">⚠️ UPI ID Not Set</span>
+                    <span className="text-[10px] text-slate-450 mt-1 block">Please configure your UPI ID under Venue Configurations &gt; Hall Profile settings to support QR code scan payments.</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Reference Number input (optional, conditional) */}
             {showReferenceField && (

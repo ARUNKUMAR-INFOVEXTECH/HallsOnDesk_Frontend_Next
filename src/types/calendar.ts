@@ -4,12 +4,13 @@ export type EventStatus = 'confirmed' | 'pending' | 'cancelled' | 'completed';
 
 export type PaymentStatus = 'paid' | 'partial' | 'unpaid';
 
-export type CalendarView = 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay' | 'listWeek';
+export type CalendarView = 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay' | 'listWeek' | 'listMonth';
 
 export interface CalendarFilters {
   eventTypes: CalendarEventType[];
   status: EventStatus[];
   search: string;
+  showOnlyMuhurtham?: boolean;
 }
 
 export interface CalendarEvent {

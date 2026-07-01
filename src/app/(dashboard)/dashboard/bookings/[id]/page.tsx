@@ -51,6 +51,7 @@ import {
 import { useAuthStore } from '@/store/authStore';
 import { useActiveSubscription } from '@/hooks/useSettings';
 import { hasFeature } from '@/utils/subscription';
+import DocumentShareButton from '@/components/common/DocumentShareButton';
 
 // Vendor Allocation Imports
 import {
@@ -719,14 +720,35 @@ function BookingDetailPage() {
                   </div>
                 </div>
 
+                {invoice.hall_upi_id && invoice.balance_due > 0 && (
+                  <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-inner">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(
+                        `upi://pay?pa=${invoice.hall_upi_id}&pn=${encodeURIComponent(invoice.hall_name || 'Marriage Hall')}&am=${invoice.balance_due}&tn=${encodeURIComponent(invoice.invoice_number)}`
+                      )}`}
+                      alt="Scan to Pay"
+                      className="w-20 h-20 border border-slate-100 rounded-lg p-1 bg-white shrink-0"
+                    />
+                    <div className="space-y-1">
+                      <span className="text-[9px] font-black text-violet-750 bg-violet-50 border border-violet-150 px-1.5 py-0.5 rounded uppercase tracking-wider">UPI Instant Pay</span>
+                      <p className="text-[10px] text-slate-450 leading-relaxed font-semibold">Scan this QR code using GPay, PhonePe, or Paytm to pay the remaining dues directly.</p>
+                      <span className="font-mono text-[9px] font-bold text-slate-500 block">{invoice.hall_upi_id}</span>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex gap-2 mt-1">
-                  <button
-                    onClick={() => handlePrintInvoice(invoice.id)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 border border-slate-200 hover:border-slate-350 bg-white hover:bg-slate-50 text-slate-655 rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
-                  >
-                    <Printer className="h-3.5 w-3.5" />
-                    Print / Download
-                  </button>
+                  <DocumentShareButton
+                    documentType="invoice"
+                    htmlContentFetcher={() => getInvoiceHtml(invoice.id)}
+                    customerName={invoice.customer_name || 'Guest Payer'}
+                    customerPhone={invoice.customer_phone || ''}
+                    documentTitle={`Invoice_${invoice.invoice_number}`}
+                    documentNumber={invoice.invoice_number}
+                    eventDate={formatDate(invoice.event_date)}
+                    amount={invoice.balance_due}
+                    hallName={invoice.hall_name || 'Our Wedding Venue'}
+                  />
                   {isAllowedToDeleteInvoice && (
                     <button
                       onClick={async () => {
@@ -813,13 +835,17 @@ function BookingDetailPage() {
                     </div>
 
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <button
-                        onClick={() => handlePrintReceipt(payment.id)}
-                        title="Print Receipt"
-                        className="h-7 w-7 inline-flex items-center justify-center text-slate-450 hover:text-slate-700 border border-slate-200 hover:border-slate-350 bg-white rounded-md transition-all cursor-pointer shadow-sm"
-                      >
-                        <Printer className="h-3.5 w-3.5" />
-                      </button>
+                      <DocumentShareButton
+                        documentType="receipt"
+                        htmlContentFetcher={() => getReceiptHtml(payment.id)}
+                        customerName={booking.customerName || 'Guest Payer'}
+                        customerPhone={booking.customerPhone || ''}
+                        documentTitle={`Receipt_${payment.id.slice(0, 8)}`}
+                        documentNumber={payment.id.slice(0, 8).toUpperCase()}
+                        eventDate={formatDate(booking.eventDate)}
+                        amount={payment.amount}
+                        hallName={invoice?.hall_name || 'Our Wedding Venue'}
+                      />
                       {canCreatePayments && (
                         <button
                           onClick={() => handleDeletePayment(payment.id, payment.amount)}

@@ -32,7 +32,7 @@ export function CalendarHeader({
     { id: 'dayGridMonth', label: 'Month' },
     { id: 'timeGridWeek', label: 'Week' },
     { id: 'timeGridDay', label: 'Day' },
-    { id: 'listWeek', label: 'List' },
+    { id: 'listMonth', label: 'Agenda' },
   ];
 
   return (
@@ -54,21 +54,21 @@ export function CalendarHeader({
         <div className="flex items-center gap-1 bg-slate-50 p-1 border border-slate-200 rounded-lg">
           <button
             onClick={() => onNavigate('prev')}
-            className="p-1 rounded hover:bg-white text-slate-500 hover:text-slate-700 transition-all cursor-pointer shadow-sm border border-transparent hover:border-slate-200"
+            className="p-2 md:p-1 rounded hover:bg-white text-slate-500 hover:text-slate-700 transition-all cursor-pointer shadow-sm border border-transparent hover:border-slate-200 min-h-[38px] md:min-h-0 flex items-center justify-center"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           
           <button
             onClick={() => onNavigate('today')}
-            className="px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer bg-white border border-slate-200 rounded-md shadow-sm"
+            className="px-3.5 py-2 md:px-2.5 md:py-1 text-[11px] font-bold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer bg-white border border-slate-200 rounded-md shadow-sm min-h-[38px] md:min-h-0"
           >
             Today
           </button>
-
+ 
           <button
             onClick={() => onNavigate('next')}
-            className="p-1 rounded hover:bg-white text-slate-500 hover:text-slate-700 transition-all cursor-pointer shadow-sm border border-transparent hover:border-slate-200"
+            className="p-2 md:p-1 rounded hover:bg-white text-slate-500 hover:text-slate-700 transition-all cursor-pointer shadow-sm border border-transparent hover:border-slate-200 min-h-[38px] md:min-h-0 flex items-center justify-center"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -82,7 +82,7 @@ export function CalendarHeader({
               <button
                 key={v.id}
                 onClick={() => onViewChange(v.id)}
-                className={`px-3 py-1.5 rounded-md font-bold text-[11px] transition-all cursor-pointer ${
+                className={`px-3 py-2.5 md:py-1.5 rounded-md font-bold text-[11px] transition-all cursor-pointer min-h-[44px] md:min-h-0 ${
                   isActive
                     ? 'bg-violet-600 text-white shadow-sm'
                     : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'

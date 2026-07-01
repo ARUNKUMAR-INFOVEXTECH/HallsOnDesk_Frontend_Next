@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Share2, Download, Printer, Loader2, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
+import { getPdfBlobFromHtml, printPdfBlob } from '@/utils/pdfEngine';
 
 interface DocumentShareButtonProps {
   documentType: 'invoice' | 'receipt' | 'booking' | 'quotation' | 'customer';
@@ -16,20 +17,6 @@ interface DocumentShareButtonProps {
   hallName: string;
   disabled?: boolean;
 }
-
-const loadHtml2Pdf = (): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    if ((window as any).html2pdf) {
-      resolve((window as any).html2pdf);
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-    script.onload = () => resolve((window as any).html2pdf);
-    script.onerror = (e) => reject(e);
-    document.body.appendChild(script);
-  });
-};
 
 export default function DocumentShareButton({
   documentType,
@@ -45,6 +32,7 @@ export default function DocumentShareButton({
 }: DocumentShareButtonProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
 
   const getPrefilledMessage = () => {
     return `Hello ${customerName},
@@ -69,84 +57,23 @@ ${hallName}
 Powered by Infovex Halls`;
   };
 
-  const convertImagesToBase64 = async (htmlString: string): Promise<string> => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlString, 'text/html');
-    const images = doc.querySelectorAll('img');
+  // Helper to resolve and cache the single PDF Blob from the HTML template fetcher
+  const resolvePdfBlob = async (): Promise<Blob> => {
+    if (pdfBlob) return pdfBlob;
     
-    for (const img of Array.from(images)) {
-      const src = img.getAttribute('src');
-      if (src && !src.startsWith('data:')) {
-        try {
-          const response = await fetch(src);
-          const blob = await response.blob();
-          const base64 = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
-          img.setAttribute('src', base64);
-        } catch (err) {
-          console.error(`Failed to convert image ${src} to Base64:`, err);
-          img.remove(); // Remove tainted image to guarantee PDF compiles correctly
-        }
-      }
-    }
-    return doc.documentElement.outerHTML;
-  };
-
-  const generatePdfBlob = async (): Promise<Blob> => {
-    const rawHtml = await htmlContentFetcher();
-    const htmlContent = await convertImagesToBase64(rawHtml);
-    const html2pdf = await loadHtml2Pdf();
-    
-    // Create an off-screen container inside the main window context so styles resolve natively
-    const container = document.createElement('div');
-    container.style.position = 'absolute';
-    container.style.left = '-9999px';
-    container.style.top = '0';
-    container.style.width = '800px';
-    container.style.height = 'auto';
-    container.style.opacity = '1';
-    container.style.pointerEvents = 'none';
-    container.innerHTML = htmlContent;
-    document.body.appendChild(container);
-
-    // Allow 800ms for stylesheets and custom Google Fonts to complete rendering
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    try {
-      const options = {
-        margin: 10,
-        filename: `${documentTitle}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-          scale: 2, 
-          useCORS: true,
-          logging: false 
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-      const blob = await html2pdf().from(container).set(options).output('blob');
-      document.body.removeChild(container);
-      return blob;
-    } catch (err) {
-      if (container.parentNode) {
-        document.body.removeChild(container);
-      }
-      throw err;
-    }
+    const htmlContent = await htmlContentFetcher();
+    const blob = await getPdfBlobFromHtml(htmlContent, documentTitle);
+    setPdfBlob(blob);
+    return blob;
   };
 
   const handleShare = async () => {
     try {
       setIsProcessing(true);
-      const pdfBlob = await generatePdfBlob();
+      const activeBlob = await resolvePdfBlob();
       const fileName = `${documentTitle.replace(/\s+/g, '_')}.pdf`;
-      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+      const file = new File([activeBlob], fileName, { type: 'application/pdf' });
 
-      // Check if navigator.share and file sharing is supported
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
@@ -155,8 +82,7 @@ Powered by Infovex Halls`;
         });
         toast.success('Document shared successfully!');
       } else {
-        // Fallback: download automatically and open WhatsApp Web/App
-        triggerDownload(pdfBlob);
+        triggerDownload(activeBlob);
         openWhatsAppFallback();
         toast.info('PDF downloaded. Please attach it manually in WhatsApp.');
       }
@@ -164,8 +90,8 @@ Powered by Infovex Halls`;
       console.error('Share failed:', err);
       toast.error('Sharing failed. Triggering automatic PDF download as fallback.');
       try {
-        const pdfBlob = await generatePdfBlob();
-        triggerDownload(pdfBlob);
+        const activeBlob = await resolvePdfBlob();
+        triggerDownload(activeBlob);
       } catch (dlErr) {
         console.error('Fallback download failed:', dlErr);
       }
@@ -196,8 +122,8 @@ Powered by Infovex Halls`;
   const handleDownloadOnly = async () => {
     try {
       setIsProcessing(true);
-      const pdfBlob = await generatePdfBlob();
-      triggerDownload(pdfBlob);
+      const activeBlob = await resolvePdfBlob();
+      triggerDownload(activeBlob);
       toast.success('PDF downloaded successfully!');
     } catch (err) {
       console.error('Download failed:', err);
@@ -210,30 +136,25 @@ Powered by Infovex Halls`;
 
   const handlePrintOnly = async () => {
     try {
-      const htmlContent = await htmlContentFetcher();
-      const win = window.open('', '_blank');
-      if (win) {
-        win.document.write(htmlContent);
-        win.document.close();
-        setTimeout(() => {
-          win.print();
-        }, 500);
-      }
+      setIsProcessing(true);
+      const activeBlob = await resolvePdfBlob();
+      await printPdfBlob(activeBlob);
     } catch (err) {
       console.error('Print failed:', err);
-      toast.error('Failed to open print layout.');
+      toast.error('Failed to print document.');
     } finally {
+      setIsProcessing(false);
       setDropdownOpen(false);
     }
   };
 
   return (
-    <div className="relative inline-flex items-center">
+    <div className="relative inline-flex items-center w-full">
       {/* Primary Action Button */}
       <button
         onClick={handleShare}
         disabled={disabled || isProcessing}
-        className="flex items-center gap-1.5 py-2 px-3 bg-primary hover:bg-primary-hover text-white rounded-l-lg text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50 min-h-[38px]"
+        className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-primary hover:bg-primary-hover text-white rounded-l-lg text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50 min-h-[38px]"
       >
         {isProcessing ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -248,7 +169,7 @@ Powered by Infovex Halls`;
         type="button"
         onClick={() => setDropdownOpen(!dropdownOpen)}
         disabled={disabled || isProcessing}
-        className="py-2 px-1.5 bg-primary/95 border-l border-white/20 hover:bg-primary-hover text-white rounded-r-lg text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50 min-h-[38px] flex items-center justify-center"
+        className="py-2 px-1.5 bg-primary/95 border-l border-white/20 hover:bg-primary-hover text-white rounded-r-lg text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50 min-h-[38px] flex items-center justify-center shrink-0"
         title="More actions"
       >
         <ChevronDown className="h-3.5 w-3.5" />
@@ -270,10 +191,10 @@ Powered by Infovex Halls`;
             <button
               type="button"
               onClick={handlePrintOnly}
-              className="w-full flex items-center gap-2 px-3 py-2 hover:bg-slate-50 transition-colors text-slate-700 hover:text-slate-900 cursor-pointer"
+              className="w-full flex items-center gap-2 px-3 py-2 hover:bg-slate-50 transition-colors text-slate-700 hover:text-slate-900 cursor-pointer border-t border-slate-100"
             >
               <Printer className="h-3.5 w-3.5 text-slate-400" />
-              <span>Print View</span>
+              <span>Print PDF</span>
             </button>
           </div>
         </>

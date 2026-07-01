@@ -69,24 +69,51 @@ ${hallName}
 Powered by Infovex Halls`;
   };
 
+  const convertImagesToBase64 = async (htmlString: string): Promise<string> => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlString, 'text/html');
+    const images = doc.querySelectorAll('img');
+    
+    for (const img of Array.from(images)) {
+      const src = img.getAttribute('src');
+      if (src && !src.startsWith('data:')) {
+        try {
+          const response = await fetch(src);
+          const blob = await response.blob();
+          const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+          img.setAttribute('src', base64);
+        } catch (err) {
+          console.error(`Failed to convert image ${src} to Base64:`, err);
+          img.remove(); // Remove tainted image to guarantee PDF compiles correctly
+        }
+      }
+    }
+    return doc.documentElement.outerHTML;
+  };
+
   const generatePdfBlob = async (): Promise<Blob> => {
-    const htmlContent = await htmlContentFetcher();
+    const rawHtml = await htmlContentFetcher();
+    const htmlContent = await convertImagesToBase64(rawHtml);
     const html2pdf = await loadHtml2Pdf();
     
-    // Create an invisible container inside the main window context so style definitions apply fully
+    // Create an off-screen container inside the main window context so styles resolve natively
     const container = document.createElement('div');
     container.style.position = 'absolute';
+    container.style.left = '-9999px';
     container.style.top = '0';
-    container.style.left = '0';
     container.style.width = '800px';
     container.style.height = 'auto';
     container.style.opacity = '1';
-    container.style.zIndex = '-9999';
     container.style.pointerEvents = 'none';
     container.innerHTML = htmlContent;
     document.body.appendChild(container);
 
-    // Allow 800ms for stylesheets, custom Google Fonts, and images to complete rendering
+    // Allow 800ms for stylesheets and custom Google Fonts to complete rendering
     await new Promise((resolve) => setTimeout(resolve, 800));
 
     try {

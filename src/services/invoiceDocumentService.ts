@@ -1,173 +1,112 @@
-import { pdf } from '@react-pdf/renderer';
-import React from 'react';
 import apiClient from './api/client';
-import { getHallProfile, getHallSettings } from './api/modules/settings.service';
-import { Invoice } from '@/types';
-import { InvoiceDocument, ReceiptDocument } from '@/components/payments/InvoiceDocument';
 import { toast } from 'sonner';
 
 /**
  * Enterprise Document Service for high-fidelity PDF Generation
- * Bypasses fragile DOM screenshotting by compiling vector PDFs directly from React code.
+ * Compiles the backend-rendered HTML template (Classic, Modern, Elegant, Minimalist)
+ * into a PDF Blob client-side using a locally-bundled compiler.
  */
 
 // Helper to convert any image URL to Base64 to bypass CORS canvas issues
-const fetchAsBase64 = async (url: string): Promise<string> => {
-  try {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    return await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  } catch (err) {
-    console.error(`Failed to pre-fetch image ${url} for PDF:`, err);
-    throw err;
+export const convertImagesToBase64 = async (htmlString: string): Promise<string> => {
+  if (typeof window === 'undefined') return htmlString;
+  
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString, 'text/html');
+  const images = doc.querySelectorAll('img');
+  
+  for (const img of Array.from(images)) {
+    const src = img.getAttribute('src');
+    if (src && !src.startsWith('data:')) {
+      try {
+        const response = await fetch(src);
+        const blob = await response.blob();
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+        img.setAttribute('src', base64);
+      } catch (err) {
+        console.error(`Failed to convert image ${src} to Base64:`, err);
+        img.remove(); // Remove to prevent canvas taint if CORS fails
+      }
+    }
   }
+  return doc.documentElement.outerHTML;
 };
 
 export class DocumentService {
   /**
-   * Compiles the unified vector PDF Blob from the single source of truth InvoiceDocument component
+   * Compiles the unified HTML template into a high-fidelity PDF Blob client-side
    */
-  static async generateInvoice(invoiceId: string): Promise<Blob> {
+  static async generateInvoice(htmlContent: string, documentTitle: string): Promise<Blob> {
+    if (typeof window === 'undefined') {
+      throw new Error('PDF Engine requires client-side execution environment');
+    }
+
+    // Dynamically load html2pdf.js locally to prevent SSR build issues
+    const html2pdfModule = await import('html2pdf.js');
+    const html2pdf = html2pdfModule.default;
+
+    // Create an off-screen container inside the main window context so styles resolve natively
+    const container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.top = '0';
+    container.style.width = '800px';
+    container.style.height = 'auto';
+    container.style.opacity = '1';
+    container.style.pointerEvents = 'none';
+
+    // Pre-convert images to Base64 to prevent CORS tainted canvas crashes
+    const cleanHtml = await convertImagesToBase64(htmlContent);
+    container.innerHTML = cleanHtml;
+    document.body.appendChild(container);
+
+    // Wait until images inside the container are loaded
+    const imgs = Array.from(container.querySelectorAll('img'));
+    await Promise.all(
+      imgs.map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+        });
+      })
+    );
+
+    // Wait for custom Google Fonts to load
+    if (document.fonts && document.fonts.ready) {
+      await document.fonts.ready;
+    }
+
+    // Brief safety delay for layout painting
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
     try {
-      // 1. Fetch raw JSON Invoice, Profile, and General Settings
-      const [invoiceRes, profile, settings] = await Promise.all([
-        apiClient.get<Invoice>(`/invoices/${invoiceId}`),
-        getHallProfile(),
-        getHallSettings()
-      ]);
-      const invoice = invoiceRes.data;
-      const template = settings.invoiceTemplate || 'classic';
+      const options = {
+        margin: 10,
+        filename: `${documentTitle}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2, 
+          useCORS: true, 
+          logging: false 
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
 
-      // 2. Pre-fetch and convert logo image to Base64 (if configured)
-      let logoBase64 = '';
-      if (profile.logoUrl) {
-        try {
-          logoBase64 = await fetchAsBase64(profile.logoUrl);
-        } catch {
-          // Continue without logo if it fails
-        }
-      }
-
-      // 3. Generate UPI QR Code URL & pre-fetch as Base64 (if UPI ID exists)
-      let qrBase64 = '';
-      const upiId = profile.upiId;
-      if (upiId && invoice.balance_due > 0) {
-        try {
-          const upiString = `upi://pay?pa=${encodeURIComponent(upiId)}&am=${encodeURIComponent(invoice.balance_due)}&tn=${encodeURIComponent(invoice.invoice_number)}&pn=${encodeURIComponent(invoice.hall_name)}`;
-          const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiString)}`;
-          qrBase64 = await fetchAsBase64(qrUrl);
-        } catch (err) {
-          console.error('Failed to pre-fetch payment QR code:', err);
-        }
-      }
-
-      // 4. Instantiate the InvoiceDocument React component
-      const docElement = React.createElement(InvoiceDocument, {
-        invoice,
-        template,
-        logoBase64: logoBase64 || undefined,
-        qrBase64: qrBase64 || undefined,
-        bankDetails: {
-          bank_name: profile.bankName,
-          account_number: profile.accountNumber,
-          ifsc_code: profile.ifscCode,
-          upi_id: profile.upiId
-        }
-      });
-
-      // 5. Compile vector PDF Blob on the client-side
-      const pdfInstance = pdf(docElement as any);
-      const blob = await pdfInstance.toBlob();
-      
-      if (!blob || blob.size === 0) {
-        throw new Error('Generated PDF Blob is empty');
-      }
-
+      const blob = await html2pdf().from(container).set(options as any).output('blob');
+      document.body.removeChild(container);
       return blob;
     } catch (err) {
-      console.error('Error inside generateInvoice PDF compiling:', err);
+      if (container.parentNode) {
+        document.body.removeChild(container);
+      }
       throw err;
     }
-  }
-
-  /**
-   * Compiles the unified vector PDF Blob from the single source of truth ReceiptDocument component
-   */
-  static async generateReceipt(receiptData: {
-    receiptNumber: string;
-    customerName: string;
-    customerPhone: string;
-    bookingNumber: string;
-    eventType: string;
-    eventDate: string;
-    amount: number;
-    paymentDate: string;
-    paymentMethod: string;
-    hallName: string;
-    hallAddress: string;
-    hallPhone: string;
-    hallEmail: string;
-    logoUrl?: string;
-  }): Promise<Blob> {
-    try {
-      // 1. Fetch general settings to get chosen template layout style
-      const settings = await getHallSettings();
-      const template = settings.invoiceTemplate || 'classic';
-
-      // 2. Pre-fetch and convert logo image to Base64 (if configured)
-      let logoBase64 = '';
-      if (receiptData.logoUrl) {
-        try {
-          logoBase64 = await fetchAsBase64(receiptData.logoUrl);
-        } catch {
-          // Continue without logo if it fails
-        }
-      }
-
-      // 3. Instantiate the ReceiptDocument React component
-      const docElement = React.createElement(ReceiptDocument, {
-        receiptNumber: receiptData.receiptNumber,
-        customerName: receiptData.customerName,
-        customerPhone: receiptData.customerPhone,
-        bookingNumber: receiptData.bookingNumber,
-        eventType: receiptData.eventType,
-        eventDate: receiptData.eventDate,
-        amount: receiptData.amount,
-        paymentDate: receiptData.paymentDate,
-        paymentMethod: receiptData.paymentMethod,
-        hallName: receiptData.hallName,
-        hallAddress: receiptData.hallAddress,
-        hallPhone: receiptData.hallPhone,
-        hallEmail: receiptData.hallEmail,
-        logoBase64: logoBase64 || undefined,
-        template
-      });
-
-      // 4. Compile vector PDF Blob on the client-side
-      const pdfInstance = pdf(docElement as any);
-      const blob = await pdfInstance.toBlob();
-      
-      if (!blob || blob.size === 0) {
-        throw new Error('Generated PDF Blob is empty');
-      }
-
-      return blob;
-    } catch (err) {
-      console.error('Error inside generateReceipt PDF compiling:', err);
-      throw err;
-    }
-  }
-
-  /**
-   * Generates a preview object URL from the PDF Blob
-   */
-  static previewInvoice(blob: Blob): string {
-    return URL.createObjectURL(blob);
   }
 
   /**
@@ -209,7 +148,7 @@ export class DocumentService {
       const cleanPhone = customerPhone.replace(/[^0-9]/g, '');
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       const baseUrl = isMobile ? 'whatsapp://send' : 'https://web.whatsapp.com/send';
-      window.open(`${baseUrl}?phone=${cleanPhone}&text=${encodeURIComponent(prefilledText)}`, '_blank');
+      window.open(`${baseUrl}?phone=${cleanPhone}?text=${encodeURIComponent(prefilledText)}`, '_blank');
       toast.info('PDF downloaded. Please attach it manually in WhatsApp.');
     }
   }

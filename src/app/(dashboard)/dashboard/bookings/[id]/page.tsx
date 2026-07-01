@@ -752,8 +752,8 @@ function BookingDetailPage() {
                   </button>
                   <div className="flex-1">
                     <DocumentShareButton
-                      documentId={invoice.id}
                       documentType="invoice"
+                      htmlContentFetcher={() => getInvoiceHtml(invoice.id)}
                       customerName={invoice.customer_name || 'Guest Payer'}
                       customerPhone={invoice.customer_phone || ''}
                       documentTitle={`Invoice_${invoice.invoice_number}`}
@@ -850,8 +850,8 @@ function BookingDetailPage() {
 
                     <div className="flex items-center gap-1.5 shrink-0">
                       <DocumentShareButton
-                        documentId={payment.id}
                         documentType="receipt"
+                        htmlContentFetcher={() => getReceiptHtml(payment.id)}
                         customerName={booking.customerName || 'Guest Payer'}
                         customerPhone={booking.customerPhone || ''}
                         documentTitle={`Receipt_${payment.id.slice(0, 8)}`}
@@ -859,10 +859,6 @@ function BookingDetailPage() {
                         eventDate={formatDate(booking.eventDate)}
                         amount={payment.amount}
                         hallName={invoice?.hall_name || 'Our Wedding Venue'}
-                        bookingNumber={booking.bookingNumber || booking.id.slice(0, 8)}
-                        eventType={booking.eventType}
-                        paymentDate={formatDate(payment.paymentDate)}
-                        paymentMethod={payment.paymentMethod}
                       />
                       {canCreatePayments && (
                         <button

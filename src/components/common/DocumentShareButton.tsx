@@ -4,12 +4,10 @@ import React, { useState } from 'react';
 import { Share2, Download, Printer, Loader2, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { DocumentService } from '@/services/invoiceDocumentService';
-import { getHallProfile } from '@/services/api/modules/settings.service';
 
 interface DocumentShareButtonProps {
-  documentId?: string; // Invoice ID or Payment ID
   documentType: 'invoice' | 'receipt' | 'booking' | 'quotation' | 'customer';
-  htmlContentFetcher?: () => Promise<string>; // kept for backward compatibility
+  htmlContentFetcher: () => Promise<string>;
   customerName: string;
   customerPhone: string;
   documentTitle: string;
@@ -18,16 +16,9 @@ interface DocumentShareButtonProps {
   amount: number;
   hallName: string;
   disabled?: boolean;
-
-  // Receipt specific contextual props
-  bookingNumber?: string;
-  eventType?: string;
-  paymentDate?: string;
-  paymentMethod?: string;
 }
 
 export default function DocumentShareButton({
-  documentId,
   documentType,
   htmlContentFetcher,
   customerName,
@@ -38,10 +29,6 @@ export default function DocumentShareButton({
   amount,
   hallName,
   disabled = false,
-  bookingNumber,
-  eventType,
-  paymentDate,
-  paymentMethod,
 }: DocumentShareButtonProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -74,58 +61,22 @@ Powered by Infovex Halls`;
   const resolvePdfBlob = async (): Promise<Blob> => {
     if (pdfBlob) return pdfBlob;
 
-    if (documentType === 'invoice') {
-      if (!documentId) {
-        throw new Error('documentId is required to generate invoice PDF');
-      }
-      const blob = await DocumentService.generateInvoice(documentId);
-      setPdfBlob(blob);
-      return blob;
-    } else if (documentType === 'receipt') {
-      // Fetch latest hall profile details for layout header
-      const profile = await getHallProfile();
-      const blob = await DocumentService.generateReceipt({
-        receiptNumber: documentNumber,
-        customerName,
-        customerPhone,
-        bookingNumber: bookingNumber || 'N/A',
-        eventType: eventType || 'N/A',
-        eventDate,
-        amount,
-        paymentDate: paymentDate || eventDate,
-        paymentMethod: paymentMethod || 'cash',
-        hallName: profile.hallName || hallName,
-        hallAddress: profile.address || '',
-        hallPhone: profile.phone || '',
-        hallEmail: profile.email || '',
-        logoUrl: profile.logoUrl || undefined
-      });
-      setPdfBlob(blob);
-      return blob;
-    } else {
-      throw new Error(`PDF export not supported for type: ${documentType}`);
-    }
+    const htmlContent = await htmlContentFetcher();
+    const blob = await DocumentService.generateInvoice(htmlContent, documentTitle);
+    setPdfBlob(blob);
+    return blob;
   };
 
   const handleShare = async () => {
     try {
       setIsProcessing(true);
       const activeBlob = await resolvePdfBlob();
-      const fileName = `${documentTitle.replace(/\s+/g, '_')}.pdf`;
-      const file = new File([activeBlob], fileName, { type: 'application/pdf' });
-
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: documentTitle,
-          text: getPrefilledMessage(),
-        });
-        toast.success('Document shared successfully!');
-      } else {
-        triggerDownload(activeBlob);
-        openWhatsAppFallback();
-        toast.info('PDF downloaded. Please attach it manually in WhatsApp.');
-      }
+      await DocumentService.shareInvoice(
+        activeBlob,
+        documentNumber,
+        customerPhone,
+        getPrefilledMessage()
+      );
     } catch (err) {
       console.error('Share failed:', err);
       toast.error('Invoice generation failed. Please try again.');

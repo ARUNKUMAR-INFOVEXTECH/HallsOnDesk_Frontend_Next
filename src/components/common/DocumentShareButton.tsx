@@ -75,12 +75,12 @@ Powered by Infovex Halls`;
     
     // Create an invisible container inside the main window context so style definitions apply fully
     const container = document.createElement('div');
-    container.style.position = 'fixed';
+    container.style.position = 'absolute';
     container.style.top = '0';
     container.style.left = '0';
     container.style.width = '800px';
     container.style.height = 'auto';
-    container.style.opacity = '0.01';
+    container.style.opacity = '1';
     container.style.zIndex = '-9999';
     container.style.pointerEvents = 'none';
     container.innerHTML = htmlContent;

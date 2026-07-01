@@ -105,28 +105,18 @@ Powered by Infovex Halls`;
   const generatePdfBlob = async (): Promise<Blob> => {
     const html2pdf = await loadHtml2Pdf();
     
-    // Create an invisible iframe for rendering high fidelity PDF
-    const printIframe = document.createElement('iframe');
-    printIframe.style.position = 'fixed';
-    printIframe.style.top = '0';
-    printIframe.style.left = '0';
-    printIframe.style.width = '800px';
-    printIframe.style.height = '1130px';
-    printIframe.style.opacity = '0.01';
-    printIframe.style.zIndex = '-9999';
-    printIframe.style.pointerEvents = 'none';
-    printIframe.style.border = 'none';
-    document.body.appendChild(printIframe);
-
-    const doc = printIframe.contentWindow?.document || printIframe.contentDocument;
-    if (!doc) {
-      document.body.removeChild(printIframe);
-      throw new Error('Failed to access print context');
-    }
-
-    doc.open();
-    doc.write(htmlContent);
-    doc.close();
+    // Create an invisible container inside the main window context so style definitions apply fully
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.width = '800px';
+    container.style.height = 'auto';
+    container.style.opacity = '0.01';
+    container.style.zIndex = '-9999';
+    container.style.pointerEvents = 'none';
+    container.innerHTML = htmlContent;
+    document.body.appendChild(container);
 
     await new Promise((resolve) => setTimeout(resolve, 800));
 
@@ -138,12 +128,12 @@ Powered by Infovex Halls`;
         html2canvas: { scale: 2, useCORS: true, logging: false },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
-      const blob = await html2pdf().from(doc.body).set(options).output('blob');
-      document.body.removeChild(printIframe);
+      const blob = await html2pdf().from(container).set(options).output('blob');
+      document.body.removeChild(container);
       return blob;
     } catch (err) {
-      if (printIframe.parentNode) {
-        document.body.removeChild(printIframe);
+      if (container.parentNode) {
+        document.body.removeChild(container);
       }
       throw err;
     }

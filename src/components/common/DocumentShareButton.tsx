@@ -73,28 +73,18 @@ Powered by Infovex Halls`;
     const htmlContent = await htmlContentFetcher();
     const html2pdf = await loadHtml2Pdf();
     
-    // Create an invisible iframe to isolate the printable document layout
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'fixed';
-    iframe.style.top = '0';
-    iframe.style.left = '0';
-    iframe.style.width = '800px';
-    iframe.style.height = '1130px';
-    iframe.style.opacity = '0.01';
-    iframe.style.zIndex = '-9999';
-    iframe.style.pointerEvents = 'none';
-    iframe.style.border = 'none';
-    document.body.appendChild(iframe);
-
-    const doc = iframe.contentWindow?.document || iframe.contentDocument;
-    if (!doc) {
-      document.body.removeChild(iframe);
-      throw new Error('Failed to write invoice to iframe');
-    }
-
-    doc.open();
-    doc.write(htmlContent);
-    doc.close();
+    // Create an invisible container inside the main window context so style definitions apply fully
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.width = '800px';
+    container.style.height = 'auto';
+    container.style.opacity = '0.01';
+    container.style.zIndex = '-9999';
+    container.style.pointerEvents = 'none';
+    container.innerHTML = htmlContent;
+    document.body.appendChild(container);
 
     // Allow 800ms for stylesheets, custom Google Fonts, and images to complete rendering
     await new Promise((resolve) => setTimeout(resolve, 800));
@@ -111,12 +101,12 @@ Powered by Infovex Halls`;
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
-      const blob = await html2pdf().from(doc.body).set(options).output('blob');
-      document.body.removeChild(iframe);
+      const blob = await html2pdf().from(container).set(options).output('blob');
+      document.body.removeChild(container);
       return blob;
     } catch (err) {
-      if (iframe.parentNode) {
-        document.body.removeChild(iframe);
+      if (container.parentNode) {
+        document.body.removeChild(container);
       }
       throw err;
     }

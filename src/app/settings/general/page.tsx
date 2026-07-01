@@ -232,13 +232,7 @@ export default function GeneralSettingsPage() {
   const [differentStaff, setDifferentStaff] = useState(false);
   const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
 
-  // Secondary hall form state
-  const [newHallName, setNewHallName] = useState('');
-  const [newHallPhone, setNewHallPhone] = useState('');
-  const [newHallEmail, setNewHallEmail] = useState('');
-  const [newHallCity, setNewHallCity] = useState('');
-  const [newHallAddress, setNewHallAddress] = useState('');
-  const [isRegisteringHall, setIsRegisteringHall] = useState(false);
+
 
   // Fetch premium status & initialize settings
   useEffect(() => {
@@ -295,38 +289,7 @@ export default function GeneralSettingsPage() {
     }
   };
 
-  const handleRegisterSecondHall = async () => {
-    if (!newHallName) return;
-    setIsRegisteringHall(true);
-    try {
-      const res = await apiClient.post('/multihall/register-hall', {
-        hall_name: newHallName,
-        phone: newHallPhone,
-        email: newHallEmail,
-        city: newHallCity,
-        address: newHallAddress,
-      });
 
-      // Update store user profile with new accessible halls list
-      const updatedHalls = [...(user?.accessible_halls || []), { id: res.data.hall.id, hall_name: res.data.hall.hall_name }];
-      if (user) {
-        const updatedUser = { ...user, accessible_halls: updatedHalls };
-        setUser(updatedUser);
-      }
-
-      setNewHallName('');
-      setNewHallPhone('');
-      setNewHallEmail('');
-      setNewHallCity('');
-      setNewHallAddress('');
-
-      toast.success('Secondary hall registered successfully!');
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to register secondary hall.');
-    } finally {
-      setIsRegisteringHall(false);
-    }
-  };
 
   const toggleSection = (idx: number) => {
     setOpenSections(prev => ({
@@ -1042,75 +1005,7 @@ export default function GeneralSettingsPage() {
                       </div>
                     </div>
 
-                    {/* 4. Form to add second hall (if less than 2 halls) */}
-                    {(user.accessible_halls?.length || 0) < 2 && (
-                      <div className="bg-gray-50 border border-gray-150 p-5 rounded-xl space-y-4">
-                        <div className="space-y-0.5">
-                          <h4 className="font-bold text-gray-900 text-sm">Register Secondary Hall</h4>
-                          <p className="text-[11px] text-gray-450 font-medium">Add a second wedding hall profile to start managing bookings and invoices for it.</p>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-gray-700">
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Hall Name</label>
-                            <input
-                              type="text"
-                              value={newHallName}
-                              onChange={(e) => setNewHallName(e.target.value)}
-                              placeholder="e.g. Royal Palace Hall"
-                              className="px-3 py-2 w-full border border-gray-200 bg-white rounded-lg focus:ring-1 focus:ring-violet-500"
-                            />
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Phone Number</label>
-                            <input
-                              type="text"
-                              value={newHallPhone}
-                              onChange={(e) => setNewHallPhone(e.target.value)}
-                              placeholder="e.g. +91 98765 43210"
-                              className="px-3 py-2 w-full border border-gray-200 bg-white rounded-lg focus:ring-1 focus:ring-violet-500"
-                            />
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Email Address</label>
-                            <input
-                              type="email"
-                              value={newHallEmail}
-                              onChange={(e) => setNewHallEmail(e.target.value)}
-                              placeholder="e.g. contact@hall.com"
-                              className="px-3 py-2 w-full border border-gray-200 bg-white rounded-lg focus:ring-1 focus:ring-violet-500"
-                            />
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">City</label>
-                            <input
-                              type="text"
-                              value={newHallCity}
-                              onChange={(e) => setNewHallCity(e.target.value)}
-                              placeholder="e.g. Chennai"
-                              className="px-3 py-2 w-full border border-gray-200 bg-white rounded-lg focus:ring-1 focus:ring-violet-500"
-                            />
-                          </div>
-                          <div className="space-y-1.5 sm:col-span-2">
-                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Complete Address</label>
-                            <input
-                              type="text"
-                              value={newHallAddress}
-                              onChange={(e) => setNewHallAddress(e.target.value)}
-                              placeholder="e.g. 123 Main St, Near Central Station"
-                              className="px-3 py-2 w-full border border-gray-200 bg-white rounded-lg focus:ring-1 focus:ring-violet-500"
-                            />
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={handleRegisterSecondHall}
-                          disabled={isRegisteringHall || !newHallName}
-                          className="px-4 py-2 bg-violet-600 hover:bg-violet-750 text-xs font-bold text-white rounded-lg shadow-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer block w-full sm:w-auto text-center"
-                        >
-                          {isRegisteringHall ? 'Registering...' : 'Register Hall'}
-                        </button>
-                      </div>
-                    )}
+
                   </div>
                 )}
               </div>

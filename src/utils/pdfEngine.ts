@@ -2,22 +2,9 @@
 
 /**
  * Unified PDF Generation Engine for HallsOnDesk SaaS
- * Preserves exact styling template and solves blank page bugs by rendering within an isolated context.
+ * Uses locally bundled html2pdf.js and executes inside isolated iframe contexts to prevent stylesheet leaks,
+ * canvas coordinates mismatch, and CORS taint failures.
  */
-
-const loadHtml2Pdf = (): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    if (typeof window !== 'undefined' && (window as any).html2pdf) {
-      resolve((window as any).html2pdf);
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-    script.onload = () => resolve((window as any).html2pdf);
-    script.onerror = (e) => reject(new Error('Failed to load html2pdf script.'));
-    document.body.appendChild(script);
-  });
-};
 
 /**
  * Pre-converts all images (logos, qr codes) to Base64 to avoid CORS canvas contamination
@@ -81,7 +68,7 @@ export const waitForIframeResources = async (iframe: HTMLIFrameElement): Promise
 };
 
 /**
- * Generates the PDF Blob inside the iframe context
+ * Generates the PDF Blob inside the iframe context using local html2pdf bundle
  */
 export const generatePdfInsideIframe = async (
   iframe: HTMLIFrameElement,
@@ -93,18 +80,11 @@ export const generatePdfInsideIframe = async (
     throw new Error('Iframe context unavailable for PDF compilation');
   }
 
-  // Inject html2pdf script into the iframe context if not present
-  if (!(win as any).html2pdf) {
-    await new Promise<void>((resolve, reject) => {
-      const script = doc.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Failed to load html2pdf inside iframe'));
-      doc.head.appendChild(script);
-    });
-  }
+  // Dynamically load html2pdf.js locally to prevent SSR build issues
+  const html2pdfModule = await import('html2pdf.js');
+  const html2pdf = html2pdfModule.default;
+  (win as any).html2pdf = html2pdf;
 
-  const html2pdf = (win as any).html2pdf;
   const options = {
     margin: 10,
     filename: `${documentTitle}.pdf`,
@@ -119,7 +99,7 @@ export const generatePdfInsideIframe = async (
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
 
-  return await html2pdf().from(doc.body).set(options).output('blob');
+  return await (win as any).html2pdf().from(doc.body).set(options).output('blob');
 };
 
 /**

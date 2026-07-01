@@ -3,11 +3,13 @@
 import React, { useState } from 'react';
 import { Share2, Download, Printer, Loader2, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
-import { getPdfBlobFromHtml, printPdfBlob } from '@/utils/pdfEngine';
+import { DocumentService } from '@/services/invoiceDocumentService';
+import { getHallProfile } from '@/services/api/modules/settings.service';
 
 interface DocumentShareButtonProps {
+  documentId?: string; // Invoice ID or Payment ID
   documentType: 'invoice' | 'receipt' | 'booking' | 'quotation' | 'customer';
-  htmlContentFetcher: () => Promise<string>;
+  htmlContentFetcher?: () => Promise<string>; // kept for backward compatibility
   customerName: string;
   customerPhone: string;
   documentTitle: string;
@@ -16,9 +18,16 @@ interface DocumentShareButtonProps {
   amount: number;
   hallName: string;
   disabled?: boolean;
+
+  // Receipt specific contextual props
+  bookingNumber?: string;
+  eventType?: string;
+  paymentDate?: string;
+  paymentMethod?: string;
 }
 
 export default function DocumentShareButton({
+  documentId,
   documentType,
   htmlContentFetcher,
   customerName,
@@ -29,6 +38,10 @@ export default function DocumentShareButton({
   amount,
   hallName,
   disabled = false,
+  bookingNumber,
+  eventType,
+  paymentDate,
+  paymentMethod,
 }: DocumentShareButtonProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -47,7 +60,7 @@ ${documentNumber}
 Event Date:
 ${eventDate}
 
-Amount Due:
+Amount:
 ₹${amount.toLocaleString('en-IN')}
 
 For any assistance, please contact us.
@@ -57,14 +70,41 @@ ${hallName}
 Powered by Infovex Halls`;
   };
 
-  // Helper to resolve and cache the single PDF Blob from the HTML template fetcher
+  // Helper to compile and cache the single PDF Blob from our DocumentService
   const resolvePdfBlob = async (): Promise<Blob> => {
     if (pdfBlob) return pdfBlob;
-    
-    const htmlContent = await htmlContentFetcher();
-    const blob = await getPdfBlobFromHtml(htmlContent, documentTitle);
-    setPdfBlob(blob);
-    return blob;
+
+    if (documentType === 'invoice') {
+      if (!documentId) {
+        throw new Error('documentId is required to generate invoice PDF');
+      }
+      const blob = await DocumentService.generateInvoice(documentId);
+      setPdfBlob(blob);
+      return blob;
+    } else if (documentType === 'receipt') {
+      // Fetch latest hall profile details for layout header
+      const profile = await getHallProfile();
+      const blob = await DocumentService.generateReceipt({
+        receiptNumber: documentNumber,
+        customerName,
+        customerPhone,
+        bookingNumber: bookingNumber || 'N/A',
+        eventType: eventType || 'N/A',
+        eventDate,
+        amount,
+        paymentDate: paymentDate || eventDate,
+        paymentMethod: paymentMethod || 'cash',
+        hallName: profile.hallName || hallName,
+        hallAddress: profile.address || '',
+        hallPhone: profile.phone || '',
+        hallEmail: profile.email || '',
+        logoUrl: profile.logoUrl || undefined
+      });
+      setPdfBlob(blob);
+      return blob;
+    } else {
+      throw new Error(`PDF export not supported for type: ${documentType}`);
+    }
   };
 
   const handleShare = async () => {
@@ -88,13 +128,7 @@ Powered by Infovex Halls`;
       }
     } catch (err) {
       console.error('Share failed:', err);
-      toast.error('Sharing failed. Triggering automatic PDF download as fallback.');
-      try {
-        const activeBlob = await resolvePdfBlob();
-        triggerDownload(activeBlob);
-      } catch (dlErr) {
-        console.error('Fallback download failed:', dlErr);
-      }
+      toast.error('Invoice generation failed. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -127,7 +161,7 @@ Powered by Infovex Halls`;
       toast.success('PDF downloaded successfully!');
     } catch (err) {
       console.error('Download failed:', err);
-      toast.error('Failed to generate PDF.');
+      toast.error('Invoice generation failed. Please try again.');
     } finally {
       setIsProcessing(false);
       setDropdownOpen(false);
@@ -138,10 +172,10 @@ Powered by Infovex Halls`;
     try {
       setIsProcessing(true);
       const activeBlob = await resolvePdfBlob();
-      await printPdfBlob(activeBlob);
+      await DocumentService.printInvoice(activeBlob);
     } catch (err) {
       console.error('Print failed:', err);
-      toast.error('Failed to print document.');
+      toast.error('Invoice generation failed. Please try again.');
     } finally {
       setIsProcessing(false);
       setDropdownOpen(false);

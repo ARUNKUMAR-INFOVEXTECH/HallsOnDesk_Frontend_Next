@@ -1,15 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Share2, Download, Printer, Loader2, Eye, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getInvoiceHtml } from '@/services/api/modules/invoices.service';
-import { 
-  convertImagesToBase64, 
-  waitForIframeResources, 
-  generatePdfInsideIframe, 
-  printPdfBlob 
-} from '@/utils/pdfEngine';
+import { DocumentService } from '@/services/invoiceDocumentService';
 import { toast } from 'sonner';
 
 interface InvoicePreviewModalProps {
@@ -35,68 +29,50 @@ export function InvoicePreviewModal({
   amount,
   hallName,
 }: InvoicePreviewModalProps) {
-  const [htmlContent, setHtmlContent] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState<boolean>(false);
   const [isSharing, setIsSharing] = useState<boolean>(false);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const [isPrinting, setIsPrinting] = useState<boolean>(false);
   const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
-  
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
 
-  // Fetch HTML invoice template from API
+  // Generate the PDF Blob on mount / open
   useEffect(() => {
     if (isOpen && invoiceId) {
       setIsLoading(true);
       setPdfBlob(null);
-      getInvoiceHtml(invoiceId)
-        .then((html) => {
-          setHtmlContent(html);
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          console.error('Failed to load invoice HTML:', err);
-          toast.error('Failed to load invoice preview.');
-          setIsLoading(false);
-        });
-    }
-  }, [isOpen, invoiceId]);
-
-  // Inject content inside iframe and generate single source-of-truth PDF Blob in background
-  useEffect(() => {
-    if (!isLoading && htmlContent && iframeRef.current) {
-      const doc = iframeRef.current.contentWindow?.document || iframeRef.current.contentDocument;
-      if (doc) {
-        setIsGeneratingPdf(true);
-        
-        const setupIframe = async () => {
-          try {
-            // Pre-convert images to Base64 to prevent CORS tainted canvas crashes
-            const cleanHtml = await convertImagesToBase64(htmlContent);
-            
-            doc.open();
-            doc.write(cleanHtml);
-            doc.close();
-
-            // Wait until images and custom serif fonts are loaded and painted
-            await waitForIframeResources(iframeRef.current!);
-            
-            // Compile PDF once inside the iframe window context
-            const blob = await generatePdfInsideIframe(iframeRef.current!, `Invoice_${invoiceNumber}`);
-            setPdfBlob(blob);
-          } catch (err) {
-            console.error('Failed to compile PDF Blob in background:', err);
-            toast.error('Could not pre-render high fidelity PDF layout.');
-          } finally {
-            setIsGeneratingPdf(false);
-          }
-        };
-
-        setupIframe();
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl('');
       }
+
+      const generatePdf = async () => {
+        try {
+          // Generate PDF once using the single source of truth component
+          const blob = await DocumentService.generateInvoice(invoiceId);
+          setPdfBlob(blob);
+          
+          // Create local URL for browser PDF reader preview
+          const url = DocumentService.previewInvoice(blob);
+          setPreviewUrl(url);
+        } catch (err) {
+          console.error('Failed to generate invoice PDF:', err);
+          toast.error('Failed to generate high-fidelity invoice PDF.');
+          onClose();
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      generatePdf();
     }
-  }, [isLoading, htmlContent, invoiceNumber]);
+
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [isOpen, invoiceId]);
 
   if (!isOpen || !invoiceId) return null;
 
@@ -123,87 +99,43 @@ ${hallName}
 Powered by Infovex Halls`;
   };
 
-  const triggerDownload = (blob: Blob) => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Invoice_${invoiceNumber.replace(/\s+/g, '_')}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const openWhatsAppFallback = () => {
-    const cleanPhone = customerPhone.replace(/[^0-9]/g, '');
-    const text = getPrefilledMessage();
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const baseUrl = isMobile ? 'whatsapp://send' : 'https://web.whatsapp.com/send';
-    window.open(`${baseUrl}?phone=${cleanPhone}&text=${encodeURIComponent(text)}`, '_blank');
-  };
-
   const handleShare = async () => {
-    if (!pdfBlob) {
-      toast.warning('Wait for PDF generation to finish before sharing.');
-      return;
-    }
-    
+    if (!pdfBlob) return;
     try {
       setIsSharing(true);
-      const fileName = `Invoice_${invoiceNumber.replace(/\s+/g, '_')}.pdf`;
-      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
-
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: `Invoice ${invoiceNumber}`,
-          text: getPrefilledMessage(),
-        });
-        toast.success('Invoice shared successfully!');
-      } else {
-        triggerDownload(pdfBlob);
-        openWhatsAppFallback();
-        toast.info('PDF downloaded. Please attach it manually in WhatsApp.');
-      }
+      await DocumentService.shareInvoice(
+        pdfBlob,
+        invoiceNumber,
+        customerPhone,
+        getPrefilledMessage()
+      );
     } catch (err) {
-      console.error('Share failed:', err);
-      toast.error('Sharing failed. Triggering automatic download as fallback.');
-      triggerDownload(pdfBlob);
+      console.error('Sharing failed:', err);
     } finally {
       setIsSharing(false);
     }
   };
 
   const handleDownload = async () => {
-    if (!pdfBlob) {
-      toast.warning('Wait for PDF generation to finish before downloading.');
-      return;
-    }
-    
+    if (!pdfBlob) return;
     try {
       setIsDownloading(true);
-      triggerDownload(pdfBlob);
+      DocumentService.downloadInvoice(pdfBlob, invoiceNumber);
       toast.success('Invoice downloaded successfully!');
     } catch (err) {
       console.error('Download failed:', err);
-      toast.error('Failed to export PDF.');
     } finally {
       setIsDownloading(false);
     }
   };
 
   const handlePrint = async () => {
-    if (!pdfBlob) {
-      toast.warning('Wait for PDF generation to finish before printing.');
-      return;
-    }
-
+    if (!pdfBlob) return;
     try {
       setIsPrinting(true);
-      await printPdfBlob(pdfBlob);
+      await DocumentService.printInvoice(pdfBlob);
     } catch (err) {
       console.error('Print failed:', err);
-      toast.error('Failed to trigger printing.');
     } finally {
       setIsPrinting(false);
     }
@@ -245,10 +177,10 @@ Powered by Infovex Halls`;
             </div>
             
             <div className="flex items-center gap-4">
-              {isGeneratingPdf && (
-                <div className="flex items-center gap-1.5 text-primary text-[10px] bg-primary/5 px-2.5 py-1 rounded-md border border-primary/10">
+              {isLoading && (
+                <div className="flex items-center gap-1.5 text-primary text-[10px] bg-primary/5 px-2.5 py-1 rounded-md border border-primary/10 animate-pulse">
                   <Loader2 className="h-3 w-3 animate-spin" />
-                  <span>Compiling PDF Blob...</span>
+                  <span>Compiling PDF Document...</span>
                 </div>
               )}
               {pdfBlob && (
@@ -275,7 +207,7 @@ Powered by Infovex Halls`;
               </div>
             ) : (
               <iframe
-                ref={iframeRef}
+                src={previewUrl}
                 className="w-full h-full bg-white rounded-lg shadow-sm border border-slate-200"
                 title="Invoice Design Canvas"
               />
@@ -294,7 +226,7 @@ Powered by Infovex Halls`;
             <div className="flex items-center gap-2">
               <button
                 onClick={handlePrint}
-                disabled={isLoading || isGeneratingPdf || isPrinting}
+                disabled={isLoading || !pdfBlob || isPrinting}
                 className="flex items-center gap-1.5 py-2 px-3 border border-slate-200 hover:bg-slate-100 text-slate-655 rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50"
               >
                 {isPrinting ? (
@@ -307,7 +239,7 @@ Powered by Infovex Halls`;
 
               <button
                 onClick={handleDownload}
-                disabled={isLoading || isGeneratingPdf || isDownloading}
+                disabled={isLoading || !pdfBlob || isDownloading}
                 className="flex items-center gap-1.5 py-2 px-3 border border-slate-200 hover:bg-slate-100 text-slate-655 rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50"
               >
                 {isDownloading ? (
@@ -320,7 +252,7 @@ Powered by Infovex Halls`;
 
               <button
                 onClick={handleShare}
-                disabled={isLoading || isGeneratingPdf || isSharing}
+                disabled={isLoading || !pdfBlob || isSharing}
                 className="flex items-center gap-1.5 py-2 px-4 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50"
               >
                 {isSharing ? (

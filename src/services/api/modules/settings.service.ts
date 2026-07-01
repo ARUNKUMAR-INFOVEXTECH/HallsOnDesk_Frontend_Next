@@ -124,6 +124,7 @@ function setLocal<T>(key: string, data: T) {
 export async function getHallProfile(): Promise<HallProfile> {
   try {
     const res = await apiClient.get<HallProfile>('/hall/profile');
+    setLocal(getProfileKey(), res.data);
     return res.data;
   } catch {
     return getLocal(getProfileKey(), initialProfileFallback);
@@ -134,6 +135,7 @@ export async function getHallProfile(): Promise<HallProfile> {
 export async function updateHallProfile(data: Partial<HallProfile>): Promise<{ message: string; data: HallProfile }> {
   try {
     const res = await apiClient.put<{ message: string; data: HallProfile }>('/hall/profile', data);
+    setLocal(getProfileKey(), res.data.data);
     return res.data;
   } catch {
     const current = getLocal(getProfileKey(), initialProfileFallback);
@@ -147,6 +149,7 @@ export async function updateHallProfile(data: Partial<HallProfile>): Promise<{ m
 export async function getHallSettings(): Promise<HallSettings> {
   try {
     const res = await apiClient.get<HallSettings>('/hall/settings');
+    setLocal(getSettingsKey(), res.data);
     return res.data;
   } catch {
     return getLocal(getSettingsKey(), initialSettingsFallback);
@@ -157,6 +160,7 @@ export async function getHallSettings(): Promise<HallSettings> {
 export async function updateHallSettings(data: Partial<HallSettings>): Promise<{ message: string; data: HallSettings }> {
   try {
     const res = await apiClient.put<{ message: string; data: HallSettings }>('/hall/settings', data);
+    setLocal(getSettingsKey(), res.data.data);
     return res.data;
   } catch {
     const current = getLocal(getSettingsKey(), initialSettingsFallback);

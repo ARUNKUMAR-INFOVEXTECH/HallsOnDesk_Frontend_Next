@@ -22,6 +22,7 @@ import {
   AlertCircle,
   Loader2,
   Clock,
+  Eye,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -52,6 +53,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useActiveSubscription } from '@/hooks/useSettings';
 import { hasFeature } from '@/utils/subscription';
 import DocumentShareButton from '@/components/common/DocumentShareButton';
+import { InvoicePreviewModal } from '@/components/payments/InvoicePreviewModal';
 
 // Vendor Allocation Imports
 import {
@@ -95,6 +97,7 @@ function BookingDetailPage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [isInvoicePreviewOpen, setIsInvoicePreviewOpen] = useState(false);
 
   // Vendor allocation states
   const [activeTab, setActiveTab] = useState<'overview' | 'vendors'>('overview');
@@ -737,18 +740,29 @@ function BookingDetailPage() {
                   </div>
                 )}
 
-                <div className="flex gap-2 mt-1">
-                  <DocumentShareButton
-                    documentType="invoice"
-                    htmlContentFetcher={() => getInvoiceHtml(invoice.id)}
-                    customerName={invoice.customer_name || 'Guest Payer'}
-                    customerPhone={invoice.customer_phone || ''}
-                    documentTitle={`Invoice_${invoice.invoice_number}`}
-                    documentNumber={invoice.invoice_number}
-                    eventDate={formatDate(invoice.event_date)}
-                    amount={invoice.balance_due}
-                    hallName={invoice.hall_name || 'Our Wedding Venue'}
-                  />
+                <div className="flex gap-2 mt-1 w-full items-stretch">
+                  <button
+                    type="button"
+                    onClick={() => setIsInvoicePreviewOpen(true)}
+                    title="View Invoice Preview"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 border border-slate-200 hover:bg-slate-50 text-slate-655 rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer min-h-[38px]"
+                  >
+                    <Eye className="h-3.5 w-3.5 text-slate-450" />
+                    <span>View Preview</span>
+                  </button>
+                  <div className="flex-1">
+                    <DocumentShareButton
+                      documentType="invoice"
+                      htmlContentFetcher={() => getInvoiceHtml(invoice.id)}
+                      customerName={invoice.customer_name || 'Guest Payer'}
+                      customerPhone={invoice.customer_phone || ''}
+                      documentTitle={`Invoice_${invoice.invoice_number}`}
+                      documentNumber={invoice.invoice_number}
+                      eventDate={formatDate(invoice.event_date)}
+                      amount={invoice.balance_due}
+                      hallName={invoice.hall_name || 'Our Wedding Venue'}
+                    />
+                  </div>
                   {isAllowedToDeleteInvoice && (
                     <button
                       onClick={async () => {
@@ -1251,6 +1265,20 @@ function BookingDetailPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {isInvoicePreviewOpen && invoice && (
+        <InvoicePreviewModal
+          isOpen={isInvoicePreviewOpen}
+          onClose={() => setIsInvoicePreviewOpen(false)}
+          invoiceId={invoice.id}
+          invoiceNumber={invoice.invoice_number}
+          customerName={invoice.customer_name || 'Guest Payer'}
+          customerPhone={invoice.customer_phone || ''}
+          eventDate={formatDate(invoice.event_date)}
+          amount={invoice.balance_due}
+          hallName={invoice.hall_name || 'Our Wedding Venue'}
+        />
+      )}
     </div>
   );
 }

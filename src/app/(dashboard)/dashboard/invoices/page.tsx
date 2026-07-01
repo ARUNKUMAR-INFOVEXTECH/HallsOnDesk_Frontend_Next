@@ -15,7 +15,8 @@ import {
   Inbox,
   X,
   Trash2,
-  Download
+  Download,
+  Eye
 } from 'lucide-react';
 import Link from 'next/link';
 import { useInvoices, useCreateInvoice, useDeleteInvoice } from '@/hooks/useInvoices';
@@ -27,6 +28,7 @@ import { getInvoiceHtml, downloadGstr1Report } from '@/services/api/modules/invo
 import { useAuthStore } from '@/store/authStore';
 import { Invoice } from '@/types';
 import DocumentShareButton from '@/components/common/DocumentShareButton';
+import { InvoicePreviewModal } from '@/components/payments/InvoicePreviewModal';
 
 export default function InvoicesListPage() {
   const [search, setSearch] = useState('');
@@ -35,6 +37,7 @@ export default function InvoicesListPage() {
   const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState('');
   const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
+  const [previewInvoice, setPreviewInvoice] = useState<Invoice | null>(null);
 
   const [fromDate, setFromDate] = useState(() => {
     const d = new Date();
@@ -389,6 +392,13 @@ export default function InvoicesListPage() {
                   {/* Actions */}
                   <td className="px-4 py-3 text-center">
                     <div className="flex items-center justify-center gap-1.5">
+                      <button
+                        onClick={() => setPreviewInvoice(inv)}
+                        title="View Invoice Preview"
+                        className="h-7 w-7 inline-flex items-center justify-center text-slate-450 hover:text-slate-700 border border-slate-200 hover:border-slate-350 bg-white rounded-md transition-all cursor-pointer shadow-sm"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                      </button>
                       <DocumentShareButton
                         documentType="invoice"
                         htmlContentFetcher={() => getInvoiceHtml(inv.id)}
@@ -571,6 +581,19 @@ export default function InvoicesListPage() {
             </div>
           </div>
         </div>
+      )}
+      {previewInvoice && (
+        <InvoicePreviewModal
+          isOpen={!!previewInvoice}
+          onClose={() => setPreviewInvoice(null)}
+          invoiceId={previewInvoice.id}
+          invoiceNumber={previewInvoice.invoice_number}
+          customerName={previewInvoice.customer_name || 'Guest Payer'}
+          customerPhone={previewInvoice.customer_phone || ''}
+          eventDate={formatDate(previewInvoice.event_date)}
+          amount={previewInvoice.balance_due}
+          hallName={previewInvoice.hall_name || 'Our Wedding Venue'}
+        />
       )}
     </div>
   );

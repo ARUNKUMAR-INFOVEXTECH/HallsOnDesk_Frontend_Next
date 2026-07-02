@@ -1,8 +1,20 @@
 import apiClient from '../client';
 import { Invoice } from '@/types';
 
-export async function createInvoice(bookingId: string): Promise<{ message: string; data: Invoice }> {
-  const res = await apiClient.post<{ message: string; data: Invoice }>('/invoices', { booking_id: bookingId });
+export interface CreateInvoicePayload {
+  booking_id: string;
+  due_date?: string;
+  line_items?: Array<{
+    description: string;
+    quantity: number;
+    unit_price: number;
+  }>;
+  discount_amount?: number;
+  notes?: string;
+}
+
+export async function createInvoice(payload: CreateInvoicePayload): Promise<{ message: string; data: Invoice }> {
+  const res = await apiClient.post<{ message: string; data: Invoice }>('/invoices', payload);
   return res.data;
 }
 

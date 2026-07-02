@@ -29,6 +29,7 @@ import { useAuthStore } from '@/store/authStore';
 import { Invoice } from '@/types';
 import DocumentShareButton from '@/components/common/DocumentShareButton';
 import { InvoicePreviewModal } from '@/components/payments/InvoicePreviewModal';
+import { InvoiceBuilderModal } from '@/components/payments/InvoiceBuilderModal';
 
 export default function InvoicesListPage() {
   const [search, setSearch] = useState('');
@@ -104,22 +105,7 @@ export default function InvoicesListPage() {
     }
   };
 
-  const handleCreateInvoiceSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedBookingId) {
-      toast.error('Please select a booking to invoice.');
-      return;
-    }
-
-    try {
-      await createInvoiceMutation.mutateAsync(selectedBookingId);
-      setIsDraftModalOpen(false);
-      setSelectedBookingId('');
-      refetchInvoices();
-    } catch (err) {
-      console.error('Draft invoice failed:', err);
-    }
-  };
+  // Note: Submit logic now handled inside the InvoiceBuilderModal component
 
   // Filter local rows by search (number or customer name) client-side for smoother interaction
   const filteredInvoices = React.useMemo(() => {
@@ -450,79 +436,10 @@ export default function InvoicesListPage() {
       )}
 
       {/* Draft New Invoice Modal */}
-      {isDraftModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            onClick={() => setIsDraftModalOpen(false)}
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"
-          />
-
-          <div className="relative w-full max-w-md bg-white rounded-xl shadow-premium border border-slate-200 p-6 space-y-4 z-10 animate-fadeIn">
-            <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-              <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">
-                Draft New Invoice
-              </h3>
-              <button
-                onClick={() => setIsDraftModalOpen(false)}
-                className="p-1 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                <X className="h-4.5 w-4.5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateInvoiceSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-405 uppercase tracking-wider block">
-                  Select Booking Reservation
-                </label>
-                {isBookingsLoading ? (
-                  <div className="h-9 w-full bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center text-slate-400">
-                    <Loader2 className="h-4 w-4 animate-spin shrink-0 mr-1.5" />
-                    Loading bookings list...
-                  </div>
-                ) : bookings.length === 0 ? (
-                  <div className="text-slate-450 border border-amber-100 bg-amber-50/20 p-3 rounded-lg text-xs leading-relaxed">
-                    No active booking records found to draft invoices. Go to Bookings screen to add a reservation first.
-                  </div>
-                ) : (
-                  <select
-                    value={selectedBookingId}
-                    onChange={(e) => setSelectedBookingId(e.target.value)}
-                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none focus:ring-1 focus:ring-primary cursor-pointer shadow-sm font-semibold"
-                  >
-                    <option value="">-- Choose Booking --</option>
-                    {bookings
-                      .filter((b) => b.status !== 'cancelled')
-                      .map((b) => (
-                        <option key={b.id} value={b.id}>
-                          {b.bookingNumber} - {b.customerName} ({b.eventType} - {formatDate(b.eventDate)})
-                        </option>
-                      ))}
-                  </select>
-                )}
-              </div>
-
-              <div className="flex items-center gap-3 justify-end pt-3 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setIsDraftModalOpen(false)}
-                  className="px-4 py-2 border border-slate-200 hover:bg-slate-100 rounded-lg text-xs font-bold text-slate-600 transition-colors cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={createInvoiceMutation.isPending || !selectedBookingId}
-                  className="flex items-center justify-center gap-1.5 py-2 px-4.5 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50"
-                >
-                  {createInvoiceMutation.isPending && <Loader2 className="h-4.5 w-4.5 animate-spin shrink-0" />}
-                  Generate Invoice
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <InvoiceBuilderModal
+        isOpen={isDraftModalOpen}
+        onClose={() => setIsDraftModalOpen(false)}
+      />
 
       {/* Delete Invoice Confirmation Modal */}
       {invoiceToDelete && (

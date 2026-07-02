@@ -54,6 +54,7 @@ import { useActiveSubscription } from '@/hooks/useSettings';
 import { hasFeature } from '@/utils/subscription';
 import DocumentShareButton from '@/components/common/DocumentShareButton';
 import { InvoicePreviewModal } from '@/components/payments/InvoicePreviewModal';
+import { InvoiceBuilderModal } from '@/components/payments/InvoiceBuilderModal';
 
 // Vendor Allocation Imports
 import {
@@ -98,6 +99,7 @@ function BookingDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isInvoicePreviewOpen, setIsInvoicePreviewOpen] = useState(false);
+  const [isInvoiceBuilderOpen, setIsInvoiceBuilderOpen] = useState(false);
 
   // Vendor allocation states
   const [activeTab, setActiveTab] = useState<'overview' | 'vendors'>('overview');
@@ -239,12 +241,8 @@ function BookingDetailPage() {
   };
 
   // Perform invoice creation
-  const handleGenerateInvoice = async () => {
-    try {
-      await createInvoiceMutation.mutateAsync(id);
-    } catch (err) {
-      console.error('Invoice creation failed:', err);
-    }
+  const handleGenerateInvoice = () => {
+    setIsInvoiceBuilderOpen(true);
   };
 
   // HTML Print triggers
@@ -1281,6 +1279,13 @@ function BookingDetailPage() {
           hallName={invoice.hall_name || 'Our Wedding Venue'}
         />
       )}
+
+      {/* Invoice Builder Modal */}
+      <InvoiceBuilderModal
+        isOpen={isInvoiceBuilderOpen}
+        onClose={() => setIsInvoiceBuilderOpen(false)}
+        bookingId={id}
+      />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import {
   getInvoices,
   InvoicesResponse,
   deleteInvoice,
+  CreateInvoicePayload,
 } from '@/services/api/modules/invoices.service';
 import { Invoice } from '@/types';
 
@@ -45,8 +46,9 @@ export function useCreateInvoice() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (bookingId: string) => createInvoice(bookingId),
-    onSuccess: (res, bookingId) => {
+    mutationFn: (payload: CreateInvoicePayload) => createInvoice(payload),
+    onSuccess: (res, payload) => {
+      const bookingId = payload.booking_id;
       toast.success('Invoice generated successfully!', {
         description: `Invoice #${res.data.invoice_number} is ready.`,
       });

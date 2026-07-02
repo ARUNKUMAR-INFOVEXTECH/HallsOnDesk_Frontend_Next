@@ -23,8 +23,10 @@ export async function getInvoiceByBooking(bookingId: string): Promise<Invoice> {
   return res.data;
 }
 
-export async function getInvoiceHtml(id: string): Promise<string> {
-  const res = await apiClient.get<string>(`/invoices/${id}/html`);
+export async function getInvoiceHtml(id: string, template?: string): Promise<string> {
+  const res = await apiClient.get<string>(`/invoices/${id}/html`, {
+    params: template ? { template } : undefined
+  });
   return res.data;
 }
 

@@ -1,16 +1,24 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { X, Share2, Download, Printer, Loader2, Eye, CheckCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState, useRef } from 'react';
+import { 
+  X, 
+  Printer, 
+  Download, 
+  Loader2, 
+  Eye, 
+  CheckCircle,
+  LayoutGrid
+} from 'lucide-react';
 import { getInvoiceHtml } from '@/services/api/modules/invoices.service';
 import { DocumentService } from '@/services/invoiceDocumentService';
 import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface InvoicePreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
-  invoiceId: string | null;
+  invoiceId: string;
   invoiceNumber: string;
   customerName: string;
   customerPhone: string;
@@ -31,51 +39,40 @@ export function InvoicePreviewModal({
   hallName,
 }: InvoicePreviewModalProps) {
   const [htmlContent, setHtmlContent] = useState<string>('');
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState<boolean>(false);
-  const [isSharing, setIsSharing] = useState<boolean>(false);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const [isPrinting, setIsPrinting] = useState<boolean>(false);
-  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
-  
+
+  // Template select state
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('classic');
+
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Fetch HTML invoice template from API
+  // Fetch HTML preview and pre-compile PDF when modal opens or template changes
   useEffect(() => {
     if (isOpen && invoiceId) {
       setIsLoading(true);
-      setPdfBlob(null);
       setHtmlContent('');
-      getInvoiceHtml(invoiceId)
+      setPdfBlob(null);
+
+      // 1. Fetch HTML layout preview
+      getInvoiceHtml(invoiceId, selectedTemplate)
         .then((html) => {
           setHtmlContent(html);
-          setIsLoading(false);
         })
         .catch((err) => {
-          console.error('Failed to load invoice HTML:', err);
-          toast.error('Failed to load invoice preview.');
+          console.error('Failed to fetch HTML preview:', err);
+          toast.error('Failed to load invoice preview layout.');
+        })
+        .finally(() => {
           setIsLoading(false);
         });
-    }
-  }, [isOpen, invoiceId]);
 
-  // Inject content inside preview iframe
-  useEffect(() => {
-    if (!isLoading && htmlContent && iframeRef.current) {
-      const doc = iframeRef.current.contentWindow?.document || iframeRef.current.contentDocument;
-      if (doc) {
-        doc.open();
-        doc.write(htmlContent);
-        doc.close();
-      }
-    }
-  }, [isLoading, htmlContent]);
-
-  // Fetch compiled PDF Blob from server in background
-  useEffect(() => {
-    if (isOpen && invoiceId) {
+      // 2. Fetch or warm-cache PDF blob in background
       setIsGeneratingPdf(true);
-      DocumentService.getInvoicePdf(invoiceId)
+      DocumentService.getInvoicePdf(invoiceId, selectedTemplate)
         .then((blob) => {
           setPdfBlob(blob);
         })
@@ -86,32 +83,22 @@ export function InvoicePreviewModal({
           setIsGeneratingPdf(false);
         });
     }
-  }, [isOpen, invoiceId]);
+  }, [isOpen, invoiceId, selectedTemplate]);
+
+  // Inject HTML preview content into iframe doc context safely
+  useEffect(() => {
+    if (htmlContent && iframeRef.current) {
+      const iframe = iframeRef.current;
+      const doc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (doc) {
+        doc.open();
+        doc.write(htmlContent);
+        doc.close();
+      }
+    }
+  }, [htmlContent, isLoading]);
 
   if (!isOpen || !invoiceId) return null;
-
-  const getPrefilledMessage = () => {
-    return `Hello ${customerName},
-
-Thank you for choosing ${hallName}.
-
-Please find your booking invoice attached.
-
-Invoice Number:
-${invoiceNumber}
-
-Event Date:
-${eventDate}
-
-Amount Due:
-₹${amount.toLocaleString('en-IN')}
-
-For any assistance, please contact us.
-
-Regards,
-${hallName}
-Powered by Infovex Halls`;
-  };
 
   // Helper to ensure we have a PDF Blob (either from backend cache or compiled client-side)
   const getOrCompilePdfBlob = async (): Promise<Blob> => {
@@ -120,27 +107,8 @@ Powered by Infovex Halls`;
     // If backend PDF isn't loaded yet, compile it client-side on the fly
     toast.info('Compiling vector PDF document...');
     const compiled = await DocumentService.generateInvoice(htmlContent, `Invoice_${invoiceNumber}`);
-    // Save it so subsequent clicks don't re-compile
     setPdfBlob(compiled);
     return compiled;
-  };
-
-  const handleShare = async () => {
-    try {
-      setIsSharing(true);
-      const blob = await getOrCompilePdfBlob();
-      await DocumentService.shareInvoice(
-        blob,
-        invoiceNumber,
-        customerPhone,
-        getPrefilledMessage()
-      );
-    } catch (err) {
-      console.error('Sharing failed:', err);
-      toast.error('Failed to share PDF document.');
-    } finally {
-      setIsSharing(false);
-    }
   };
 
   const handleDownload = async () => {
@@ -219,8 +187,8 @@ Powered by Infovex Halls`;
                 <Eye className="h-4.5 w-4.5 text-primary-light" />
                 Invoice Preview - #{invoiceNumber}
               </h3>
-              <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
-                Verify layout design chosen by organization settings before sharing
+              <p className="text-[10px] text-slate-400 font-semibold mt-0.5 animate-pulse">
+                Select template style and download instantly
               </p>
             </div>
             
@@ -228,13 +196,13 @@ Powered by Infovex Halls`;
               {isGeneratingPdf && (
                 <div className="flex items-center gap-1.5 text-primary text-[10px] bg-primary/5 px-2.5 py-1 rounded-md border border-primary/10 animate-pulse">
                   <Loader2 className="h-3 w-3 animate-spin" />
-                  <span>Compiling PDF Blob...</span>
+                  <span>Compiling PDF...</span>
                 </div>
               )}
               {pdfBlob && (
                 <div className="flex items-center gap-1 text-emerald-600 text-[10px] bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-100">
                   <CheckCircle className="h-3 w-3" />
-                  <span>PDF Ready (Unified Output)</span>
+                  <span>PDF Ready</span>
                 </div>
               )}
               <button
@@ -251,7 +219,7 @@ Powered by Infovex Halls`;
             {isLoading ? (
               <div className="flex flex-col items-center gap-2 text-slate-450">
                 <Loader2 className="h-7 w-7 animate-spin text-primary-light" />
-                <span className="font-semibold text-xs">Generating layout design...</span>
+                <span className="font-semibold text-xs animate-pulse">Loading design template...</span>
               </div>
             ) : (
               <iframe
@@ -271,7 +239,21 @@ Powered by Infovex Halls`;
               Close
             </button>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              {/* Template Style Selector dropdown */}
+              <div className="flex items-center gap-1.5">
+                <LayoutGrid className="h-4 w-4 text-slate-450" />
+                <select
+                  value={selectedTemplate}
+                  onChange={(e) => setSelectedTemplate(e.target.value)}
+                  className="h-8.5 px-2 border border-slate-200 rounded-lg bg-white outline-none cursor-pointer text-slate-800 text-[11px] font-bold"
+                >
+                  <option value="classic">Classic Style</option>
+                  <option value="modern">Modern Style</option>
+                  <option value="elegant">Elegant Style</option>
+                </select>
+              </div>
+
               <button
                 onClick={handlePrint}
                 disabled={isLoading || !htmlContent || isPrinting}
@@ -282,13 +264,13 @@ Powered by Infovex Halls`;
                 ) : (
                   <Printer className="h-3.5 w-3.5" />
                 )}
-                Print PDF
+                Print Layout
               </button>
 
               <button
                 onClick={handleDownload}
                 disabled={isLoading || !htmlContent || isDownloading}
-                className="flex items-center gap-1.5 py-2 px-3 border border-slate-200 hover:bg-slate-100 text-slate-655 rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                className="flex items-center gap-1.5 py-2 px-4.5 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50"
               >
                 {isDownloading ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -296,19 +278,6 @@ Powered by Infovex Halls`;
                   <Download className="h-3.5 w-3.5" />
                 )}
                 Download PDF
-              </button>
-
-              <button
-                onClick={handleShare}
-                disabled={isLoading || !htmlContent || isSharing}
-                className="flex items-center gap-1.5 py-2 px-4 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50"
-              >
-                {isSharing ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Share2 className="h-3.5 w-3.5" />
-                )}
-                Share PDF
               </button>
             </div>
           </div>

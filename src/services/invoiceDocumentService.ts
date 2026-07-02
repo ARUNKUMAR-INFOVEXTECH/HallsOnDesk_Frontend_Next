@@ -38,11 +38,9 @@ export const convertImagesToBase64 = async (htmlString: string): Promise<string>
 };
 
 export class DocumentService {
-  /**
-   * Fetches the server-side compiled high-fidelity vector PDF for an invoice
-   */
-  static async getInvoicePdf(invoiceId: string): Promise<Blob> {
+  static async getInvoicePdf(invoiceId: string, template?: string): Promise<Blob> {
     const res = await apiClient.get<Blob>(`/invoices/${invoiceId}/pdf`, {
+      params: template ? { template } : undefined,
       responseType: 'blob',
     });
     return res.data;

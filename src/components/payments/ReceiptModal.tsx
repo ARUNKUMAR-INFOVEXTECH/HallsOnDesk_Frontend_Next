@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
-import { X, Printer, Globe } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Printer, Globe, Download, Loader2 } from 'lucide-react';
 import { Payment } from '@/types/payment';
 import { formatDate } from '@/utils/formatters';
 import { formatCurrency } from '@/utils/currency';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getReceiptHtml } from '@/services/api/modules/invoices.service';
+import { DocumentService } from '@/services/invoiceDocumentService';
 import { toast } from 'sonner';
 
 interface ReceiptModalProps {
@@ -16,7 +17,11 @@ interface ReceiptModalProps {
 }
 
 export function ReceiptModal({ isOpen, onClose, payment }: ReceiptModalProps) {
+  const [isDownloading, setIsDownloading] = useState(false);
+
   if (!isOpen || !payment) return null;
+
+  const receiptNumber = `REC-${payment.id.slice(0, 8).toUpperCase()}`;
 
   const handlePrint = async () => {
     try {
@@ -31,11 +36,36 @@ export function ReceiptModal({ isOpen, onClose, payment }: ReceiptModalProps) {
       }
     } catch (err) {
       console.error('Print receipt failed:', err);
-      toast.error('Failed to load receipt layout.');
+      toast.error('Failed to print receipt.');
     }
   };
 
-  const receiptNumber = `REC-${payment.id.slice(0, 8).toUpperCase()}`;
+  const handleDownload = async () => {
+    try {
+      setIsDownloading(true);
+      
+      // 1. Try to fetch PDF from backend
+      try {
+        const blob = await DocumentService.getReceiptPdf(payment.id);
+        DocumentService.downloadInvoice(blob, receiptNumber);
+        toast.success('Receipt PDF downloaded successfully!');
+        return;
+      } catch (backendErr) {
+        console.warn('Backend receipt PDF fetch failed, falling back to local compilation:', backendErr);
+      }
+
+      // 2. Client-side fallback compilation
+      const html = await getReceiptHtml(payment.id);
+      const blob = await DocumentService.generateInvoice(html, receiptNumber);
+      DocumentService.downloadInvoice(blob, receiptNumber);
+      toast.success('Receipt PDF downloaded successfully!');
+    } catch (err) {
+      console.error('Download receipt failed:', err);
+      toast.error('Failed to download receipt PDF.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -208,6 +238,18 @@ export function ReceiptModal({ isOpen, onClose, payment }: ReceiptModalProps) {
               className="px-4 py-2 border border-slate-200 hover:bg-slate-100 rounded-lg text-xs font-bold text-slate-600 transition-colors cursor-pointer"
             >
               Close
+            </button>
+            <button
+              onClick={handleDownload}
+              disabled={isDownloading}
+              className="flex items-center gap-1.5 py-2 px-3 border border-slate-200 hover:bg-slate-100 text-slate-655 rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50"
+            >
+              {isDownloading ? (
+                <Loader2 className="h-4 w-4 animate-spin shrink-0 text-slate-500" />
+              ) : (
+                <Download className="h-4 w-4 shrink-0" />
+              )}
+              Download PDF
             </button>
             <button
               onClick={handlePrint}

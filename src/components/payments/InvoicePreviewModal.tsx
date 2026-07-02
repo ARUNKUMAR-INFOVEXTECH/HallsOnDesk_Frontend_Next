@@ -80,8 +80,7 @@ export function InvoicePreviewModal({
           setPdfBlob(blob);
         })
         .catch((err) => {
-          console.error('Failed to fetch PDF Blob from server:', err);
-          toast.error('Could not load high fidelity PDF layout.');
+          console.warn('Server PDF fetch unavailable, falling back to local compilation:', err);
         })
         .finally(() => {
           setIsGeneratingPdf(false);

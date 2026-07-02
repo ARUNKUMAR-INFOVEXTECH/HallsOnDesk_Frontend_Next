@@ -752,6 +752,7 @@ function BookingDetailPage() {
                   </button>
                   <div className="flex-1">
                     <DocumentShareButton
+                      documentId={invoice.id}
                       documentType="invoice"
                       htmlContentFetcher={() => getInvoiceHtml(invoice.id)}
                       customerName={invoice.customer_name || 'Guest Payer'}
@@ -850,6 +851,7 @@ function BookingDetailPage() {
 
                     <div className="flex items-center gap-1.5 shrink-0">
                       <DocumentShareButton
+                        documentId={payment.id}
                         documentType="receipt"
                         htmlContentFetcher={() => getReceiptHtml(payment.id)}
                         customerName={booking.customerName || 'Guest Payer'}

@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { DocumentService } from '@/services/invoiceDocumentService';
 
 interface DocumentShareButtonProps {
+  documentId?: string;
   documentType: 'invoice' | 'receipt' | 'booking' | 'quotation' | 'customer';
   htmlContentFetcher: () => Promise<string>;
   customerName: string;
@@ -19,6 +20,7 @@ interface DocumentShareButtonProps {
 }
 
 export default function DocumentShareButton({
+  documentId,
   documentType,
   htmlContentFetcher,
   customerName,
@@ -61,8 +63,16 @@ Powered by Infovex Halls`;
   const resolvePdfBlob = async (): Promise<Blob> => {
     if (pdfBlob) return pdfBlob;
 
-    const htmlContent = await htmlContentFetcher();
-    const blob = await DocumentService.generateInvoice(htmlContent, documentTitle);
+    let blob: Blob;
+    if (documentId && documentType === 'invoice') {
+      blob = await DocumentService.getInvoicePdf(documentId);
+    } else if (documentId && documentType === 'receipt') {
+      blob = await DocumentService.getReceiptPdf(documentId);
+    } else {
+      const htmlContent = await htmlContentFetcher();
+      blob = await DocumentService.generateInvoice(htmlContent, documentTitle);
+    }
+    
     setPdfBlob(blob);
     return blob;
   };

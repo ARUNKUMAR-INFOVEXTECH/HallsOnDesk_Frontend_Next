@@ -400,6 +400,7 @@ export default function InvoicesListPage() {
                         <Eye className="h-3.5 w-3.5" />
                       </button>
                       <DocumentShareButton
+                        documentId={inv.id}
                         documentType="invoice"
                         htmlContentFetcher={() => getInvoiceHtml(inv.id)}
                         customerName={inv.customer_name || 'Guest Payer'}

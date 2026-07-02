@@ -59,7 +59,7 @@ export function InvoicePreviewModal({
     }
   }, [isOpen, invoiceId]);
 
-  // Inject content inside preview iframe and pre-generate PDF Blob in background
+  // Inject content inside preview iframe
   useEffect(() => {
     if (!isLoading && htmlContent && iframeRef.current) {
       const doc = iframeRef.current.contentWindow?.document || iframeRef.current.contentDocument;
@@ -67,23 +67,27 @@ export function InvoicePreviewModal({
         doc.open();
         doc.write(htmlContent);
         doc.close();
-
-        // Compile PDF Blob in background from the exact same HTML template
-        setIsGeneratingPdf(true);
-        DocumentService.generateInvoice(htmlContent, `Invoice_${invoiceNumber}`)
-          .then((blob) => {
-            setPdfBlob(blob);
-          })
-          .catch((err) => {
-            console.error('Failed to compile PDF Blob in background:', err);
-            toast.error('Could not pre-render high fidelity PDF layout.');
-          })
-          .finally(() => {
-            setIsGeneratingPdf(false);
-          });
       }
     }
-  }, [isLoading, htmlContent, invoiceNumber]);
+  }, [isLoading, htmlContent]);
+
+  // Fetch compiled PDF Blob from server in background
+  useEffect(() => {
+    if (isOpen && invoiceId) {
+      setIsGeneratingPdf(true);
+      DocumentService.getInvoicePdf(invoiceId)
+        .then((blob) => {
+          setPdfBlob(blob);
+        })
+        .catch((err) => {
+          console.error('Failed to fetch PDF Blob from server:', err);
+          toast.error('Could not load high fidelity PDF layout.');
+        })
+        .finally(() => {
+          setIsGeneratingPdf(false);
+        });
+    }
+  }, [isOpen, invoiceId]);
 
   if (!isOpen || !invoiceId) return null;
 

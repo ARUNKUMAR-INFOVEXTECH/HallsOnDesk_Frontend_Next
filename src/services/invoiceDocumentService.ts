@@ -68,7 +68,7 @@ export class DocumentService {
 
     // Dynamically load html2pdf.js locally to prevent SSR build issues
     const html2pdfModule = await import('html2pdf.js');
-    const html2pdf = html2pdfModule.default;
+    const html2pdf = (html2pdfModule as any).default?.default || (html2pdfModule as any).default || html2pdfModule;
 
     // Create an off-screen container inside the main window context so styles resolve natively
     const container = document.createElement('div');
@@ -168,7 +168,7 @@ export class DocumentService {
       const cleanPhone = customerPhone.replace(/[^0-9]/g, '');
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       const baseUrl = isMobile ? 'whatsapp://send' : 'https://web.whatsapp.com/send';
-      window.open(`${baseUrl}?phone=${cleanPhone}?text=${encodeURIComponent(prefilledText)}`, '_blank');
+      window.open(`${baseUrl}?phone=${cleanPhone}&text=${encodeURIComponent(prefilledText)}`, '_blank');
       toast.info('PDF downloaded. Please attach it manually in WhatsApp.');
     }
   }

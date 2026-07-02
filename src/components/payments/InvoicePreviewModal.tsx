@@ -160,11 +160,30 @@ Powered by Infovex Halls`;
   const handlePrint = async () => {
     try {
       setIsPrinting(true);
-      const blob = await getOrCompilePdfBlob();
-      await DocumentService.printInvoice(blob);
+      
+      // 1. Try printing the PDF blob natively
+      try {
+        const blob = await getOrCompilePdfBlob();
+        await DocumentService.printInvoice(blob);
+        return;
+      } catch (blobPrintErr) {
+        console.warn('PDF blob printing failed, falling back to window print:', blobPrintErr);
+      }
+
+      // 2. Fallback: Print HTML preview content directly in a new tab
+      const win = window.open('', '_blank');
+      if (win) {
+        win.document.write(htmlContent);
+        win.document.close();
+        setTimeout(() => {
+          win.print();
+        }, 500);
+      } else {
+        throw new Error('Popup window blocked by browser');
+      }
     } catch (err) {
       console.error('Print failed:', err);
-      toast.error('Failed to print PDF document.');
+      toast.error('Failed to print document.');
     } finally {
       setIsPrinting(false);
     }

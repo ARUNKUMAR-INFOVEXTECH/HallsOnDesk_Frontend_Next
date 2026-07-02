@@ -114,55 +114,58 @@ ${hallName}
 Powered by Infovex Halls`;
   };
 
-  const handleShare = async () => {
-    if (!pdfBlob) {
-      toast.warning('Wait for PDF generation to finish before sharing.');
-      return;
-    }
+  // Helper to ensure we have a PDF Blob (either from backend cache or compiled client-side)
+  const getOrCompilePdfBlob = async (): Promise<Blob> => {
+    if (pdfBlob) return pdfBlob;
     
+    // If backend PDF isn't loaded yet, compile it client-side on the fly
+    toast.info('Compiling vector PDF document...');
+    const compiled = await DocumentService.generateInvoice(htmlContent, `Invoice_${invoiceNumber}`);
+    // Save it so subsequent clicks don't re-compile
+    setPdfBlob(compiled);
+    return compiled;
+  };
+
+  const handleShare = async () => {
     try {
       setIsSharing(true);
+      const blob = await getOrCompilePdfBlob();
       await DocumentService.shareInvoice(
-        pdfBlob,
+        blob,
         invoiceNumber,
         customerPhone,
         getPrefilledMessage()
       );
     } catch (err) {
       console.error('Sharing failed:', err);
+      toast.error('Failed to share PDF document.');
     } finally {
       setIsSharing(false);
     }
   };
 
   const handleDownload = async () => {
-    if (!pdfBlob) {
-      toast.warning('Wait for PDF generation to finish before downloading.');
-      return;
-    }
-    
     try {
       setIsDownloading(true);
-      DocumentService.downloadInvoice(pdfBlob, invoiceNumber);
+      const blob = await getOrCompilePdfBlob();
+      DocumentService.downloadInvoice(blob, invoiceNumber);
       toast.success('Invoice downloaded successfully!');
     } catch (err) {
       console.error('Download failed:', err);
+      toast.error('Failed to download PDF document.');
     } finally {
       setIsDownloading(false);
     }
   };
 
   const handlePrint = async () => {
-    if (!pdfBlob) {
-      toast.warning('Wait for PDF generation to finish before printing.');
-      return;
-    }
-
     try {
       setIsPrinting(true);
-      await DocumentService.printInvoice(pdfBlob);
+      const blob = await getOrCompilePdfBlob();
+      await DocumentService.printInvoice(blob);
     } catch (err) {
       console.error('Print failed:', err);
+      toast.error('Failed to print PDF document.');
     } finally {
       setIsPrinting(false);
     }
@@ -253,7 +256,7 @@ Powered by Infovex Halls`;
             <div className="flex items-center gap-2">
               <button
                 onClick={handlePrint}
-                disabled={isLoading || !pdfBlob || isPrinting}
+                disabled={isLoading || !htmlContent || isPrinting}
                 className="flex items-center gap-1.5 py-2 px-3 border border-slate-200 hover:bg-slate-100 text-slate-655 rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50"
               >
                 {isPrinting ? (
@@ -266,7 +269,7 @@ Powered by Infovex Halls`;
 
               <button
                 onClick={handleDownload}
-                disabled={isLoading || !pdfBlob || isDownloading}
+                disabled={isLoading || !htmlContent || isDownloading}
                 className="flex items-center gap-1.5 py-2 px-3 border border-slate-200 hover:bg-slate-100 text-slate-655 rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50"
               >
                 {isDownloading ? (
@@ -279,7 +282,7 @@ Powered by Infovex Halls`;
 
               <button
                 onClick={handleShare}
-                disabled={isLoading || !pdfBlob || isSharing}
+                disabled={isLoading || !htmlContent || isSharing}
                 className="flex items-center gap-1.5 py-2 px-4 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50"
               >
                 {isSharing ? (
